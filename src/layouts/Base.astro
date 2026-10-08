@@ -11,7 +11,9 @@ interface Props {
 }
 const { title, description = site.description, home = false } = Astro.props;
 const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.tagline}`;
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+// build.format 'file' makes the pathname '/about.html'; strip it so canonical, og:url and aria-current use the
+// clean URL that Vercel serves (cleanUrls in vercel.json).
+const path = Astro.url.pathname.replace(/(index)?\.html$/, '').replace(/\/$/, '') || '/';
 const links = [
   ['/about', 'About'], ['/classes', 'Classes'], ['/instructor', 'Instructor'], ['/visit', 'Visit'], ['/news', 'News'],
 ];
