@@ -89,5 +89,8 @@ const canonical = new URL(path === '/' ? '/' : path, Astro.site);
 {home && <script is:inline src="/lib/renseikan-brush.js"></script>}
 {home && <script is:inline src="/js/home.js"></script>}
 <script is:inline src="/js/site.js"></script>
+<!-- Vercel Web Analytics (cookieless; enabled in the dashboard). The script is served by Vercel at this path. -->
+<script is:inline>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script is:inline defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
