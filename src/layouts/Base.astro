@@ -52,6 +52,8 @@ const canonical = new URL(path === '/' ? '/' : path, Astro.site);
     url: Astro.site?.toString(),
     email: site.email,
     address: { '@type': 'PostalAddress', streetAddress: site.address.street, addressLocality: site.address.city, addressRegion: site.address.region, postalCode: site.address.postalCode, addressCountry: 'US' },
+    geo: { '@type': 'GeoCoordinates', latitude: site.geo.latitude, longitude: site.geo.longitude },
+    hasMap: site.mapsSearch,
     openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: 'Sunday', opens: '16:00', closes: '18:00' }],
     sport: 'Kyudo',
   })} />
