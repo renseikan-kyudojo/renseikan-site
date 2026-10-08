@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import site from '../data/site.json';
+---
+<Base title="About" description="What kyudo is, the dojo's name 練誠館, and its place in the Northern California Kyudo Federation and the American Kyudo Renmei.">
+<section id="about" aria-labelledby="about-title">
+  <div class="wrap">
+    <div class="about-mon" id="aboutMon" aria-hidden="true"></div>
+    <p class="eyebrow">About the dojo</p>
+    <h2 id="about-title" class="wipe">練誠館, the Renseikan</h2>
+    <p class="lede">Kyudo (弓道, "the way of the bow") is Japanese archery practised as a discipline: one arrow at a time, the same eight movements, the same breath. {site.name} teaches it in Sunnyvale, California, every Sunday.</p>
+    <h3>The name</h3>
+    <p>練 <em>ren</em> is to train, to refine; 誠 <em>sei</em> is sincerity; 館 <em>kan</em> is the hall. A hall for refining sincerity. <span class="muted">(Steve's own account of the name goes here.)</span></p>
+    <h3>What a class looks like</h3>
+    <p>Students shoot in turn at the makiwara (a straw practice target at arm's length) and at the mato, 28 metres away. Beginners learn the eight stages of the shot, the <em>shahō hassetsu</em>, with a bow and arrows the dojo lends. Nothing is rushed; a Sunday has room for everyone to shoot.</p>
+    <h3>Affiliation</h3>
+    <p>Renseikan is a member dojo of the Northern California Kyudo Federation (NCKF) and the American Kyudo Renmei. <span class="muted">(Founding year and lineage: to be supplied by the dojo.)</span></p>
+    <p class="notice">{site.policy}</p>
+  </div>
+</section>
+</Base>

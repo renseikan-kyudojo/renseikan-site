@@ -1,0 +1,18 @@
+---
+import Base from '../../layouts/Base.astro';
+// Until Sanity is connected (runbook 04), events live here. Each becomes a Sanity `event` document later.
+const events = [
+  { date: '2026-12-06', title: 'Winter practice continues', place: 'Renseikan, Sunnyvale', body: 'Classes run every Sunday through December except the holiday Sundays the dojo announces here.' },
+];
+---
+<Base title="News and events" description="Taikai, seminars, demonstrations and closures at Renseikan Kyudojo.">
+<section id="news-page" aria-labelledby="news-title">
+  <div class="wrap">
+    <p class="eyebrow">News and events</p>
+    <h2 id="news-title" class="wipe">What's coming</h2>
+    <ul class="rows">
+      {events.map(e => <li><p class="meta">{new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} · {e.place}</p><h3>{e.title}</h3><p>{e.body}</p></li>)}
+    </ul>
+  </div>
+</section>
+</Base>

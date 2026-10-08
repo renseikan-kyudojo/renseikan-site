@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import site from '../data/site.json';
+---
+<Base title="Classes and booking" description={`Kyudo classes Sundays ${site.hours} in Sunnyvale. New students walk in; members book through JACC on WellnessLiving.`}>
+<section id="classes-page" aria-labelledby="classes-title">
+  <div class="wrap">
+    <p class="eyebrow">Classes</p>
+    <h2 id="classes-title" class="wipe">Sundays, {site.hours}</h2>
+    <div class="kanji" id="pageKanji" lang="ja" aria-hidden="true" style="font-size:40px"></div>
+    <p class="notice">{site.policy}</p>
+    <h3>What to wear and bring</h3>
+    <p>Loose clothing you can kneel in, socks, and nothing else. The dojo lends the bow, the glove and the arrows for the first lessons.</p>
+    <h3>Members' booking</h3>
+    <div class="panel" id="book">
+      <p class="eyebrow">Members' booking</p>
+      <p class="muted">New students don't need to book: walk in and observe, or take a free trial lesson, any Sunday. Members reserve their place through the Japanese American Community Center (JACC) on WellnessLiving.</p>
+      <div class="widget-slot" aria-label="Where the WellnessLiving schedule widget goes">
+        <div class="loading" aria-live="polite"><span class="breath" id="bookBreath" aria-hidden="true"></span><span>Loading the schedule from WellnessLiving…</span></div>
+        <!-- JACC Custom Schedule widget embed code goes here (runbook 06) -->
+      </div>
+      <div class="actions" style="align-items:center">
+        <a class="btn primary" href={site.booking} target="_blank" rel="noopener">Book on WellnessLiving</a>
+        <p class="note">Opens the JACC schedule in a new tab.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<script is:inline>
+  // the ink libraries load at the end of the body, so wait for the DOM
+  addEventListener('DOMContentLoaded', function () { if (window.RenseikanLogo) RenseikanLogo.kanji(document.getElementById('pageKanji'), { text: '弓道場', direction: 'row', mode: 'strokes', charDuration: 900, delay: 300 }); });
+</script>
+</Base>

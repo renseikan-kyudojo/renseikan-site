@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Not found" description="That page is not here.">
+<section aria-labelledby="nf-title">
+  <div class="wrap" style="text-align:center">
+    <div id="nfMon" style="width:160px;height:160px;margin:0 auto var(--space-4)" aria-hidden="true"></div>
+    <h2 id="nf-title">That page is not here</h2>
+    <p class="muted">The arrow went past the target. <a href="/">Back to the dojo</a>.</p>
+  </div>
+</section>
+<script is:inline>
+  addEventListener('DOMContentLoaded', function () { if (window.RenseikanLogo) RenseikanLogo.mon(document.getElementById('nfMon'), { mode: 'ink' }); });
+</script>
+</Base>

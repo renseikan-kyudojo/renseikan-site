@@ -1,0 +1,91 @@
+---
+// Base layout: head, nav (mon + name, links, theme, members' booking), the page, footer with the lockup,
+// the paper overlay and the three ink libraries. Every page uses this.
+import '../styles/site.css';
+import site from '../data/site.json';
+
+interface Props {
+  title?: string;
+  description?: string;
+  home?: boolean;
+}
+const { title, description = site.description, home = false } = Astro.props;
+const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.tagline}`;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const links = [
+  ['/about', 'About'], ['/classes', 'Classes'], ['/instructor', 'Instructor'], ['/visit', 'Visit'], ['/news', 'News'],
+];
+const canonical = new URL(path === '/' ? '/' : path, Astro.site);
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{pageTitle}</title>
+  <meta name="description" content={description}>
+  <link rel="canonical" href={canonical}>
+  <link rel="icon" type="image/svg+xml" href="/logo/renseikan-mon.svg">
+  <meta property="og:site_name" content={site.name}>
+  <meta property="og:title" content={pageTitle}>
+  <meta property="og:description" content={description}>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content={canonical}>
+  <meta property="og:image" content={new URL('/share/renseikan-share.png', Astro.site)}>
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b1916" media="(prefers-color-scheme: dark)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=Shippori+Mincho:wght@600&family=Yuji+Syuku&display=swap">
+  <script is:inline>
+    // Theme before paint, so a saved choice never flashes
+    try { var t = localStorage.getItem('rk-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+  </script>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'SportsActivityLocation',
+    name: site.name,
+    description: site.description,
+    url: Astro.site?.toString(),
+    email: site.email,
+    address: { '@type': 'PostalAddress', streetAddress: site.address.street, addressLocality: site.address.city, addressRegion: site.address.region, postalCode: site.address.postalCode, addressCountry: 'US' },
+    openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: 'Sunday', opens: '16:00', closes: '18:00' }],
+    sport: 'Kyudo',
+  })} />
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="wordmark" href="/" aria-label="Renseikan, home"><span class="brand mon" aria-hidden="true"></span><span class="name">Renseikan</span></a>
+    <ul class="links">
+      {links.map(([href, label]) => <li><a href={href} aria-current={path === href ? 'page' : undefined}>{label}</a></li>)}
+    </ul>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" style="margin-left:auto">Menu</button>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch theme">Theme</button>
+    <a class="btn primary" href="/classes#book">Members: book</a>
+  </div>
+  <div class="mobile-menu" id="mobileMenu" hidden>
+    <ul>
+      {links.map(([href, label]) => <li><a href={href}>{label}</a></li>)}
+    </ul>
+  </div>
+</nav>
+
+<slot />
+
+<footer>
+  <div class="wrap">
+    <div class="lockup" id="footLockup" style="width:168px;aspect-ratio:876.34/785.71"></div>
+    <span>{site.address.street}, {site.address.city}, {site.address.region} {site.address.postalCode} · Sundays {site.hours}</span>
+    <span class="muted">Type: Shippori Mincho, Noto Sans JP, Yuji Syuku (Google Fonts). Stroke order from <a href="https://kanjivg.tagaini.net" rel="noopener">KanjiVG</a>, CC BY-SA 3.0.</span>
+  </div>
+</footer>
+
+<script is:inline src="/lib/renseikan-logo.js"></script>
+{home && <script is:inline src="/lib/renseikan-wind.js"></script>}
+{home && <script is:inline src="/lib/renseikan-brush.js"></script>}
+{home && <script is:inline src="/js/home.js"></script>}
+<script is:inline src="/js/site.js"></script>
+</body>
+</html>

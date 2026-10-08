@@ -1,0 +1,9 @@
+---
+// Home: the prototype's page, verbatim, as a raw partial (hero, facts, what to expect, classes + booking, instructor, visit).
+// Refactor into components when a section needs to change; until then the partial is the source and site.css styles it.
+import Base from '../layouts/Base.astro';
+import home from '../partials/home.html?raw';
+---
+<Base home>
+  <Fragment set:html={home} />
+</Base>
