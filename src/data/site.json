@@ -4,6 +4,7 @@
   "description": "Renseikan Kyudojo teaches kyudo, traditional Japanese archery, in Sunnyvale, California. Classes Sundays 4:00–6:00 pm. New students are always welcome: walk in and observe, or take a free trial lesson.",
   "email": "nckfkyudo@gmail.com",
   "address": { "street": "167 Brahms Way", "city": "Sunnyvale", "region": "CA", "postalCode": "94087" },
+  "geo": { "latitude": 37.3634323, "longitude": -122.0298559 },
   "hours": "4:00 – 6:00 pm",
   "policy": "New students are always welcome. No uniform or equipment is required. No prior experience needed. New students should just walk in and observe class or take a free trial lesson at any time without making online appointments first.",
   "booking": "https://www.wellnessliving.com/rs/schedule/jacc?k_business=241484&k_class_tab=35967&uid=0&id_class_tab=1",
