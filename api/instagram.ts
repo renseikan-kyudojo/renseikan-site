@@ -2,11 +2,13 @@
 // Runs as a Vercel Function (Node). Needs INSTAGRAM_TOKEN, INSTAGRAM_USER_ID, VERCEL_DEPLOY_HOOK, CRON_SECRET.
 // The build itself reads the posts through src/lib/instagram.ts, so this function's job is only to keep the token
 // alive and to kick a deploy; if the token string ever changes on refresh, update the Vercel env var (runbook 05).
-export const config = { runtime: 'nodejs' };
-
-export default async function handler(req: Request): Promise<Response> {
-  const auth = req.headers.get('authorization') || '';
-  if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
+//
+// Vercel calls crons with GET and sends `Authorization: Bearer <CRON_SECRET>`. The named GET export is the Web
+// handler signature (Request in, Response out); a bare default-exported function would be called with Node's
+// (req, res) instead and crash on req.headers.get. Fails closed: without CRON_SECRET nobody can trigger it.
+export async function GET(request: Request): Promise<Response> {
+  const secret = process.env.CRON_SECRET;
+  if (!secret || request.headers.get('authorization') !== `Bearer ${secret}`) {
     return new Response('forbidden', { status: 403 });
   }
   const token = process.env.INSTAGRAM_TOKEN;
