@@ -2,7 +2,8 @@
 // Base layout: head, nav (mon + name, links, theme, members' booking), the page, footer with the lockup,
 // the paper overlay and the three ink libraries. Every page uses this.
 import '../styles/site.css';
-import site from '../data/site.json';
+import { getSite } from '../lib/sanity';
+const site = await getSite();
 
 interface Props {
   title?: string;
