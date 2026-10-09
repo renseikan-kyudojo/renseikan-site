@@ -62,11 +62,11 @@
   // (the prototype host does), the browser reports it and the placeholder with the links beneath stays as the fallback.
   var mapFrame = document.getElementById('mapFrame');
   if (mapFrame) {
-    var f = document.createElement('iframe'), src = 'https://maps.google.com/maps?q=167+Brahms+Way%2C+Sunnyvale%2C+CA+94087&z=15&output=embed';
+    var f = document.createElement('iframe'), src = 'https://maps.google.com/maps?q=Japanese+Art+%26+Cultural+Center%2C+4334+Moorpark+Ave%2C+San+Jose%2C+CA+95129&z=15&output=embed';
     document.addEventListener('securitypolicyviolation', function (e) {
       if (/frame-src|child-src|default-src/.test(e.violatedDirective) && /maps\.google\.com/.test(e.blockedURI || '')) { f.remove(); mapFrame.setAttribute('aria-hidden', 'true'); mapFrame.textContent = 'MAP'; }
     });
-    f.title = 'Map of 167 Brahms Way, Sunnyvale'; f.loading = 'lazy'; f.referrerPolicy = 'no-referrer-when-downgrade'; f.setAttribute('allowfullscreen', '');
+    f.title = 'Map of the Japanese Art & Cultural Center, 4334 Moorpark Ave, San Jose'; f.loading = 'lazy'; f.referrerPolicy = 'no-referrer-when-downgrade'; f.setAttribute('allowfullscreen', '');
     mapFrame.removeAttribute('aria-hidden'); mapFrame.textContent = ''; mapFrame.appendChild(f); f.src = src;
   }
 })();
