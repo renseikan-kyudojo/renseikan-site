@@ -1,5 +1,6 @@
 // Daily cron (vercel.json): refresh the Instagram long-lived token, fetch the latest posts, trigger a rebuild.
-// Runs as a Vercel Function (Node). Needs INSTAGRAM_TOKEN, INSTAGRAM_USER_ID, VERCEL_DEPLOY_HOOK, CRON_SECRET.
+// Runs as a Vercel Function (Node). Needs CRON_SECRET and VERCEL_DEPLOY_HOOK; INSTAGRAM_TOKEN and INSTAGRAM_USER_ID once
+// runbook 05 is done. The daily rebuild also rolls the class dates forward, so it runs even before Instagram is set up.
 // The build itself reads the posts through src/lib/instagram.ts, so this function's job is only to keep the token
 // alive and to kick a deploy; if the token string ever changes on refresh, update the Vercel env var (runbook 05).
 //
@@ -12,9 +13,9 @@ export async function GET(request: Request): Promise<Response> {
     return new Response('forbidden', { status: 403 });
   }
   const token = process.env.INSTAGRAM_TOKEN;
-  if (!token) return new Response('no token', { status: 500 });
   const out: Record<string, unknown> = {};
-  try {
+  if (!token) out.refresh = 'skipped: no INSTAGRAM_TOKEN yet';
+  else try {
     const r = await fetch(`https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${encodeURIComponent(token)}`);
     const j = await r.json();
     out.refresh = { ok: r.ok, expires_in_days: j.expires_in ? Math.round(j.expires_in / 86400) : null, token_changed: !!(j.access_token && j.access_token !== token) };
