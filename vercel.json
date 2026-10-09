@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
   "cleanUrls": true,
   "trailingSlash": false,
   "crons": [
@@ -21,6 +22,16 @@
           "value": "strict-origin-when-cross-origin"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/studio/(.*)",
+      "destination": "/studio/index.html"
+    },
+    {
+      "source": "/studio",
+      "destination": "/studio/index.html"
     }
   ]
 }

@@ -7,3 +7,4 @@ dist/
 !.env.example
 .DS_Store
 src/data/instagram.json
+.sanity/
