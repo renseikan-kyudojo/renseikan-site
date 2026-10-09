@@ -12,7 +12,7 @@ const a = site.address;
     <div class="two">
       <dl>
         <div class="row"><dt>Hours</dt><dd>Sundays, {site.hours}<small>New students: walk in any Sunday to observe or take a free trial lesson. No appointment needed.</small></dd></div>
-        <div class="row"><dt>Address</dt><dd>{a.street}<br>{a.city}, {a.region} {a.postalCode}</dd></div>
+        <div class="row"><dt>Address</dt><dd>{a.venue}<br>{a.street}<br>{a.city}, {a.region} {a.postalCode}</dd></div>
         <div class="row"><dt>Contact</dt><dd><span>{site.email}</span><button class="copy" type="button" data-copy={site.email}>Copy</button></dd></div>
       </dl>
       <div class="map" id="map">
