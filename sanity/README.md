@@ -1,11 +1,12 @@
-# Sanity (content system) — drafts
+# Sanity (content system)
 
-These schema files are ready to drop into a Sanity Studio once the project exists (runbook 04). They are not wired into the
-Astro build yet; the pages read `src/data/site.json` and inline arrays until then.
+Project `bfgbeqq4`, dataset `production` (public read). The Studio is built with `sanity build` into `dist/studio` by the
+`build` script and served at **renseikan.org/studio** (vercel.json rewrites `/studio/*` to its `index.html`). Run it locally
+with `npm run studio`.
 
-Seven document types: `settings` (hours, address, emails, the new-student policy, the JACC widget code, social links),
-`page` (About and Classes copy as portable text), `person`, `classSession`, `event`, `post`, `photo`.
-
-Wiring steps: `npm i @sanity/astro @sanity/client sanity @sanity/vision`, add `sanity()` to `astro.config.mjs` with the project
-id and dataset, mount the Studio at `/studio`, replace the inline data with GROQ queries in `src/lib/sanity.ts`, and add the
-Vercel deploy hook as a Sanity webhook on publish.
+- `sanity.config.ts` (repo root): the Studio, its menu (`sanity/structure.ts`) and the schema (`sanity/schemas`).
+- `src/lib/sanity.ts`: the build reads the `settings` document and upcoming `event`s over the public API. Every field falls
+  back to `src/data/site.json` (or the page's defaults), so an empty dataset or an outage never breaks a build.
+- Wired so far: Dojo settings (name, tagline, description, class time, venue/address, email, policy, booking URL, JACC
+  widget code) and Events (News page). Next: Instructor, Classes, Pages, Posts, Photos.
+- Publishing rebuilds the site through a Sanity webhook to the Vercel deploy hook `content-publish` (runbook 04, step 9).
