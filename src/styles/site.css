@@ -151,6 +151,12 @@
   /* Instructor + visit */
   .card { display: grid; gap: var(--space-8); background: var(--washi-raised); border: 1px solid var(--hairline); padding: var(--space-8) var(--space-4); }
   @media (min-width: 720px) { .card { grid-template-columns: 160px 1fr; padding: var(--space-8); } }
+  .cards { display: grid; gap: var(--space-8); }
+  img.photo { display: block; height: auto; object-fit: cover; }
+  .rows li[hidden] { display: none; }
+  .panel .actions { margin-top: var(--space-4); }
+  .rows li.off .title, .rows li.off .day { color: var(--sumi-muted); }
+  .rows li.off .title { text-decoration: line-through; text-decoration-thickness: 1px; }
   .photo { width: 160px; max-width: 100%; aspect-ratio: 5/6; background: var(--take); border: 1px solid var(--hairline); display: grid; place-items: center; font: 500 12px/16px var(--font-sans); letter-spacing: .08em; }
   .creds { list-style: none; padding: 0; margin: var(--space-4) 0; border-top: 1px solid var(--hairline); }
   .creds li { padding: var(--space-2) 0; border-bottom: 1px solid var(--hairline); font-size: 14px; line-height: 22px; }
