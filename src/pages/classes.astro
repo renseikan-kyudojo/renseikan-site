@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import site from '../data/site.json';
+import { getSite } from '../lib/sanity';
+const site = await getSite();
 ---
 <Base title="Classes and booking" description={`Kyudo classes Sundays ${site.hours} at JACC in San Jose. New students walk in; members book through JACC on WellnessLiving.`}>
 <section id="classes-page" aria-labelledby="classes-title">
@@ -17,7 +18,7 @@ import site from '../data/site.json';
       <p class="muted">New students don't need to book: walk in and observe, or take a free trial lesson, any Sunday. Members reserve their place through the Japanese Art &amp; Cultural Center (JACC) on WellnessLiving.</p>
       <div class="widget-slot" aria-label="Where the WellnessLiving schedule widget goes">
         <div class="loading" aria-live="polite"><span class="breath" id="bookBreath" aria-hidden="true"></span><span>Loading the schedule from WellnessLiving…</span></div>
-        <!-- JACC Custom Schedule widget embed code goes here (runbook 06) -->
+        {site.widgetEmbed ? <Fragment set:html={site.widgetEmbed} /> : null}<!-- JACC Custom Schedule widget: pasted into Dojo settings in the Studio (runbook 06) -->
       </div>
       <div class="actions" style="align-items:center">
         <a class="btn primary" href={site.booking} target="_blank" rel="noopener">Book on WellnessLiving</a>

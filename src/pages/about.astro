@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import site from '../data/site.json';
+import { getSite } from '../lib/sanity';
+const site = await getSite();
 ---
 <Base title="About" description="What kyudo is, the dojo's name 練誠館, and its place in the Northern California Kyudo Federation and the American Kyudo Renmei.">
 <section id="about" aria-labelledby="about-title">

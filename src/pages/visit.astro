@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import site from '../data/site.json';
+import { getSite } from '../lib/sanity';
+const site = await getSite();
 const a = site.address;
 ---
 <Base title="Visit" description={`${a.street}, ${a.city}, ${a.region} ${a.postalCode}. Sundays ${site.hours}. Walk in any Sunday; no appointment needed.`}>

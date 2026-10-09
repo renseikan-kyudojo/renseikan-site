@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import site from '../data/site.json';
+import { getSite } from '../lib/sanity';
+const site = await getSite();
 const t = site.instructor;
 ---
 <Base title="Instructor" description={`${t.name}, ${t.rank}, ${t.role}.`}>
