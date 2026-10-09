@@ -6,12 +6,12 @@
       <span class="hanko stamp" id="hanko"></span>
     </div>
     <div>
-      <p class="eyebrow">San Jose, California</p>
+      <p class="eyebrow"><!--@place--></p>
       <div class="kanji inline" id="heroKanjiInline" lang="ja" aria-hidden="true"></div>
       <h1 id="hero-title" class="wipe in late">Renseikan Kyudojo</h1>
-      <p class="lede">Traditional Japanese archery, taught the way it has been for centuries. New students are always welcome: walk in and observe a class, or take a free trial lesson. Sundays, 4:00 pm.</p>
+      <p class="lede">Traditional Japanese archery, taught the way it has been for centuries. New students are always welcome: walk in and observe a class, or take a free trial lesson. <!--@heroWhen-->.</p>
       <div class="actions">
-        <a class="btn primary" href="#visit">Walk in on Sunday</a>
+        <a class="btn primary" href="#visit">Walk in on <!--@weekday--></a>
         <a class="btn secondary" href="#book">Members: book a class</a>
       </div>
     </div>
@@ -56,17 +56,17 @@
     <div class="bento">
       <div class="tile wide ink">
         <span class="label">Class hours</span>
-        <span class="big">Sundays 4:00 – 6:00 pm</span>
+        <span class="big"><!--@days--> <!--@hours--></span>
         <span class="small" style="opacity:.8">New students: just walk in. No appointment needed.</span>
       </div>
       <div class="tile tall">
         <span class="label">Chief Instructor</span>
-        <div><span class="big">Steve Scott</span><p class="small muted" style="margin:var(--space-2) 0 0">Renshi Rokudan · 6th-degree black belt in kyudo. Former President, American Kyudo Renmei.</p></div>
+        <div><span class="big"><!--@instrName--></span><p class="small muted" style="margin:var(--space-2) 0 0"><!--@instrLine--></p></div>
         <a class="btn quiet" href="#instructor">About the instructor</a>
       </div>
       <div class="tile take">
         <span class="label">Where</span>
-        <span>Japanese Art &amp; Cultural Center<br>4334 Moorpark Ave, San Jose</span>
+        <span><!--@venue--><br><!--@street-->, <!--@city--></span>
       </div>
       <div class="tile wide">
         <span class="label">Federation</span>
@@ -109,7 +109,7 @@
 </svg>
     <div class="notice" role="note">
       <p class="eyebrow">New students</p>
-      <p>New students are always welcome. No uniform or equipment is required. No prior experience needed. New students should just walk in and observe class or take a free trial lesson at any time without making online appointments first.</p>
+      <p><!--@policy--></p>
     </div>
     <div class="steps">
       <div class="step">
@@ -158,41 +158,14 @@
 </g>
 </svg>
     <div class="two">
-      <ul class="rows">
-        <li class="today">
-          <div class="day">SUN<b>4</b></div>
-          <div><p class="title">Kyudo class</p><p class="meta">4:00 – 6:00 pm · JACC, San Jose</p></div>
-          <div class="status on">TODAY</div>
-        </li>
-        <li>
-          <div class="day">SUN<b>11</b></div>
-          <div><p class="title">Kyudo class</p><p class="meta">4:00 – 6:00 pm · JACC, San Jose</p></div>
-          <div class="status">OPEN</div>
-        </li>
-        <li>
-          <div class="day">SUN<b>18</b></div>
-          <div><p class="title">Kyudo class</p><p class="meta">4:00 – 6:00 pm · JACC, San Jose</p></div>
-          <div class="status">OPEN</div>
-        </li>
-        <li>
-          <div class="day">SUN<b>25</b></div>
-          <div><p class="title">Kyudo class</p><p class="meta">4:00 – 6:00 pm · JACC, San Jose</p></div>
-          <div class="status">OPEN</div>
-        </li>
-      </ul>
+      <!--@rows-->
       <div class="panel" id="book">
         <p class="eyebrow">Members' booking</p>
         <h2>Reserve your place</h2>
-        <p class="muted" style="margin:var(--space-2) 0 0">New students don't need to book: walk in and observe, or take a free trial lesson, any Sunday. Members reserve their place through the Japanese Art &amp; Cultural Center's (JACC) schedule on WellnessLiving.</p>
-        <div class="widget-slot" aria-label="Where the WellnessLiving schedule widget goes">
-          <span class="draft" style="justify-self:start">Widget slot · JACC embed code goes here</span>
-          <div class="loading" aria-live="polite"><span class="breath" id="bookBreath" aria-hidden="true"></span><span>Loading the schedule from WellnessLiving…</span></div>
-          <div class="fake"><span>Sun 4 · 4:00 pm · Kyudo class</span><span class="btn secondary">Book</span></div>
-          <div class="fake"><span>Sun 11 · 4:00 pm · Kyudo class</span><span class="btn secondary">Book</span></div>
-          <div class="fake"><span>Sun 18 · 4:00 pm · Kyudo class</span><span class="btn secondary">Book</span></div>
-        </div>
+        <p class="muted" style="margin:var(--space-2) 0 0">New students don't need to book: walk in and observe, or take a free trial lesson, any <!--@weekday-->. Members reserve their place through the Japanese Art &amp; Cultural Center's (JACC) schedule on WellnessLiving.</p>
+        <!--@widget-->
         <div class="actions" style="align-items:center">
-          <a class="btn primary" href="https://www.wellnessliving.com/rs/schedule/jacc?k_business=241484&k_class_tab=35967&uid=0&id_class_tab=1">Book on WellnessLiving</a>
+          <a class="btn primary" href="<!--@booking-->" target="_blank" rel="noopener">Book on WellnessLiving</a>
           <p class="note">Opens the JACC schedule in a new tab.</p>
         </div>
       </div>
@@ -226,19 +199,7 @@
 <g fill="currentColor" stroke="none" opacity="0.75"></g>
 </g>
 </svg>
-    <article class="card">
-      <div class="photo mono" role="img" aria-label="Photo of Steve Scott, placeholder">PHOTO</div>
-      <div>
-        <p class="eyebrow">Chief Instructor</p>
-        <h2>Steve Scott</h2>
-        <p style="margin:var(--space-2) 0 0">Renshi Rokudan <span class="muted">· 6th-degree black belt in kyudo</span></p>
-        <ul class="creds">
-          <li>Chief Instructor, Renseikan Kyudo Dojo</li>
-          <li>Former President, American Kyudo Renmei</li>
-        </ul>
-        <span class="small">kyudoka@msn.com</span><button class="copy" type="button" data-copy="kyudoka@msn.com">Copy</button>
-      </div>
-    </article>
+    <!--@instrCard-->
   </div>
 </section>
 
@@ -270,13 +231,13 @@
 </svg>
     <div class="two">
       <dl>
-        <div class="row"><dt>Hours</dt><dd>Sundays, 4:00 – 6:00 pm<small>New students: walk in any Sunday to observe or take a free trial lesson. No appointment needed.</small></dd></div>
-        <div class="row"><dt>Address</dt><dd>Japanese Art &amp; Cultural Center (JACC)<br>4334 Moorpark Ave<br>San Jose, CA 95129</dd></div>
-        <div class="row"><dt>Contact</dt><dd><span>nckfkyudo@gmail.com</span><button class="copy" type="button" data-copy="nckfkyudo@gmail.com">Copy</button></dd></div>
+        <div class="row"><dt>Hours</dt><dd><!--@days-->, <!--@hours--><small>New students: walk in any <!--@weekday--> to observe or take a free trial lesson. No appointment needed.</small></dd></div>
+        <div class="row"><dt>Address</dt><dd><!--@venueFull--><br><!--@street--><br><!--@city-->, <!--@region--> <!--@postalCode--></dd></div>
+        <div class="row"><dt>Contact</dt><dd><span><!--@email--></span><button class="copy" type="button" data-copy="<!--@email-->">Copy</button></dd></div>
       </dl>
       <div class="map" id="map">
         <div class="frame" id="mapFrame" aria-hidden="true">MAP</div>
-        <p class="links"><a href="https://www.google.com/maps/search/?api=1&amp;query=Japanese+Art+%26+Cultural+Center%2C+4334+Moorpark+Ave%2C+San+Jose%2C+CA+95129&amp;query_place_id=ChIJo8_L45bKj4ARHvOW1ONgeuc" target="_blank" rel="noopener">Open in Google Maps</a><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Japanese+Art+%26+Cultural+Center%2C+4334+Moorpark+Ave%2C+San+Jose%2C+CA+95129&amp;destination_place_id=ChIJo8_L45bKj4ARHvOW1ONgeuc" target="_blank" rel="noopener">Directions</a></p>
+        <p class="links"><a href="<!--@mapsSearch-->" target="_blank" rel="noopener">Open in Google Maps</a><a href="<!--@mapsDirections-->" target="_blank" rel="noopener">Directions</a></p>
       </div>
     </div>
   </div>
