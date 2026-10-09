@@ -1,9 +1,35 @@
 ---
-// Home: the prototype's page, verbatim, as a raw partial (hero, facts, what to expect, classes + booking, instructor, visit).
-// Refactor into components when a section needs to change; until then the partial is the source and site.css styles it.
+// Home: the prototype's page as a raw partial (hero, facts, what to expect, classes + booking, instructor, visit), with
+// <!--@name--> tokens where the Studio's content goes. Text tokens are escaped here; the *Html ones come from render.ts.
 import Base from '../layouts/Base.astro';
 import home from '../partials/home.html?raw';
+import { getSite, getInstructors, getClasses, getClassDates, daysLabel, startTime } from '../lib/sanity';
+import { esc, classRows, widgetSlot, instructorCard, instructorLine, shortVenue, regionName } from '../lib/render';
+
+const [site, instructors, classes, dates] = await Promise.all([getSite(), getInstructors(), getClasses(), getClassDates()]);
+const a = site.address;
+const chief = instructors[0];
+const first = classes.find((c) => c.status !== 'Cancelled') ?? classes[0];
+const days = daysLabel(classes);
+
+const text: Record<string, string> = {
+  place: `${a.city}, ${regionName(a.region)}`,
+  heroWhen: `${days}, ${startTime(first, site.hours)}`,
+  weekday: first.weekday,
+  days, hours: site.hours, policy: site.policy, email: site.email,
+  venue: shortVenue(a.venue), venueFull: a.venue, street: a.street, city: a.city, region: a.region, postalCode: a.postalCode,
+  booking: site.booking, mapsSearch: site.mapsSearch, mapsDirections: site.mapsDirections,
+  instrName: chief.name,
+};
+const html: Record<string, string> = {
+  rows: classRows(dates), widget: widgetSlot(site), instrCard: instructorCard(chief), instrLine: instructorLine(chief),
+};
+const page = home.replace(/<!--@(\w+)-->/g, (_, k: string) => {
+  if (k in html) return html[k];
+  if (k in text) return esc(text[k]);
+  throw new Error(`home.html: unknown token @${k}`);
+});
 ---
 <Base home>
-  <Fragment set:html={home} />
+  <Fragment set:html={page} />
 </Base>

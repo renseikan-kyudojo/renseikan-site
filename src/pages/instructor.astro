@@ -1,27 +1,19 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getSite } from '../lib/sanity';
-const site = await getSite();
-const t = site.instructor;
+import { getInstructors } from '../lib/sanity';
+import { instructorCard } from '../lib/render';
+const instructors = await getInstructors();
+const t = instructors[0];
+const desc = [t.name, t.rank, t.credentials[0]].filter(Boolean).join(', ') + '.';
 ---
-<Base title="Instructor" description={`${t.name}, ${t.rank}, ${t.role}.`}>
+<Base title={instructors.length > 1 ? 'Instructors' : 'Instructor'} description={desc}>
 <section id="instructor-page" aria-labelledby="instr-title">
   <div class="wrap">
-    <p class="eyebrow">Instructor</p>
+    <p class="eyebrow">{instructors.length > 1 ? 'Instructors' : 'Instructor'}</p>
     <h2 id="instr-title" class="wipe">Who teaches here</h2>
-    <article class="card">
-      <div class="photo mono" role="img" aria-label={`Photo of ${t.name}, placeholder`}>PHOTO</div>
-      <div>
-        <p class="eyebrow">Chief Instructor</p>
-        <h2>{t.name}</h2>
-        <p style="margin:var(--space-2) 0 0">{t.rank} <span class="muted">· {t.rankPlain}</span></p>
-        <ul class="creds">
-          <li>{t.role}</li>
-          <li>{t.former}</li>
-        </ul>
-        <p><span>{t.email}</span> <button class="copy" type="button" data-copy={t.email}>Copy</button></p>
-      </div>
-    </article>
+    <div class="cards">
+      {instructors.map((p) => <Fragment set:html={instructorCard(p)} />)}
+    </div>
   </div>
 </section>
 </Base>

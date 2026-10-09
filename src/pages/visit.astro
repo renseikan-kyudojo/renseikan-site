@@ -1,10 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getSite } from '../lib/sanity';
-const site = await getSite();
+import { getSite, getClasses, daysLabel } from '../lib/sanity';
+const [site, classes] = await Promise.all([getSite(), getClasses()]);
+const days = daysLabel(classes);
+const weekday = (classes.find((c) => c.status !== 'Cancelled') ?? classes[0]).weekday;
 const a = site.address;
 ---
-<Base title="Visit" description={`${a.street}, ${a.city}, ${a.region} ${a.postalCode}. Sundays ${site.hours}. Walk in any Sunday; no appointment needed.`}>
+<Base title="Visit" description={`${a.street}, ${a.city}, ${a.region} ${a.postalCode}. ${days} ${site.hours}. Walk in any ${weekday}; no appointment needed.`}>
 <section id="visit-page" aria-labelledby="visit-title">
   <div class="wrap">
     <p class="eyebrow">Visit</p>
@@ -12,7 +14,7 @@ const a = site.address;
     <p class="notice">{site.policy}</p>
     <div class="two">
       <dl>
-        <div class="row"><dt>Hours</dt><dd>Sundays, {site.hours}<small>New students: walk in any Sunday to observe or take a free trial lesson. No appointment needed.</small></dd></div>
+        <div class="row"><dt>Hours</dt><dd>{days}, {site.hours}<small>New students: walk in any {weekday} to observe or take a free trial lesson. No appointment needed.</small></dd></div>
         <div class="row"><dt>Address</dt><dd>{a.venue}<br>{a.street}<br>{a.city}, {a.region} {a.postalCode}</dd></div>
         <div class="row"><dt>Contact</dt><dd><span>{site.email}</span><button class="copy" type="button" data-copy={site.email}>Copy</button></dd></div>
       </dl>
