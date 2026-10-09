@@ -2,8 +2,22 @@
 // Base layout: head, nav (mon + name, links, theme, members' booking), the page, footer with the lockup,
 // the paper overlay and the three ink libraries. Every page uses this.
 import '../styles/site.css';
-import { getSite } from '../lib/sanity';
-const site = await getSite();
+import { getSite, getClasses, daysLabel } from '../lib/sanity';
+const [site, classes] = await Promise.all([getSite(), getClasses()]);
+const days = daysLabel(classes);
+// schema.org opening hours from the weekly classes ("4:00 pm" -> "16:00"); the Dojo settings hours fill a blank start/end
+const to24 = (t: string, fallbackMeridiem: string) => {
+  const m = t.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);
+  if (!m) return undefined;
+  let h = +m[1] % 12;
+  if ((m[3] || fallbackMeridiem).toLowerCase() === 'pm') h += 12;
+  return `${String(h).padStart(2, '0')}:${m[2] ?? '00'}`;
+};
+const [hStart, hEnd] = site.hours.split(/[–-]/).map((x) => x.trim());
+const pm = (site.hours.match(/(am|pm)\s*$/i)?.[1] ?? 'pm');
+const hoursSpec = classes
+  .filter((c) => c.status !== 'Cancelled')
+  .map((c) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: c.weekday, opens: to24(c.start || hStart, pm), closes: to24(c.end || hEnd || '', pm) }));
 
 interface Props {
   title?: string;
@@ -55,7 +69,7 @@ const canonical = new URL(path === '/' ? '/' : path, Astro.site);
     address: { '@type': 'PostalAddress', streetAddress: site.address.street, addressLocality: site.address.city, addressRegion: site.address.region, postalCode: site.address.postalCode, addressCountry: 'US' },
     geo: { '@type': 'GeoCoordinates', latitude: site.geo.latitude, longitude: site.geo.longitude },
     hasMap: site.mapsSearch,
-    openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: 'Sunday', opens: '16:00', closes: '18:00' }],
+    openingHoursSpecification: hoursSpec,
     sport: 'Kyudo',
   })} />
 </head>
@@ -82,7 +96,7 @@ const canonical = new URL(path === '/' ? '/' : path, Astro.site);
 <footer>
   <div class="wrap">
     <div class="lockup" id="footLockup" style="width:168px;aspect-ratio:876.34/785.71"></div>
-    <span>{site.address.street}, {site.address.city}, {site.address.region} {site.address.postalCode} · Sundays {site.hours}</span>
+    <span>{site.address.street}, {site.address.city}, {site.address.region} {site.address.postalCode} · {days} {site.hours}</span>
     <span class="muted">Type: Shippori Mincho, Noto Sans JP, Yuji Syuku (Google Fonts). Stroke order from <a href="https://kanjivg.tagaini.net" rel="noopener">KanjiVG</a>, CC BY-SA 3.0.</span>
   </div>
 </footer>
