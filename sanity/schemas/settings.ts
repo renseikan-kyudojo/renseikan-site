@@ -1,9 +1,17 @@
 import { defineField, defineType } from 'sanity';
+import site from '../../src/data/site.json';
 // One document (id "settings"). Every field is optional: a blank field keeps the site's built-in text.
+// The first time it is opened, every field starts with the site's current text (from site.json), so publishing it as is
+// changes nothing on the site.
 export default defineType({
   name: 'settings', title: 'Dojo settings', type: 'document',
+  initialValue: {
+    name: site.name, tagline: site.tagline, description: site.description, hours: site.hours, email: site.email,
+    policy: site.policy, bookingUrl: site.booking,
+    address: { venue: site.address.venue, street: site.address.street, city: site.address.city, region: site.address.region, postalCode: site.address.postalCode },
+  },
   fields: [
-    defineField({ name: 'name', title: 'Name', type: 'string', initialValue: 'Renseikan Kyudojo' }),
+    defineField({ name: 'name', title: 'Name', type: 'string' }),
     defineField({ name: 'tagline', title: 'Tagline', type: 'string', description: 'Shown in search results and the browser tab on the home page.' }),
     defineField({ name: 'description', title: 'Short description', type: 'text', rows: 3, description: 'One or two sentences for search engines and link previews.' }),
     defineField({ name: 'hours', title: 'Class time', type: 'string', description: 'Time only, e.g. "4:00 – 6:00 pm". The site adds "Sundays".' }),
