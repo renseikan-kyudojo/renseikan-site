@@ -1,9 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
-// Until Sanity is connected (runbook 04), events live here. Each becomes a Sanity `event` document later.
-const events = [
+import { getEvents } from '../../lib/sanity';
+// Events come from Sanity `event` documents; this sample shows until the first one is published.
+const events = await getEvents([
   { date: '2026-12-06', title: 'Winter practice continues', place: 'JACC, San Jose', body: 'Classes run every Sunday through December except the holiday Sundays the dojo announces here.' },
-];
+]);
 ---
 <Base title="News and events" description="Taikai, seminars, demonstrations and closures at Renseikan Kyudojo.">
 <section id="news-page" aria-labelledby="news-title">
