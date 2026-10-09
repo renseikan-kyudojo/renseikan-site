@@ -18,7 +18,8 @@ async function query<T>(groq: string): Promise<T | null> {
   }
 }
 
-const filled = (v: unknown) => v !== undefined && v !== null && !(typeof v === 'string' && v.trim() === '');
+const filled = (v: unknown) =>
+  v !== undefined && v !== null && !(typeof v === 'string' && v.trim() === '') && !(Array.isArray(v) && v.length === 0);
 function overlay<T extends Record<string, any>>(base: T, over: Record<string, any> | null | undefined): T {
   if (!over) return base;
   const out: Record<string, any> = { ...base };
@@ -53,4 +54,109 @@ export async function getEvents(defaults: Ev[]): Promise<Ev[]> {
     title, date, place, kind, "body": pt::text(body)
   }`);
   return evs && evs.length ? evs : defaults;
+}
+
+// ---- Instructors (`person`) -------------------------------------------------------------------------------------
+
+export interface Instructor {
+  name: string; title?: string; rank?: string; rankPlain?: string; credentials: string[]; email?: string; portrait?: string;
+}
+/** Instructors in menu order. The first one is laid over site.json's instructor, so a half-filled document still renders. */
+export async function getInstructors(): Promise<Instructor[]> {
+  const t = (await getSite()).instructor;
+  const fallback: Instructor = {
+    name: t.name, title: 'Chief Instructor', rank: t.rank, rankPlain: t.rankPlain, credentials: [t.role, t.former], email: t.email,
+  };
+  const docs = await query<Record<string, any>[]>(`*[_type == "person"] | order(coalesce(order, 999) asc, _createdAt asc){
+    name, title, rank, rankPlain, credentials, email,
+    "portrait": portrait.asset->url, "fp": portrait.hotspot{ x, y }
+  }`);
+  if (!docs || !docs.length) return [fallback];
+  return docs
+    .map((d, i) => {
+      const { fp, portrait, ...rest } = d;
+      const p: Instructor = i === 0 ? overlay(fallback, rest) : ({ credentials: [], ...rest } as Instructor);
+      if (portrait) {
+        // 5:6 crop around the hotspot Steve sets in the Studio, sized for the 160px card at 3x
+        const x = fp?.x ?? 0.5, y = fp?.y ?? 0.4;
+        p.portrait = `${portrait}?w=480&h=576&fit=crop&crop=focalpoint&fp-x=${x}&fp-y=${y}&auto=format`;
+      }
+      return p;
+    })
+    .filter((p) => filled(p.name));
+}
+
+// ---- Classes (`classSession`) and the dates they fall on ----------------------------------------------------------
+
+const WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+export interface ClassSession { title: string; weekday: string; start?: string; end?: string; place: string; status: string; note?: string }
+
+let classesPromise: Promise<ClassSession[]> | undefined;
+/** The weekly classes; one Sunday class from site.json's hours if the Studio has none. */
+export function getClasses(): Promise<ClassSession[]> {
+  classesPromise ??= (async () => {
+    const fallback: ClassSession = { title: 'Kyudo class', weekday: 'Sunday', place: 'JACC, San Jose', status: 'Open' };
+    const docs = await query<Record<string, any>[]>(`*[_type == "classSession" && defined(weekday)]{ title, weekday, start, end, place, status, note }`);
+    if (!docs || !docs.length) return [fallback];
+    return docs
+      .map((d) => overlay(fallback, d))
+      .sort((a, b) => WEEK.indexOf(a.weekday) - WEEK.indexOf(b.weekday));
+  })();
+  return classesPromise;
+}
+
+/** "Sundays", "Saturdays and Sundays": the days with a class that isn't cancelled. */
+export function daysLabel(classes: ClassSession[]): string {
+  const days = [...new Set(classes.filter((c) => c.status !== 'Cancelled').map((c) => c.weekday))]
+    .sort((a, b) => ((WEEK.indexOf(a) + 6) % 7) - ((WEEK.indexOf(b) + 6) % 7))
+    .map((d) => d + 's');
+  if (!days.length) return 'Sundays';
+  return days.length === 1 ? days[0] : `${days.slice(0, -1).join(', ')} and ${days.at(-1)}`;
+}
+
+const meridiem = (s: string) => (s.match(/\b(am|pm)\s*$/i)?.[1] ?? '').toLowerCase();
+/** "4:00 pm" + "6:00 pm" -> "4:00 – 6:00 pm"; falls back to the Dojo settings hours. */
+export function timeRange(c: Pick<ClassSession, 'start' | 'end'>, hours: string): string {
+  if (!c.start) return hours;
+  if (!c.end) return c.start;
+  const m = meridiem(c.start);
+  const start = m && m === meridiem(c.end) ? c.start.replace(/\s*(am|pm)\s*$/i, '') : c.start;
+  return `${start} – ${c.end}`;
+}
+/** Start time with its am/pm: "4:00 pm". */
+export function startTime(c: Pick<ClassSession, 'start'>, hours: string): string {
+  if (c.start) return c.start;
+  const first = hours.split(/[–-]/)[0].trim();
+  return meridiem(first) ? first : `${first} ${meridiem(hours)}`.trim();
+}
+
+export interface ClassDate {
+  date: string; dow: string; day: number; title: string; time: string; place: string; status: string; off: boolean; note?: string;
+}
+/** The next `n` class dates from today (Pacific time). A Closure event covering a date marks it "No class". */
+export async function getClassDates(n = 8): Promise<ClassDate[]> {
+  const [classes, site] = await Promise.all([getClasses(), getSite()]);
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date());
+  const closures =
+    (await query<{ date: string; endDate?: string; title?: string }[]>(
+      `*[_type == "event" && kind == "Closure" && defined(date) && coalesce(endDate, date) >= "${today}"]{ date, endDate, title }`,
+    )) ?? [];
+  const [y, m, d] = today.split('-').map(Number);
+  const out: ClassDate[] = [];
+  const live = classes.filter((c) => c.status !== 'Cancelled');
+  for (let i = 0; i < 120 && out.length < n && live.length; i++) {
+    const day = new Date(Date.UTC(y, m - 1, d + i));
+    const iso = day.toISOString().slice(0, 10);
+    for (const c of live) {
+      if (WEEK.indexOf(c.weekday) !== day.getUTCDay()) continue;
+      const closed = closures.find((e) => e.date <= iso && iso <= (e.endDate || e.date));
+      out.push({
+        date: iso, dow: c.weekday.slice(0, 3).toUpperCase(), day: day.getUTCDate(), title: c.title,
+        time: timeRange(c, site.hours), place: c.place,
+        status: closed ? 'NO CLASS' : c.status === 'Members only' ? 'MEMBERS' : 'OPEN',
+        off: !!closed, note: closed ? closed.title : c.note,
+      });
+    }
+  }
+  return out.slice(0, n);
 }
