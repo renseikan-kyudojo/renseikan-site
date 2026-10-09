@@ -7,7 +7,7 @@ export default defineType({
     defineField({ name: 'date', type: 'date', title: 'Date' }),
     defineField({ name: 'endDate', type: 'date', title: 'End date (optional)' }),
     defineField({ name: 'place', type: 'string', title: 'Place', initialValue: 'JACC, San Jose' }),
-    defineField({ name: 'kind', type: 'string', title: 'Kind', options: { list: ['Taikai', 'Seminar', 'Demonstration', 'Closure', 'Other'] } }),
+    defineField({ name: 'kind', type: 'string', title: 'Kind', description: 'Closure: no class on these dates. The class list shows them as "No class".', options: { list: ['Taikai', 'Seminar', 'Demonstration', 'Closure', 'Other'] } }),
     defineField({ name: 'photo', type: 'image', title: 'Photo', options: { hotspot: true } }),
     defineField({ name: 'body', type: 'array', title: 'Details', of: [{ type: 'block' }] }),
   ],
