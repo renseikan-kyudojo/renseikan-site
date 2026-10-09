@@ -1,14 +1,30 @@
 {
   "name": "Renseikan Kyudojo",
-  "tagline": "Traditional Japanese archery in Sunnyvale, California",
-  "description": "Renseikan Kyudojo teaches kyudo, traditional Japanese archery, in Sunnyvale, California. Classes Sundays 4:00–6:00 pm. New students are always welcome: walk in and observe, or take a free trial lesson.",
+  "tagline": "Traditional Japanese archery in San Jose, California",
+  "description": "Renseikan Kyudojo teaches kyudo, traditional Japanese archery, in San Jose, California. Classes Sundays 4:00–6:00 pm. New students are always welcome: walk in and observe, or take a free trial lesson.",
   "email": "nckfkyudo@gmail.com",
-  "address": { "street": "167 Brahms Way", "city": "Sunnyvale", "region": "CA", "postalCode": "94087" },
-  "geo": { "latitude": 37.3634323, "longitude": -122.0298559 },
+  "address": {
+    "venue": "Japanese Art & Cultural Center (JACC)",
+    "street": "4334 Moorpark Ave",
+    "city": "San Jose",
+    "region": "CA",
+    "postalCode": "95129"
+  },
+  "geo": {
+    "latitude": 37.3153101,
+    "longitude": -121.9782846
+  },
   "hours": "4:00 – 6:00 pm",
   "policy": "New students are always welcome. No uniform or equipment is required. No prior experience needed. New students should just walk in and observe class or take a free trial lesson at any time without making online appointments first.",
   "booking": "https://www.wellnessliving.com/rs/schedule/jacc?k_business=241484&k_class_tab=35967&uid=0&id_class_tab=1",
-  "mapsSearch": "https://www.google.com/maps/search/?api=1&query=167+Brahms+Way%2C+Sunnyvale%2C+CA+94087",
-  "mapsDirections": "https://www.google.com/maps/dir/?api=1&destination=167+Brahms+Way%2C+Sunnyvale%2C+CA+94087",
-  "instructor": { "name": "Steve Scott", "rank": "Renshi Rokudan", "rankPlain": "6th-degree black belt in kyudo", "role": "Chief Instructor, Renseikan Kyudo Dojo", "former": "Former President, American Kyudo Renmei", "email": "kyudoka@msn.com" }
+  "mapsSearch": "https://www.google.com/maps/search/?api=1&query=Japanese+Art+%26+Cultural+Center%2C+4334+Moorpark+Ave%2C+San+Jose%2C+CA+95129&query_place_id=ChIJo8_L45bKj4ARHvOW1ONgeuc",
+  "mapsDirections": "https://www.google.com/maps/dir/?api=1&destination=Japanese+Art+%26+Cultural+Center%2C+4334+Moorpark+Ave%2C+San+Jose%2C+CA+95129&destination_place_id=ChIJo8_L45bKj4ARHvOW1ONgeuc",
+  "instructor": {
+    "name": "Steve Scott",
+    "rank": "Renshi Rokudan",
+    "rankPlain": "6th-degree black belt in kyudo",
+    "role": "Chief Instructor, Renseikan Kyudo Dojo",
+    "former": "Former President, American Kyudo Renmei",
+    "email": "kyudoka@msn.com"
+  }
 }
