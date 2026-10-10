@@ -34,17 +34,17 @@ targets under 44 px), and a dead-code Instagram module.
 
 ## 2. Scorecard
 
-| Area | Grade | One-line verdict |
-| --- | --- | --- |
-| Visual design and brand | A- | Distinctive, coherent, both themes work; a few composition issues in the bento and hero. |
-| Content and IA | C | Accurate but thin; repeats facts across pages; no pricing, FAQ, gallery, event pages. |
-| Accessibility | B- | Good alt text, focus rings, reduced-motion support; missing landmarks, h1s, skip link, target sizes. |
-| Performance | B- | Fast enough on a good connection; 630 KB per home visit before fonts, avoidable duplication. |
-| SEO and sharing | B+ | Canonical, OG, JSON-LD, sitemap, robots all present; schema could be richer, share image is heavy. |
-| CMS and content ops | B | Resilient fallbacks, friendly Studio; three schemas unused, Instagram unfinished. |
-| Code quality | B | Small, well-commented; raw HTML partial with token replacement is fragile; inline styles. |
-| Security | B | Static output, no secrets in repo, fails-closed cron; outdated Astro, no CSP, raw embed field. |
-| Engineering process | D | No CI, no lint, no type-check, no tests, no root README, runbooks referenced but absent. |
+| Area                    | Grade | One-line verdict                                                                                     |
+| ----------------------- | ----- | ---------------------------------------------------------------------------------------------------- |
+| Visual design and brand | A-    | Distinctive, coherent, both themes work; a few composition issues in the bento and hero.             |
+| Content and IA          | C     | Accurate but thin; repeats facts across pages; no pricing, FAQ, gallery, event pages.                |
+| Accessibility           | B-    | Good alt text, focus rings, reduced-motion support; missing landmarks, h1s, skip link, target sizes. |
+| Performance             | B-    | Fast enough on a good connection; 630 KB per home visit before fonts, avoidable duplication.         |
+| SEO and sharing         | B+    | Canonical, OG, JSON-LD, sitemap, robots all present; schema could be richer, share image is heavy.   |
+| CMS and content ops     | B     | Resilient fallbacks, friendly Studio; three schemas unused, Instagram unfinished.                    |
+| Code quality            | B     | Small, well-commented; raw HTML partial with token replacement is fragile; inline styles.            |
+| Security                | B     | Static output, no secrets in repo, fails-closed cron; outdated Astro, no CSP, raw embed field.       |
+| Engineering process     | D     | No CI, no lint, no type-check, no tests, no root README, runbooks referenced but absent.             |
 
 ## 3. Findings
 
@@ -88,11 +88,11 @@ Severity: **P1** fix now (bug or user-facing defect), **P2** fix in the next pas
 
 ### 3.3 Performance (local build, no fonts counted)
 
-| Page | Transfer | Requests | HTML | LCP | CLS |
-| --- | --- | --- | --- | --- | --- |
-| Home, desktop | 642 KB | 14 | 183 KB | 628 ms (`p.lede`) | 0.045 |
-| Home, mobile | 629 KB | 12 | 183 KB | 512 ms (`p.lede`) | 0.000 |
-| Classes, mobile | 497 KB | 8 | 8 KB | 456 ms | 0.001 |
+| Page            | Transfer | Requests | HTML   | LCP               | CLS   |
+| --------------- | -------- | -------- | ------ | ----------------- | ----- |
+| Home, desktop   | 642 KB   | 14       | 183 KB | 628 ms (`p.lede`) | 0.045 |
+| Home, mobile    | 629 KB   | 12       | 183 KB | 512 ms (`p.lede`) | 0.000 |
+| Classes, mobile | 497 KB   | 8        | 8 KB   | 456 ms            | 0.001 |
 
 - **P2 Home HTML is 183 KB** because the brush-mark SVG under each section title is inlined five times (169 KB of SVG
   in total, with five copies of the same `<style>` and filter defs). Emit it once as a `<symbol>` and `<use>` it, or
