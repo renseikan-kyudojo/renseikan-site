@@ -114,8 +114,10 @@
   .tile.ink { background: var(--sumi); color: var(--washi); border-color: var(--sumi); }
   .tile.ink .label { color: var(--washi); opacity: .7; }
   .tile.take { background: var(--take); }
-  .tile .mato { align-self: flex-end; }
-  .mato circle.ring { fill: none; stroke: currentColor; stroke-width: 1.5; } .mato circle.core { fill: var(--shu); }
+  .tile .nckf-mon { align-self: flex-end; width: 72px; height: 72px; object-fit: contain; }
+  /* The emblem's outer ring is black: outline it so it holds its shape on the dark tile. */
+  :root[data-theme="dark"] .nckf-mon { filter: drop-shadow(0 0 1px rgba(255,255,255,.7)); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nckf-mon { filter: drop-shadow(0 0 1px rgba(255,255,255,.7)); } }
 
   .notice { background: var(--take); padding: var(--space-4) var(--space-4); margin: 0 0 var(--space-8); max-width: 72ch; }
   .notice p { margin: 0; }
