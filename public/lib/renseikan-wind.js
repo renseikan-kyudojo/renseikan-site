@@ -1,6 +1,10 @@
-/* @ds-lib renseikan-wind 1.2.0 — the guiding wind: a flow field with wisps and ink-drawn leaves.
+/* @ds-lib renseikan-wind 1.3.0 — the guiding wind: a flow field with wisps and ink-drawn leaves.
    window.RenseikanWind = { start(canvas, opts) -> { gust(strength), aim(x, y), release(), setInk(color), stop() }, version }
    opts.follow: an element whose pointer the wind follows (the wind eases round to blow toward the cursor; a quick sweep throws a gust).
+   A mouse is followed while it hovers; a finger or pen only while it is held down, and the wind lets go the moment it lifts or the
+   browser takes the touch to scroll. A resize carries the living scene across (scaled) rather than starting it over, so the address
+   bar sliding away on a phone, a pull-to-refresh or a rotation never makes the air jump. Leaves and wisps that blow out of the
+   canvas come back in from just outside the upwind edge, so the scene stays as full as it began.
 
    Wind is a field, not a direction: a steady drift plus the curl of a slowly moving noise potential, so every
    wisp and leaf follows a coherent, curving current. Gusts arrive as waves (a scroll adds one; the air also
@@ -91,32 +95,55 @@
     var density = opts.density == null ? 1 : opts.density;
 
     function size() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2); w = canvas.clientWidth || canvas.width; h = canvas.clientHeight || canvas.height;
+      var nd = Math.min(window.devicePixelRatio || 1, 2), nw = canvas.clientWidth || canvas.width, nh = canvas.clientHeight || canvas.height;
+      if (!nw || !nh) return;                                   // not laid out (hidden): keep what we have
+      if (nw === w && nh === h && nd === dpr) return;           // phones fire resize as the address bar slides; the canvas itself has not changed
+      var ow = w, oh = h; dpr = nd; w = nw; h = nh;
       canvas.width = w * dpr; canvas.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      seed();
+      if (!ow || !oh) seed(); else reflow(ow, oh);
+    }
+    /* the canvas changed size under a living scene: carry everything across, scaled, then top up or thin out to the new density */
+    function reflow(ow, oh) {
+      var sx = w / ow, sy = h / oh, i, k;
+      for (i = 0; i < wisps.length; i++) { var p = wisps[i]; p.x *= sx; p.y *= sy; for (k = 0; k < p.hist.length; k += 2) { p.hist[k] *= sx; p.hist[k + 1] *= sy; } }
+      for (i = 0; i < leaves.length; i++) { leaves[i].x *= sx; leaves[i].y *= sy; }
+      var nw = Math.round(w / 22 * density), nl = Math.max(6, Math.round(w / 110 * density));
+      while (wisps.length < nw) { var q = wisp(true); q.life = r() * q.ttl; wisps.push(q); }
+      while (leaves.length < nl) leaves.push(leaf(true));
+      if (wisps.length > Math.round(nw * 1.8)) wisps.length = Math.round(nw * 1.8);
+      if (leaves.length > nl) leaves.length = nl;
     }
     function makeSprites() { var kinds = ['sakura-petal', 'sakura', 'poppy-petal', 'poppy']; sprites = {}; for (var i = 0; i < kinds.length; i++) sprites[kinds[i]] = [leafSprite(kinds[i], 10, ink, r), leafSprite(kinds[i], 16, ink, r), leafSprite(kinds[i], 24, ink, r)]; }
-    /* a point just outside the canvas on the side the wind comes from, spread along that edge */
+    /* a point just outside the canvas on the side the wind comes from: a random point inside, carried back against the wind
+       until it has just left by `margin` (keep margin under the cull distance, 80 for wisps and 90 for leaves, or the newcomer
+       is culled before it can blow in and the scene slowly empties, worst on a tall phone screen) */
     function upwind(margin) {
-      var cx = w / 2, cy = h / 2, R = Math.hypot(w, h) / 2 + margin, px = -dir[1], py = dir[0], along = (r() - 0.5) * (Math.abs(px) * w + Math.abs(py) * h) * 1.1;
-      return [cx - dir[0] * R + px * along, cy - dir[1] * R + py * along];
+      var px = r() * w, py = r() * h, tx = Infinity, ty = Infinity;
+      if (dir[0] > 1e-6) tx = (px + margin) / dir[0]; else if (dir[0] < -1e-6) tx = (w - px + margin) / -dir[0];
+      if (dir[1] > 1e-6) ty = (py + margin) / dir[1]; else if (dir[1] < -1e-6) ty = (h - py + margin) / -dir[1];
+      var t = Math.min(tx, ty);
+      return [px - dir[0] * t, py - dir[1] * t];
     }
     function wisp(anywhere) {
       var depth = r();
-      var up = upwind(20 + r() * 60);
+      var up = upwind(15 + r() * 50);
       return { x: anywhere ? r() * w : up[0], y: anywhere ? r() * h : up[1], depth: depth, speed: 0.8 + depth * 1.1, a: 0.08 + depth * 0.17,
         life: 0, ttl: 2600 + r() * 3600, hist: [], n: 14 + Math.floor(depth * 24), width: 0.5 + depth * 1.0 };
     }
     function leaf(anywhere) {
       var kinds = ['sakura-petal', 'sakura-petal', 'sakura-petal', 'poppy-petal', 'poppy-petal', 'sakura', 'poppy'], kind = kinds[Math.floor(r() * kinds.length)], depth = r();
-      var up = upwind(30 + r() * 80);
-      return { kind: kind, sz: Math.floor(depth * 2.999), x: anywhere ? r() * w : up[0], y: anywhere ? r() * h * 0.9 : up[1], depth: depth,
+      // a leaf that has blown away comes back from the upwind edge, or (more often) fades in somewhere inside: a few leaves on a
+      // phone would otherwise all leave together and wait outside through a lull in the breathing, and the hero would stand empty
+      var inside = anywhere || r() < 0.6, up = inside ? null : upwind(25 + r() * 50);
+      var L = { kind: kind, sz: Math.floor(depth * 2.999), x: inside ? r() * w : up[0], y: inside ? r() * h * 0.9 : up[1], depth: depth,
         vx: 0, vy: 0, rot: r() * 6.28, rotV: (r() - 0.5) * 0.005, flip: r() * 6.28, flipV: 0.0025 + r() * 0.005, flut: r() * 6.28, flutF: 0.005 + r() * 0.006,
-        a: 0.35 + depth * 0.5, drag: 0.02 + depth * 0.03 };
+        a: 0.35 + depth * 0.5, drag: 0.02 + depth * 0.03, born: anywhere ? -1e9 : t };
+      var vw = windAt(L.x, L.y), tg = 0.055 * (0.5 + depth); L.vx = vw[0] * tg; L.vy = vw[1] * tg + 0.008;   // it sets off with the air, not from rest
+      return L;
     }
     function seed() {
       wisps = []; leaves = [];
-      var nw = Math.round(w / 22 * density), nl = Math.round(w / 110 * density);
+      var nw = Math.round(w / 22 * density), nl = Math.max(6, Math.round(w / 110 * density));
       for (var i = 0; i < nw; i++) { var p = wisp(true); p.life = r() * p.ttl; wisps.push(p); }
       for (var j = 0; j < nl; j++) leaves.push(leaf(true));
     }
@@ -185,7 +212,7 @@
       for (var j = 0; j < leaves.length; j++) {
         var L = leaves[j], sp = sprites[L.kind][L.sz], face = Math.cos(L.flip);   // edge-on when cos ~ 0
         ctx.save(); ctx.translate(L.x, L.y); ctx.rotate(L.rot); ctx.scale(1, Math.max(0.08, Math.abs(face)));
-        ctx.globalAlpha = L.a * (0.55 + 0.45 * Math.abs(face));                   // a leaf seen flat is darker than one seen on edge
+        ctx.globalAlpha = L.a * (0.55 + 0.45 * Math.abs(face)) * Math.min(1, (t - L.born) / 1500);   // a leaf seen flat is darker than one seen on edge; a newcomer fades in
         ctx.drawImage(sp, -sp.width / 2, -sp.height / 2); ctx.restore();
       }
       ctx.globalAlpha = 1;
@@ -195,8 +222,14 @@
     makeSprites(); size();
     if (reduce) { for (var s0 = 0; s0 < 120; s0++) step(16); draw(); }
     else requestAnimationFrame(loop);
-    var onResize = function () { size(); draw(); };
+    // resizes are coalesced to one per frame; the canvas is also watched directly, since the hero grows when its fonts arrive
+    var resizeQueued = false, ro = null;
+    var onResize = function () { if (resizeQueued) return; resizeQueued = true; requestAnimationFrame(function () { resizeQueued = false; size(); draw(); }); };
     window.addEventListener('resize', onResize);
+    if (window.ResizeObserver) { ro = new ResizeObserver(onResize); ro.observe(canvas); }
+    // coming back to the tab (or from a reload gesture) starts the clock afresh instead of taking one long step
+    var onVisible = function () { last = 0; };
+    document.addEventListener('visibilitychange', onVisible);
 
     /* aim: the wind turns, slowly, to blow toward a point (canvas coordinates); release: it drifts home */
     function aim(x, y) {
@@ -205,19 +238,33 @@
       aimDir = [dx / m, dy / m + 0.06]; aimAt = t;
     }
     function release() { aimDir = null; }
-    var follow = opts.follow, onMove = null, onLeave = null;
+    var follow = opts.follow, onDown = null, onMove = null, onUp = null, held = false;
     if (follow) {
-      onMove = function (e) {
-        var rect = canvas.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top, now = performance.now();
+      var local = function (e) { var rect = canvas.getBoundingClientRect(); return [e.clientX - rect.left, e.clientY - rect.top]; };
+      var track = function (x, y, now, mouse) {
         aim(x, y);
-        // a quick sweep of the hand throws a gust along the wind
-        if (ptr.t) { var dtp = now - ptr.t, v = Math.hypot(x - ptr.x, y - ptr.y) / Math.max(1, dtp); if (dtp > 30 && v > 1.6) api.gust(Math.min(0.6, (v - 1.6) * 0.25)); }
+        // a quick sweep of the hand throws a gust along the wind; a finger moves faster than a mouse, so it takes a real flick
+        if (ptr.t) {
+          var dtp = now - ptr.t, v = Math.hypot(x - ptr.x, y - ptr.y) / Math.max(1, dtp), lim = mouse ? 1.6 : 2.4;
+          if (dtp > 30 && v > lim) api.gust(Math.min(mouse ? 0.6 : 0.45, (v - lim) * 0.25));
+        }
         ptr.x = x; ptr.y = y; ptr.t = now;
       };
-      onLeave = function () { release(); ptr.t = 0; };
+      onDown = function (e) {
+        var p = local(e); ptr.x = p[0]; ptr.y = p[1]; ptr.t = performance.now();   // speed is measured from here, never from where the last touch ended
+        if (e.pointerType !== 'mouse') { held = true; aim(p[0], p[1]); }           // a finger or pen is followed only while it is down
+      };
+      onMove = function (e) {
+        if (e.pointerType !== 'mouse' && !held) return;                            // a hovering pen, or a touch the browser already took to scroll
+        var p = local(e); track(p[0], p[1], performance.now(), e.pointerType === 'mouse');
+      };
+      // pointerup and pointercancel (the browser took the touch to scroll or refresh) let a finger go; a mouse is let go only when it leaves
+      onUp = function (e) { if (e.type === 'pointerleave' || e.pointerType !== 'mouse') { held = false; release(); ptr.t = 0; } };
+      follow.addEventListener('pointerdown', onDown, { passive: true });
       follow.addEventListener('pointermove', onMove, { passive: true });
-      follow.addEventListener('pointerleave', onLeave);
-      follow.addEventListener('pointercancel', onLeave);
+      follow.addEventListener('pointerup', onUp, { passive: true });
+      follow.addEventListener('pointercancel', onUp, { passive: true });
+      follow.addEventListener('pointerleave', onUp, { passive: true });
     }
 
     var api = {
@@ -228,10 +275,13 @@
       },
       aim: aim, release: release,
       setInk: function (color) { ink = color; makeSprites(); draw(); },
-      stop: function () { running = false; window.removeEventListener('resize', onResize); if (follow) { follow.removeEventListener('pointermove', onMove); follow.removeEventListener('pointerleave', onLeave); follow.removeEventListener('pointercancel', onLeave); } }
+      stop: function () {
+        running = false; window.removeEventListener('resize', onResize); document.removeEventListener('visibilitychange', onVisible); if (ro) ro.disconnect();
+        if (follow) { follow.removeEventListener('pointerdown', onDown); follow.removeEventListener('pointermove', onMove); follow.removeEventListener('pointerup', onUp); follow.removeEventListener('pointercancel', onUp); follow.removeEventListener('pointerleave', onUp); }
+      }
     };
     return api;
   }
 
-  window.RenseikanWind = { start: start, sprite: function (kind, size, ink) { return leafSprite(kind, size, ink || '#1f1c19', rng(3)); }, version: '1.2.0' };
+  window.RenseikanWind = { start: start, sprite: function (kind, size, ink) { return leafSprite(kind, size, ink || '#1f1c19', rng(3)); }, version: '1.3.0' };
 })();
