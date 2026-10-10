@@ -1,5 +1,5 @@
 ---
-// Base layout: head, nav (mon + name, links, theme, members' booking), the page, footer with the lockup,
+// Base layout: head, nav (mon + name, links, theme), the page, footer with the lockup,
 // the paper overlay and the three ink libraries. Every page uses this.
 import '../styles/site.css';
 import { getSite, getClasses, daysLabel } from '../lib/sanity';
@@ -82,7 +82,6 @@ const canonical = new URL(path === '/' ? '/' : path, Astro.site);
     </ul>
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" style="margin-left:auto">Menu</button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch theme">Theme</button>
-    <a class="btn primary" href="/classes#book">Members: book</a>
   </div>
   <div class="mobile-menu" id="mobileMenu" hidden>
     <ul>
