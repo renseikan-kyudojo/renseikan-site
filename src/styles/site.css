@@ -152,7 +152,7 @@
   .card { display: grid; gap: var(--space-8); background: var(--washi-raised); border: 1px solid var(--hairline); padding: var(--space-8) var(--space-4); }
   @media (min-width: 720px) { .card { grid-template-columns: 160px 1fr; padding: var(--space-8); } }
   .cards { display: grid; gap: var(--space-8); }
-  img.photo { display: block; height: auto; object-fit: cover; }
+  img.photo { display: block; height: auto; aspect-ratio: auto; object-fit: cover; }
   .rows li[hidden] { display: none; }
   .panel .actions { margin-top: var(--space-4); }
   .rows li.off .title, .rows li.off .day { color: var(--sumi-muted); }

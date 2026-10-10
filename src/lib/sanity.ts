@@ -59,14 +59,14 @@ export async function getEvents(defaults: Ev[]): Promise<Ev[]> {
 // ---- Instructors (`person`) -------------------------------------------------------------------------------------
 
 export interface Instructor {
-  name: string; title?: string; rank?: string; rankPlain?: string; credentials: string[]; email?: string; portrait?: string;
+  name: string; title?: string; rank?: string; rankPlain?: string; credentials: string[]; email?: string; portrait?: string; portraitRatio?: [number, number];
 }
 /** Instructors in menu order. The first one is laid over site.json's instructor, so a half-filled document still renders. */
 export async function getInstructors(): Promise<Instructor[]> {
   const t = (await getSite()).instructor;
   const fallback: Instructor = {
     name: t.name, title: 'Chief Instructor', rank: t.rank, rankPlain: t.rankPlain, credentials: [t.role, t.former], email: t.email,
-    portrait: '/people/steve-scott.jpg', // shown until a portrait is uploaded in the Studio
+    portrait: '/people/steve-scott.jpg', portraitRatio: [1, 1], // shown, uncropped, until a portrait is uploaded in the Studio
   };
   const docs = await query<Record<string, any>[]>(`*[_type == "person"] | order(coalesce(order, 999) asc, _createdAt asc){
     name, title, rank, rankPlain, credentials, email,
@@ -80,6 +80,7 @@ export async function getInstructors(): Promise<Instructor[]> {
       if (portrait) {
         // 5:6 crop around the hotspot Steve sets in the Studio, sized for the 160px card at 3x
         const x = fp?.x ?? 0.5, y = fp?.y ?? 0.4;
+        p.portraitRatio = undefined;
         p.portrait = `${portrait}?w=480&h=576&fit=crop&crop=focalpoint&fp-x=${x}&fp-y=${y}&auto=format`;
       }
       return p;
