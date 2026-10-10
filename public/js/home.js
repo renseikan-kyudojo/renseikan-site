@@ -43,11 +43,26 @@
     seal.style.left = ((x0 + total + em * 0.07) / W * 100) + '%'; seal.style.top = ((y0 + em * 0.76) / H * 100) + '%'; seal.style.width = (sz / W * 100) + '%';
     return list;
   }
+  var painted = '', state = 'pending', dirty = false;   // the ink the sheet holds; pending → painting → done
   function paint(animated) {
     ink.width = 0; ink.height = 0; wet.width = 0; wet.height = 0;
     var list = word(); if (!list) return Promise.resolve();
+    painted = inkColor();
     return RenseikanBrush.sequence(ink, list, { gap: LIFT, animate: animated });
   }
+  function opening(animated) {
+    state = 'painting';
+    return paint(animated).then(function () { state = 'done'; if (dirty) { dirty = false; paint(false); } });
+  }
+  // Repaint the finished word (new ink, new size). Before the opening has begun there is nothing to repaint: site.js
+  // re-applies the saved theme as it loads, and painting then would show the word whole and then wipe it for the
+  // animation. During the opening the request waits for the brush to lift.
+  function refresh() {
+    if (state === 'pending') return;
+    if (state === 'painting') { dirty = true; return; }
+    paint(false);
+  }
+  function inkChanged() { if (inkColor() !== painted) refresh(); }
 
   // --- the name: 練誠館 written stroke by stroke in the logo's own calligraphy (14, 13 and 16 strokes, 900ms a
   // character, each starting as the last one's final stroke lifts). Both copies are written; only one is shown. ------
@@ -56,14 +71,14 @@
     [[kCol, 'column'], [kRow, 'row']].forEach(function (h) { RenseikanLogo.kanji(h[0], { text: '練誠館', direction: h[1], mode: 'strokes', charDuration: 900, delay: 120 }); });
   }
   writeKanji();
-  if (reduce) { if (hanko) hanko.classList.add('in'); paint(false); seal.classList.add('in'); }
+  if (reduce) { if (hanko) hanko.classList.add('in'); opening(false); seal.classList.add('in'); }
   else {
     // the mon is pressed as 館 finishes; the painting starts while the name is still being written and its seal lands last
     setTimeout(function () { if (hanko) hanko.classList.add('in'); }, 2900);
-    setTimeout(function () { paint(true).then(function () { setTimeout(function () { seal.classList.add('in'); }, 260); }); }, 1400);
+    setTimeout(function () { opening(true).then(function () { setTimeout(function () { seal.classList.add('in'); }, 260); }); }, 1400);
   }
   // theme change: repaint the finished word in the new ink; resize: repaint
-  new MutationObserver(function () { paint(false); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { paint(false); });
-  var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { paint(false); }, 150); });
+  new MutationObserver(inkChanged).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', inkChanged);
+  var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(refresh, 150); });
 })();
