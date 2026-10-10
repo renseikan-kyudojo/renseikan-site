@@ -1,0 +1,14 @@
+---
+// A home-page section title: the h2, wiped on as it scrolls into view, with the red brush mark painted under it.
+import BrushMark from './BrushMark.astro';
+interface Props {
+  id: string;
+  title: string;
+}
+const { id, title } = Astro.props;
+---
+
+<h2 id={id} class="wipe">
+  {title}
+</h2>
+<BrushMark />

@@ -1,6 +1,22 @@
-/* Home page: the painted hero sequence. The name 練誠館 is written stroke by stroke in the logo face and its mon is
-   pressed; then 弓道 (kyūdō) is painted in live ink on the right, stroke by stroke in proper order, with the bristle
-   brush following the face's own thick and thin, and a red seal lands beside it. Ported from the prototype. */
+/* Home page: the guiding wind behind the hero and the painted hero sequence. The name 練誠館 is written stroke by stroke
+   in the logo face and its mon is pressed; then 弓道 (kyūdō) is painted in live ink on the right, stroke by stroke in
+   proper order, with the bristle brush following the face's own thick and thin, and a red seal lands beside it.
+   Bundled by Astro from Hero.astro. */
+import RenseikanLogo from '../lib/ink/logo.js';
+import RenseikanBrush from '../lib/ink/brush.js';
+import RenseikanWind from '../lib/ink/wind.js';
+
+// Guiding wind: a flow field with curving wisps and ink-drawn leaves. A scroll adds a gust that travels across as a wave.
+(function () {
+  var root = document.documentElement, windCanvas = document.getElementById('wash');
+  function inkFor() { return getComputedStyle(root).getPropertyValue('--sumi').trim() || '#1f1c19'; }
+  var wind = windCanvas ? RenseikanWind.start(windCanvas, { ink: inkFor(), density: 1, follow: document.querySelector('.hero') }) : null;
+  var lastGust = 0;
+  addEventListener('scroll', function () { var n = Date.now(); if (wind && n - lastGust > 600) { wind.gust(0.35); lastGust = n; } }, { passive: true });
+  new MutationObserver(function () { if (wind) wind.setInk(inkFor()); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { if (wind) wind.setInk(inkFor()); });
+})();
+
 (function () {
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var root = document.documentElement;
@@ -13,7 +29,7 @@
   var WORD = ['yumi', 'do'], CHAR_MS = { yumi: 1250, do: 2050 }, LIFT = 70;
   var LIFTS = /[㇒㇏㇓㇀㇚]/;                                   // sweeps and flicks thin out as the brush lifts
   function word() {
-    if (!window.RenseikanBrush || !window.RenseikanLogo || !RenseikanLogo.data || !RenseikanLogo.data.strokes) return null;
+    if (!RenseikanLogo.data || !RenseikanLogo.data.strokes) return null;
     var W = ink.clientWidth, H = ink.clientHeight; if (!W || !H) return null;
     var D = RenseikanLogo.data, col = D.colL, EM = col[2], n = WORD.length, gap = 0.1, pad = 0.04;
     // one em square per character, as large as the stage allows, centred as a row
@@ -67,7 +83,6 @@
   // --- the name: 練誠館 written stroke by stroke in the logo's own calligraphy (14, 13 and 16 strokes, 900ms a
   // character, each starting as the last one's final stroke lifts). Both copies are written; only one is shown. ------
   function writeKanji() {
-    if (!window.RenseikanLogo) return;
     [[kCol, 'column'], [kRow, 'row']].forEach(function (h) { RenseikanLogo.kanji(h[0], { text: '練誠館', direction: h[1], mode: 'strokes', charDuration: 900, delay: 120 }); });
   }
   writeKanji();

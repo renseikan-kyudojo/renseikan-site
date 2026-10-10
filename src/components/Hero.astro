@@ -1,0 +1,61 @@
+---
+// The hero: the name written in the logo face and its mon pressed (left, desktop), the title and lede, and 弓道 painted
+// in live ink with its seal (right). The wind blows across the whole section. home.js runs the sequence.
+import { regionName } from '../lib/format';
+import type { Site } from '../lib/sanity';
+interface Props {
+  site: Site;
+}
+const { site } = Astro.props;
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <canvas id="wash" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="scroll-kanji" aria-hidden="true">
+      <div class="kanji" id="heroKanji" lang="ja"></div>
+      <span class="hanko stamp" id="hanko"></span>
+    </div>
+    <div>
+      <p class="eyebrow">
+        {site.address.city}, {regionName(site.address.region)}
+      </p>
+      <div class="kanji inline" id="heroKanjiInline" lang="ja" aria-hidden="true"></div>
+      <h1 id="hero-title" class="wipe in late">
+        Renseikan Kyudojo
+      </h1>
+      <p class="lede">
+        Traditional Japanese archery, taught the way it has been for centuries. New students are always welcome. The
+        first lesson is free with no appointments needed, just walk in during a regularly scheduled class time.
+      </p>
+      <div class="actions">
+        <a class="btn primary" href="#expect">
+          New to the Dojo
+        </a>
+        <a class="btn secondary" href="#book">
+          Members: book a class
+        </a>
+      </div>
+    </div>
+    <div
+      class="ink-stage"
+      role="img"
+      aria-label="弓道, kyūdō, painted in ink stroke by stroke as the page opens, with a red seal"
+    >
+      <canvas class="ink" id="inkCanvas"></canvas>
+      <canvas class="ink wet" id="wetCanvas" aria-hidden="true"></canvas>
+      <span class="seal stamp" id="strokeSeal" aria-hidden="true"></span>
+    </div>
+  </div>
+  <div class="ya-wrap" aria-hidden="true">
+    <svg class="ya" viewBox="0 0 24 72">
+      <path d="M12 2 V 60"></path>
+      <path d="M8 6 L12 12 L16 6 M8 12 L12 18 L16 12"></path>
+      <polygon class="tip" points="12,70 8,60 16,60"></polygon>
+    </svg>
+  </div>
+</section>
+
+<script>
+  import '../scripts/home.js';
+</script>

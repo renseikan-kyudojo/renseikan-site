@@ -1,0 +1,31 @@
+---
+// Upcoming class dates. All of them are rendered; site.js hides past ones and marks today, so a page built days ago
+// still reads right. Without JS the first `show` rows are visible.
+import type { ClassDate } from '../lib/sanity';
+interface Props {
+  dates: ClassDate[];
+  show?: number;
+}
+const { dates, show = 4 } = Astro.props;
+---
+
+{dates.length === 0 ? (
+  <p class="muted">No classes are scheduled right now. Check the News page.</p>
+) : (
+  <ul class="rows" data-show={show}>
+    {dates.map((c, i) => (
+      <li data-date={c.date} class:list={{ off: c.off }} hidden={i >= show}>
+        <div class="day">
+          {c.dow}
+          <b>{c.day}</b>
+        </div>
+        <div>
+          <p class="title">{c.title}</p>
+          <p class="meta">{[c.time, c.place].filter(Boolean).join(' · ')}</p>
+          {c.note && <p class="meta">{c.note}</p>}
+        </div>
+        <div class="status">{c.status}</div>
+      </li>
+    ))}
+  </ul>
+)}

@@ -3,9 +3,9 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base title="Not found" description="That page is not here.">
-  <section aria-labelledby="nf-title">
-    <div class="wrap" style="text-align:center">
-      <div id="nfMon" style="width:160px;height:160px;margin:0 auto var(--space-4)" aria-hidden="true"></div>
+  <section class="page nf" aria-labelledby="nf-title">
+    <div class="wrap">
+      <div id="nfMon" class="nf-mon" aria-hidden="true"></div>
       <h1 id="nf-title" class="page-title">
         That page is not here
       </h1>
@@ -18,9 +18,10 @@ import Base from '../layouts/Base.astro';
       </p>
     </div>
   </section>
-  <script is:inline>
-    addEventListener('DOMContentLoaded', function () {
-      if (window.RenseikanLogo) RenseikanLogo.mon(document.getElementById('nfMon'), { mode: 'ink' });
-    });
-  </script>
 </Base>
+
+<script>
+  import RenseikanLogo from '../lib/ink/logo.js';
+  const el = document.getElementById('nfMon');
+  if (el) RenseikanLogo.mon(el, { mode: 'ink' });
+</script>

@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
 import { getEvents } from '../../lib/sanity';
 // Events come from Sanity `event` documents; this sample shows until the first one is published.
 const events = await getEvents([
@@ -10,27 +11,24 @@ const events = await getEvents([
     body: 'Classes run every Sunday through December except the holiday Sundays the dojo announces here.',
   },
 ]);
+const when = (d: string) =>
+  new Date(d + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 ---
 
 <Base title="News and events" description="Taikai, seminars, demonstrations and closures at Renseikan Kyudojo.">
   <section id="news-page" class="page" aria-labelledby="news-title">
     <div class="wrap">
-      <p class="eyebrow">News and events</p>
-      <h1 id="news-title" class="wipe page-title">
-        What's coming
-      </h1>
+      <PageHeader eyebrow="News and events" title="What's coming" id="news-title" />
       <ul class="events">
         {events.map((e) => (
           <li>
             <p class="meta">
-              <time datetime={e.date}>
-                {new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', {
-                  weekday: 'short',
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </time>
+              <time datetime={e.date}>{when(e.date)}</time>
               {e.place && <span> · {e.place}</span>}
             </p>
             <h2>{e.title}</h2>

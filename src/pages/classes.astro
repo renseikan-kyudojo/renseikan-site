@@ -1,7 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ClassList from '../components/ClassList.astro';
+import BookingPanel from '../components/BookingPanel.astro';
 import { getSite, getClasses, getClassDates, daysLabel } from '../lib/sanity';
-import { classRows, widgetSlot } from '../lib/render';
 const [site, classes, dates] = await Promise.all([getSite(), getClasses(), getClassDates()]);
 const days = daysLabel(classes);
 ---
@@ -12,45 +14,21 @@ const days = daysLabel(classes);
 >
   <section id="classes-page" class="page" aria-labelledby="classes-title">
     <div class="wrap">
-      <p class="eyebrow">Classes</p>
-      <h1 id="classes-title" class="wipe page-title">
-        {days}, {site.hours}
-      </h1>
-      <div class="kanji" id="pageKanji" lang="ja" aria-hidden="true" style="font-size:40px"></div>
-      <p class="lede">{site.policy}</p>
+      <PageHeader eyebrow="Classes" title={`${days}, ${site.hours}`} id="classes-title">
+        <div class="kanji page-kanji" id="pageKanji" lang="ja" aria-hidden="true"></div>
+        <p class="lede">{site.policy}</p>
+      </PageHeader>
       <h3>Coming up</h3>
-      <Fragment set:html={classRows(dates)} />
+      <ClassList dates={dates} />
       <h3>What to wear and bring</h3>
       <p>Loose clothing you can kneel in and socks. The dojo lends the bow, glove and arrows for the first lessons.</p>
-      <div class="panel" id="book">
-        <p class="eyebrow">Members' booking</p>
-        <h2>Book a class</h2>
-        <p class="muted">
-          New students don't need to book. Members reserve their place through the Japanese Art &amp; Cultural Center
-          (JACC) on WellnessLiving.
-        </p>
-        <Fragment set:html={widgetSlot(site)} />
-        <!-- JACC Custom Schedule widget: pasted into Dojo settings in the Studio (runbook 06) -->
-        <div class="actions" style="align-items:center">
-          <a class="btn primary" href={site.booking} target="_blank" rel="noopener">
-            Book on WellnessLiving
-          </a>
-          <p class="note">Opens the JACC schedule in a new tab.</p>
-        </div>
-      </div>
+      <BookingPanel site={site} headingTag="h3" />
     </div>
   </section>
-  <script is:inline>
-    // the ink libraries load at the end of the body, so wait for the DOM
-    addEventListener('DOMContentLoaded', function () {
-      if (window.RenseikanLogo)
-        RenseikanLogo.kanji(document.getElementById('pageKanji'), {
-          text: '弓道場',
-          direction: 'row',
-          mode: 'strokes',
-          charDuration: 900,
-          delay: 300,
-        });
-    });
-  </script>
 </Base>
+
+<script>
+  import RenseikanLogo from '../lib/ink/logo.js';
+  const el = document.getElementById('pageKanji');
+  if (el) RenseikanLogo.kanji(el, { text: '弓道場', direction: 'row', mode: 'strokes', charDuration: 900, delay: 300 });
+</script>

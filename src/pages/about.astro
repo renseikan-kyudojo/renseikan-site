@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
 import { getSite } from '../lib/sanity';
 const site = await getSite();
 ---
@@ -11,15 +12,13 @@ const site = await getSite();
   <section id="about" class="page" aria-labelledby="about-title">
     <div class="wrap">
       <div class="about-mon" id="aboutMon" aria-hidden="true"></div>
-      <p class="eyebrow">About the dojo</p>
-      <h1 id="about-title" class="wipe page-title">
-        練誠館, the Renseikan
-      </h1>
-      <p class="lede">
-        Kyudo (弓道, "the way of the bow") is Japanese archery practised as a discipline: one arrow at a time, the same
-        eight movements, the same breath. {site.name} teaches it every Sunday at the Japanese Art &amp; Cultural Center
-        (JACC) in San Jose, California.
-      </p>
+      <PageHeader eyebrow="About the dojo" title="練誠館, the Renseikan" id="about-title">
+        <p class="lede">
+          Kyudo (弓道, "the way of the bow") is Japanese archery practised as a discipline: one arrow at a time, the
+          same eight movements, the same breath. {site.name} teaches it every Sunday at the Japanese Art &amp; Cultural
+          Center (JACC) in San Jose, California.
+        </p>
+      </PageHeader>
       <h3>The name</h3>
       <p>
         練 <em>ren</em> is to train, to refine; 誠 <em>sei</em> is sincerity; 館 <em>kan</em> is the hall. Together, the
@@ -28,8 +27,11 @@ const site = await getSite();
       <h3>History</h3>
       <p>
         The Renseikan began as the San Jose Kyudo Club, formed in the late 1970s. The club was the original founding
-        dojo of the Northern California Kyudo Federation (NCKF), which Japan accepted as a foreign <em>renmei</em> in
-        1981.
+        dojo of the{' '}
+        <a href="https://www.nckf.org" rel="noopener">
+          Northern California Kyudo Federation
+        </a>{' '}
+        (NCKF), which Japan accepted as a foreign <em>renmei</em> in 1981.
       </p>
       <p>
         Sensei Steve Scott renamed the San Jose Kyudo Club the Renseikan in 2003, a few years after the Kurumi-an dojo
@@ -45,8 +47,15 @@ const site = await getSite();
       </p>
       <h3>Affiliation</h3>
       <p>
-        Renseikan is the founding dojo of the Northern California Kyudo Federation (NCKF) and a member of the American
-        Kyudo Renmei.
+        Renseikan is the founding dojo of the{' '}
+        <a href="https://www.nckf.org" rel="noopener">
+          Northern California Kyudo Federation
+        </a>
+        (NCKF) and a member of the{' '}
+        <a href="https://www.kyudo.us" rel="noopener">
+          American Kyudo Renmei
+        </a>
+        .
       </p>
     </div>
   </section>

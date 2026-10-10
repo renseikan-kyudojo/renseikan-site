@@ -6,7 +6,7 @@
   CI runs the same. In a cloud session set `PW_CHROMIUM=/opt/pw-browsers/chromium` for the smoke test.
 - Content lives in Sanity; `src/data/site.json` is the fallback and the source for the Studio's "fill blanks" action.
   Keep the two in sync when a fact changes.
-- The ink libraries in `public/lib/` are the identity of the site; keep their behaviour, including reduced-motion
+- The ink libraries in `src/lib/ink/` are the identity of the site; keep their behaviour, including reduced-motion
   fallbacks, when touching them.
 - Every page needs one `h1` inside `<main>`, 44px touch targets, and no serious axe findings; the smoke test checks.
 - Design tokens are the custom properties at the top of `src/styles/site.css`; no new hex values in components.

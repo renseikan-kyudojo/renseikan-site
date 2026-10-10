@@ -1,5 +1,5 @@
 /* @ds-lib renseikan-wind 1.3.0 — the guiding wind: a flow field with wisps and ink-drawn leaves.
-   window.RenseikanWind = { start(canvas, opts) -> { gust(strength), aim(x, y), release(), setInk(color), stop() }, version }
+   The default export: { start(canvas, opts) -> { gust(strength), aim(x, y), release(), setInk(color), stop() }, version }
    opts.follow: an element whose pointer the wind follows (the wind eases round to blow toward the cursor; a quick sweep throws a gust).
    A mouse is followed while it hovers; a finger or pen only while it is held down, and the wind lets go the moment it lifts or the
    browser takes the touch to scroll. A resize carries the living scene across (scaled) rather than starting it over, so the address
@@ -12,7 +12,7 @@
    moves faster. Petals are ink silhouettes (sakura petal and blossom, California poppy petal and cup) pre-drawn once, that tumble in three
    dimensions (a flip around their own axis changes how much of them you see), flutter sideways, spin, drift
    down a little, and are lifted and spun by gusts. Reduced motion: one still frame. No dependencies. */
-(function () {
+const RenseikanWind = (function () {
   'use strict';
 
   function rng(seed) { var s = seed >>> 0 || 1; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
@@ -283,5 +283,6 @@
     return api;
   }
 
-  window.RenseikanWind = { start: start, sprite: function (kind, size, ink) { return leafSprite(kind, size, ink || '#1f1c19', rng(3)); }, version: '1.3.0' };
+  return { start: start, sprite: function (kind, size, ink) { return leafSprite(kind, size, ink || '#1f1c19', rng(3)); }, version: '1.3.0' };
 })();
+export default RenseikanWind;

@@ -1,0 +1,78 @@
+---
+// The dojo at a glance: hours, the chief instructor, where, and the federation, as four tiles.
+import { shortVenue } from '../lib/format';
+import type { Site, Instructor } from '../lib/sanity';
+interface Props {
+  site: Site;
+  days: string;
+  chief: Instructor;
+}
+const { site, days, chief } = Astro.props;
+const a = site.address;
+// the short line under the name: rank, then credentials (the first usually repeats the title, so the tile skips it)
+const rank = [chief.rank, chief.rankPlain].filter(Boolean).join(' · ');
+const creds = (chief.credentials ?? []).filter((c, i) => !(i === 0 && chief.title && c.startsWith(chief.title)));
+const line = [rank, ...creds]
+  .filter(Boolean)
+  .map((s) => s.replace(/\.$/, '') + '.')
+  .join(' ');
+---
+
+<div class="bento">
+  <div class="tile wide ink">
+    <span class="label">Class hours</span>
+    <span class="big">
+      {days} <span class="nowrap">{site.hours}</span>
+    </span>
+  </div>
+  <div class="tile tall">
+    <span class="label">Chief Instructor</span>
+    <div>
+      <span class="name">{chief.name}</span>
+      <p class="small muted tile-sub">{line}</p>
+    </div>
+    <a class="btn quiet" href="#instructor">
+      About the instructor
+    </a>
+  </div>
+  <div class="tile take tall">
+    <span class="label">Where</span>
+    <address>
+      <span class="addr">{shortVenue(a.venue)}</span>
+      {a.street}
+      <br />
+      {a.city}, {a.region}
+    </address>
+    <p class="links">
+      <a href={site.mapsSearch} target="_blank" rel="noopener">
+        Map
+      </a>
+      <a href={site.mapsDirections} target="_blank" rel="noopener">
+        Directions
+      </a>
+    </p>
+  </div>
+  <div class="tile wide">
+    <span class="label">Federation</span>
+    <span>
+      The founding dojo of the{' '}
+      <a href="https://www.nckf.org" rel="noopener">
+        Northern California Kyudo Federation
+      </a>{' '}
+      (NCKF) and a member of the{' '}
+      <a href="https://www.kyudo.us" rel="noopener">
+        American Kyudo Renmei
+      </a>
+      .
+    </span>
+    <img
+      class="nckf-mon"
+      src="/logo/nckf-mon.webp"
+      width="72"
+      height="72"
+      alt="Northern California Kyudo Federation emblem"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+</div>

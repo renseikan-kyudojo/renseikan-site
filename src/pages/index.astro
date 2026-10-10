@@ -1,10 +1,16 @@
 ---
-// Home: the prototype's page as a raw partial (hero, facts, what to expect, classes + booking, instructor, visit), with
-// <!--@name--> tokens where the Studio's content goes. Text tokens are escaped here; the *Html ones come from render.ts.
+// Home: hero, the dojo at a glance, what to expect, classes and booking, the instructor, visit.
 import Base from '../layouts/Base.astro';
-import home from '../partials/home.html?raw';
+import BrushMarkDefs from '../components/BrushMarkDefs.astro';
+import Hero from '../components/Hero.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import Bento from '../components/Bento.astro';
+import Steps from '../components/Steps.astro';
+import ClassList from '../components/ClassList.astro';
+import BookingPanel from '../components/BookingPanel.astro';
+import InstructorCard from '../components/InstructorCard.astro';
+import VisitBlock from '../components/VisitBlock.astro';
 import { getSite, getInstructors, getClasses, getClassDates, daysLabel } from '../lib/sanity';
-import { esc, classRows, widgetSlot, instructorCard, instructorLine, shortVenue, regionName } from '../lib/render';
 
 const [site, instructors, classes, dates] = await Promise.all([
   getSite(),
@@ -12,39 +18,50 @@ const [site, instructors, classes, dates] = await Promise.all([
   getClasses(),
   getClassDates(),
 ]);
-const a = site.address;
 const chief = instructors[0];
 const days = daysLabel(classes);
-
-const text: Record<string, string> = {
-  place: `${a.city}, ${regionName(a.region)}`,
-  days,
-  hours: site.hours,
-  email: site.email,
-  venue: shortVenue(a.venue),
-  venueFull: a.venue,
-  street: a.street,
-  city: a.city,
-  region: a.region,
-  postalCode: a.postalCode,
-  booking: site.booking,
-  mapsSearch: site.mapsSearch,
-  mapsDirections: site.mapsDirections,
-  instrName: chief.name,
-};
-const html: Record<string, string> = {
-  rows: classRows(dates),
-  widget: widgetSlot(site),
-  instrCard: instructorCard(chief, 'h3'),
-  instrLine: instructorLine(chief),
-};
-const page = home.replace(/<!--@(\w+)-->/g, (_, k: string) => {
-  if (k in html) return html[k];
-  if (k in text) return esc(text[k]);
-  throw new Error(`home.html: unknown token @${k}`);
-});
 ---
 
-<Base home>
-  <Fragment set:html={page} />
+<Base>
+  <BrushMarkDefs />
+  <Hero site={site} />
+
+  <section id="about" aria-labelledby="about-title">
+    <div class="wrap">
+      <div class="about-mon" id="aboutMon" aria-hidden="true"></div>
+      <SectionTitle id="about-title" title="The dojo at a glance" />
+      <Bento site={site} days={days} chief={chief} />
+    </div>
+  </section>
+
+  <section id="expect" aria-labelledby="expect-title">
+    <div class="wrap">
+      <SectionTitle id="expect-title" title="Beginning Your Kyudo Journey" />
+      <Steps />
+    </div>
+  </section>
+
+  <section id="classes" aria-labelledby="classes-title">
+    <div class="wrap">
+      <SectionTitle id="classes-title" title="Coming up" />
+      <div class="two">
+        <ClassList dates={dates} />
+        <BookingPanel site={site} />
+      </div>
+    </div>
+  </section>
+
+  <section id="instructor" aria-labelledby="instr-title">
+    <div class="wrap">
+      <SectionTitle id="instr-title" title="Who teaches here" />
+      <InstructorCard person={chief} headingTag="h3" />
+    </div>
+  </section>
+
+  <section id="visit" aria-labelledby="visit-title">
+    <div class="wrap">
+      <SectionTitle id="visit-title" title="Visit the dojo" />
+      <VisitBlock site={site} days={days} />
+    </div>
+  </section>
 </Base>
