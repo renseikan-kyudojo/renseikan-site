@@ -66,6 +66,7 @@ export async function getInstructors(): Promise<Instructor[]> {
   const t = (await getSite()).instructor;
   const fallback: Instructor = {
     name: t.name, title: 'Chief Instructor', rank: t.rank, rankPlain: t.rankPlain, credentials: [t.role, t.former], email: t.email,
+    portrait: '/people/steve-scott.jpg', // shown until a portrait is uploaded in the Studio
   };
   const docs = await query<Record<string, any>[]>(`*[_type == "person"] | order(coalesce(order, 999) asc, _createdAt asc){
     name, title, rank, rankPlain, credentials, email,
