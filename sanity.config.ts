@@ -4,6 +4,7 @@ import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { schemaTypes } from './sanity/schemas';
 import { structure } from './sanity/structure';
+import { FillFromSite } from './sanity/actions/fillFromSite';
 
 const SINGLETONS = new Set(['settings']);
 
@@ -19,8 +20,12 @@ export default defineConfig({
     templates: (templates) => templates.filter(({ schemaType }) => !SINGLETONS.has(schemaType)),
   },
   document: {
-    // and allow only publish / discard / restore on it (no duplicate or delete)
-    actions: (input, { schemaType }) =>
-      SINGLETONS.has(schemaType) ? input.filter(({ action }) => action && ['publish', 'discardChanges', 'restore'].includes(action)) : input,
+    // allow only publish / discard / restore on it (no duplicate or delete); settings and instructors also get
+    // "Fill blanks with the site's current text" (sanity/actions/fillFromSite.ts)
+    actions: (input, { schemaType }) => {
+      if (SINGLETONS.has(schemaType))
+        return [...input.filter(({ action }) => action && ['publish', 'discardChanges', 'restore'].includes(action)), FillFromSite];
+      return schemaType === 'person' ? [...input, FillFromSite] : input;
+    },
   },
 });
