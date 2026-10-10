@@ -31,8 +31,9 @@ export function widgetSlot(site: Site): string {
 }
 
 export function instructorCard(t: Instructor, headingTag: 'h2' | 'h3' = 'h2'): string {
+  const [pw, ph] = t.portraitRatio ?? [5, 6];
   const photo = t.portrait
-    ? `<img class="photo has-img" src="${esc(t.portrait)}" alt="${esc(t.name)}" width="160" height="192" loading="lazy" decoding="async">`
+    ? `<img class="photo has-img" src="${esc(t.portrait)}" alt="${esc(t.name)}" width="160" height="${Math.round((160 * ph) / pw)}" loading="lazy" decoding="async">`
     : `<div class="photo mono" role="img" aria-label="Photo of ${esc(t.name)}, placeholder">PHOTO</div>`;
   const rank = t.rank ? `<p style="margin:var(--space-2) 0 0">${esc(t.rank)}${t.rankPlain ? ` <span class="muted">· ${esc(t.rankPlain)}</span>` : ''}</p>` : '';
   const creds = t.credentials?.length ? `<ul class="creds">${t.credentials.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '';
