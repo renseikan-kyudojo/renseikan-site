@@ -1,0 +1,60 @@
+---
+// Gallery: photos uploaded in the Studio, in their Order. Until there are any, the page says so and points to
+// Instagram when the dojo has set its URL.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { getSite, getPhotos } from '../lib/sanity';
+const [site, photos] = await Promise.all([getSite(), getPhotos()]);
+const src = (url: string, w: number) => `${url}?w=${w}&auto=format&q=80`;
+---
+
+<Base
+  title="Gallery"
+  description={`Photographs from ${site.name}: the hall, the makiwara, the mato, taikai and seminars.`}
+>
+  <section id="gallery-page" class="page" aria-labelledby="gallery-title">
+    <div class="wrap">
+      <PageHeader eyebrow="Gallery" title="The dojo in pictures" id="gallery-title" />
+      {photos.length ? (
+        <ul class="gallery">
+          {photos.map((p, i) => (
+            <li style={`--ar: ${p.w} / ${p.h}`}>
+              <a href={src(p.url, 2000)} target="_blank" rel="noopener">
+                <img
+                  class="mono-lift"
+                  src={src(p.url, 800)}
+                  srcset={`${src(p.url, 480)} 480w, ${src(p.url, 800)} 800w, ${src(p.url, 1200)} 1200w`}
+                  sizes="(min-width: 840px) 33vw, (min-width: 600px) 50vw, 100vw"
+                  width={p.w}
+                  height={p.h}
+                  alt={p.caption || `Photograph from ${site.name}`}
+                  loading={i < 3 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </a>
+              {(p.caption || p.credit) && (
+                <figcaption class="small muted">
+                  {p.caption}
+                  {p.credit && <span> · Photo: {p.credit}</span>}
+                </figcaption>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="muted">
+          Photographs are on their way.{' '}
+          {site.instagram && (
+            <span>
+              Until then, the dojo posts on{' '}
+              <a href={site.instagram} rel="noopener">
+                Instagram
+              </a>
+              .
+            </span>
+          )}
+        </p>
+      )}
+    </div>
+  </section>
+</Base>

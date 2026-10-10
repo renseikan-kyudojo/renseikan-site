@@ -1,0 +1,47 @@
+---
+// One news post from the Studio.
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { getPosts, type Post } from '../../lib/sanity';
+import { toHtml } from '../../lib/portable';
+import { when } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((p) => ({ params: { slug: p.slug }, props: { post: p } }));
+}
+interface Props {
+  post: Post;
+}
+const { post: p } = Astro.props;
+---
+
+<Base title={p.title} description={p.summary || p.title}>
+  <article>
+    <section class="page" aria-labelledby="post-title">
+      <div class="wrap">
+        <PageHeader eyebrow="News" title={p.title} id="post-title">
+          <p class="lede">
+            <time datetime={p.date}>{when(p.date)}</time>
+          </p>
+        </PageHeader>
+        {p.photo && (
+          <img
+            class="event-photo"
+            src={`${p.photo}?w=1600&auto=format`}
+            alt=""
+            width="1600"
+            height="900"
+            loading="eager"
+          />
+        )}
+        <div class="prose" set:html={toHtml(p.body)} />
+        <div class="actions">
+          <a class="btn quiet" href="/news">
+            All news and events
+          </a>
+        </div>
+      </div>
+    </section>
+  </article>
+</Base>

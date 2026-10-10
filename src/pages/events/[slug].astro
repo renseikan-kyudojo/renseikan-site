@@ -1,0 +1,88 @@
+---
+// One event: date and place, details from the Studio, a registration button if there is one, "add to calendar",
+// and schema.org Event data.
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { getAllEvents, getSite } from '../../lib/sanity';
+import { toHtml } from '../../lib/portable';
+import { when, googleCalendarUrl } from '../../lib/format';
+import type { Ev } from '../../lib/sanity';
+
+export async function getStaticPaths() {
+  const events = await getAllEvents();
+  return events.map((e) => ({ params: { slug: e.slug }, props: { event: e } }));
+}
+interface Props {
+  event: Ev;
+}
+const { event: e } = Astro.props;
+const site = await getSite();
+const place = e.place || site.address.venue;
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: e.title,
+  startDate: e.date,
+  endDate: e.endDate || e.date,
+  description: e.summary,
+  eventStatus: e.kind === 'Closure' ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
+  location: {
+    '@type': 'Place',
+    name: place,
+    address: { '@type': 'PostalAddress', addressLocality: site.address.city, addressRegion: site.address.region },
+  },
+  organizer: { '@type': 'Organization', name: site.name, url: Astro.site?.toString() },
+  ...(e.photo ? { image: `${e.photo}?w=1200&auto=format` } : {}),
+  ...(e.registrationUrl ? { offers: { '@type': 'Offer', url: e.registrationUrl } } : {}),
+};
+---
+
+<Base title={e.title} description={e.summary || `${e.title}, ${when(e.date)} at ${place}.`}>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
+  <article>
+    <section class="page" aria-labelledby="event-title">
+      <div class="wrap">
+        <PageHeader eyebrow={e.kind && e.kind !== 'Other' ? e.kind : 'Event'} title={e.title} id="event-title">
+          <p class="lede">
+            <time datetime={e.date}>{when(e.date)}</time>
+            {e.endDate && e.endDate !== e.date && (
+              <span>
+                {' '}
+                to <time datetime={e.endDate}>{when(e.endDate)}</time>
+              </span>
+            )}
+            {(e.start || e.end) && <span>, {[e.start, e.end].filter(Boolean).join(' – ')}</span>}
+            <br />
+            {place}
+          </p>
+        </PageHeader>
+        {e.photo && (
+          <img
+            class="event-photo"
+            src={`${e.photo}?w=1600&auto=format`}
+            alt=""
+            width="1600"
+            height="900"
+            loading="eager"
+          />
+        )}
+        <div class="prose">
+          {e.body?.length ? <Fragment set:html={toHtml(e.body)} /> : e.summary && <p>{e.summary}</p>}
+        </div>
+        <div class="actions">
+          {e.registrationUrl && (
+            <a class="btn primary" href={e.registrationUrl} target="_blank" rel="noopener">
+              Register
+            </a>
+          )}
+          <a class="btn secondary" href={googleCalendarUrl(e, place)} target="_blank" rel="noopener">
+            Add to Google Calendar
+          </a>
+          <a class="btn quiet" href="/news">
+            All news and events
+          </a>
+        </div>
+      </div>
+    </section>
+  </article>
+</Base>

@@ -19,6 +19,7 @@ const types = {
   '.txt': 'text/plain',
   '.json': 'application/json',
   '.webmanifest': 'application/manifest+json',
+  '.ics': 'text/calendar; charset=utf-8',
 };
 http
   .createServer((req, res) => {

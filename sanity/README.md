@@ -17,8 +17,15 @@ with `npm run studio`.
   - Classes: one document per weekly class. The home and Classes pages list the next dates it falls on (built 8 ahead;
     `public/js/site.js` hides past ones and marks today). An Event of kind **Closure** marks its dates "No class".
     No Class documents = one Sunday class at the Dojo settings time. Footer, Visit and schema.org hours follow them.
-  - Events: the News page.
-  - Next: Pages, Posts, Photos.
+  - Events: the News page lists the upcoming ones; each has its own page at /events/<slug> with its details (rich
+    text and images), a registration button if a link is set, and "Add to Google Calendar". Closures still mark class
+    dates "No class".
+  - News posts: listed under the events on the News page, each at /news/<slug>. Both feed /rss.xml.
+  - Gallery photos: the Gallery page, in Order; until there are any it points to Instagram when that URL is set.
+  - FAQ: the Questions page, in Order; built-in answers show until the first entry is published.
+  - Dojo settings also holds the Joining page's facts (after the first lesson, fees, equipment, grading); blank fields
+    fall back to cautious wording that says to ask.
+  - Next: Pages.
 - Home page: `src/pages/index.astro` composes the components (Hero, Bento, Steps, ClassList, BookingPanel,
   InstructorCard, VisitBlock).
 - Studio action **Fill blanks with the site's current text** (`sanity/actions/fillFromSite.ts`) on Dojo settings and the
