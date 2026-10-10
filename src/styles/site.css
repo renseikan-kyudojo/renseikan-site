@@ -1,5 +1,5 @@
 /* Renseikan site styles: ported verbatim from the prototype (v13). Tokens at the top mirror design-system/tokens.json; keep them in sync. */
-  /* Layout: one quiet column (max 1080px) on washi; the hero has an ink-wash canvas behind a brushstroke; a bento of dojo facts; schedule + booking hand-off; instructor; visit; footer. Tokens from the Renseikan design system. */
+  /* Layout: one quiet column (max 1080px) on washi; the hero has an ink-wash canvas behind the painted word 弓道 and its seal; a bento of dojo facts; schedule + booking hand-off; instructor; visit; footer. Tokens from the Renseikan design system. */
   :root {
     --washi: #f6f1e7; --washi-raised: #fbf8f2; --sumi: #1f1c19; --sumi-muted: #5c554c; --hairline: #d9d0c0;
     --shu: #c4382a; --on-shu: #fbf8f2; --take: #d8c9a3; --matsu: #3f6b4a;
@@ -220,7 +220,7 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
 
-  /* --- Hero sequence: kanji written in order, seal pressed, stroke painted, seal pressed --- */
+  /* --- Hero sequence: the name written in order, the mon pressed, 弓道 painted stroke by stroke, its seal pressed (the seal is placed by home.js beside the last character; these are the defaults) --- */
   .ink-stage { position: relative; width: 100%; max-width: 600px; aspect-ratio: 600 / 240; }
   .ink-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .ink-stage .wet { mix-blend-mode: multiply; }

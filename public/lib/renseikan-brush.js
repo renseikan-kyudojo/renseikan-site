@@ -1,12 +1,14 @@
-/* @ds-lib renseikan-brush 2.2.1 — live ink strokes on a 2D canvas, bristle-bundle model.
-   window.RenseikanBrush = { stroke, animate, presets, pressure, circle, version }
+/* @ds-lib renseikan-brush 2.3.0 — live ink strokes on a 2D canvas, bristle-bundle model.
+   window.RenseikanBrush = { stroke, animate, sequence, path, presets, pressure, circle, version }
 
    A stroke is 60–130 hairs dragged along a centreline. Each hair has a seat in the bundle
    (dense core, sparse frayed edge), its own ink load, thickness, drift and lag (outer hairs
    trail the tip, so the bundle splays at the entry and drags through curves). Ink depletes
    along the stroke; a hair lifts when spent unless pressure pushes it back down, and it skips
    off the paper now and then — that is dry brush (kasure). The entry pools, thin fast tails
-   throw spatter. No dependencies. Same model as gen_brushes.py, so SVG and canvas match. */
+   throw spatter. No dependencies. Same model as gen_brushes.py, so SVG and canvas match.
+   path() turns any drawn centreline (a glyph's stroke, say) with a width profile into a preset, and sequence()
+   paints a list of strokes one after another on the same sheet, so a whole character can be written. */
 (function () {
   'use strict';
 
@@ -261,5 +263,46 @@
     });
   }
 
-  window.RenseikanBrush = { stroke: stroke, animate: animate, presets: presets, pressure: pressure, timing: timing, circle: circle, spline: spline, version: '2.2.1' };
+  /* path(points, {widths, width, exit, tension, hairs, dryness, retouch, spatter, seed}) — a preset from a drawn centreline.
+     `points` are [[x,y],…] in unit space of the box; `widths` (optional, one per point) is how wide the written stroke
+     is there, in any unit: the pressure follows that profile, smoothed as a bundle of hairs would smooth it, so a
+     typeface's thick and thin come through the bristles; `maxWidth` is the widest the whole piece gets (so a hairline
+     in one stroke stays a hairline next to the others); `contrast` > 1 exaggerates the thick and thin, as a soft brush
+     does. exit 'lift' thins the last quarter to a flick (harai). */
+  function path(points, o) {
+    o = o || {};
+    var P = [], Wd = [];
+    for (var i = 0; i < points.length; i++) {
+      var q = points[i], l = P[P.length - 1];
+      if (l && Math.hypot(q[0] - l[0], q[1] - l[1]) < 1e-4) continue;
+      P.push([q[0], q[1]]); Wd.push(o.widths ? o.widths[i] : 1);
+    }
+    if (P.length === 1) { P.push([P[0][0] + 1e-3, P[0][1] + 1e-3]); Wd.push(Wd[0]); }
+    var L = [0]; for (var k = 1; k < P.length; k++) L.push(L[k - 1] + Math.hypot(P[k][0] - P[k - 1][0], P[k][1] - P[k - 1][1]));
+    var total = L[L.length - 1] || 1, maxw = o.maxWidth || 0; if (!maxw) for (var m = 0; m < Wd.length; m++) maxw = Math.max(maxw, Wd[m]);
+    function at(t) { var s = t * total, j = 1; while (j < L.length - 1 && L[j] < s) j++; var a = L[j - 1], b = L[j], f = b > a ? (s - a) / (b - a) : 0; return (Wd[j - 1] + (Wd[j] - Wd[j - 1]) * f) / (maxw || 1); }
+    // smooth the profile over ±6% of the stroke, sampled once
+    var S = 96, tab = [];
+    for (var n = 0; n <= S; n++) { var t = n / S, acc = 0, cnt = 0; for (var d = -4; d <= 4; d++) { var tt = t + d * 0.015; if (tt < 0 || tt > 1) continue; acc += at(tt); cnt++; } tab.push(acc / cnt); }
+    var exit = o.exit || 'press', contrast = o.contrast || 1;
+    var press = function (t) {
+      var x = Math.max(0, Math.min(1, t)) * S, j = Math.floor(x), v = Math.pow(tab[j] + (tab[Math.min(S, j + 1)] - tab[j]) * (x - j), contrast);
+      if (exit === 'lift') { var e = Math.max(0, (t - 0.72) / 0.28); v *= 1 - 0.9 * e * e * (3 - 2 * e); }
+      return Math.max(0.06, v);
+    };
+    return { segs: spline(P, o.tension), press: press, width: o.width || 0.1, hairs: o.hairs || 84, dryness: o.dryness == null ? 0.9 : o.dryness,
+      retouch: o.retouch == null ? 1.0 : o.retouch, spatter: o.spatter || 0, seed: o.seed || 97, spatterMode: 0.85 };
+  }
+
+  /* sequence(canvas, [opts…], {gap}) — paints the strokes in order on the same sheet, each as animate() would, with a
+     short lift (`gap` ms, default 60) between them; resolves when the last one lifts. Reduced motion: all at once. */
+  function sequence(canvas, list, o) {
+    o = o || {}; var gap = o.gap == null ? 60 : o.gap;
+    if (o.animate === false || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { for (var i = 0; i < list.length; i++) stroke(canvas, list[i]); return Promise.resolve(); }
+    return list.reduce(function (p, s, i) {
+      return p.then(function () { return animate(canvas, s); }).then(function () { if (i < list.length - 1 && gap) return new Promise(function (r) { setTimeout(r, gap); }); });
+    }, Promise.resolve());
+  }
+
+  window.RenseikanBrush = { stroke: stroke, animate: animate, sequence: sequence, path: path, presets: presets, pressure: pressure, timing: timing, circle: circle, spline: spline, version: '2.3.0' };
 })();
