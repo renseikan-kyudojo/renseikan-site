@@ -6,14 +6,19 @@ const instructors = await getInstructors();
 const t = instructors[0];
 const desc = [t.name, t.rank, t.credentials[0]].filter(Boolean).join(', ') + '.';
 ---
+
 <Base title={instructors.length > 1 ? 'Instructors' : 'Instructor'} description={desc}>
-<section id="instructor-page" aria-labelledby="instr-title">
-  <div class="wrap">
-    <p class="eyebrow">{instructors.length > 1 ? 'Instructors' : 'Instructor'}</p>
-    <h2 id="instr-title" class="wipe">Who teaches here</h2>
-    <div class="cards">
-      {instructors.map((p) => <Fragment set:html={instructorCard(p)} />)}
+  <section id="instructor-page" class="page" aria-labelledby="instr-title">
+    <div class="wrap">
+      <p class="eyebrow">{instructors.length > 1 ? 'Instructors' : 'Instructor'}</p>
+      <h1 id="instr-title" class="wipe page-title">
+        Who teaches here
+      </h1>
+      <div class="cards">
+        {instructors.map((p, i) => (
+          <Fragment set:html={instructorCard(p, 'h2', { eager: i === 0 })} />
+        ))}
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 </Base>

@@ -5,7 +5,10 @@ export const structure: StructureResolver = (S) =>
   S.list()
     .title('Renseikan')
     .items([
-      S.listItem().title('Dojo settings').id('settings').child(S.document().schemaType('settings').documentId('settings').title('Dojo settings')),
+      S.listItem()
+        .title('Dojo settings')
+        .id('settings')
+        .child(S.document().schemaType('settings').documentId('settings').title('Dojo settings')),
       S.divider(),
       S.documentTypeListItem('event').title('Events'),
       S.documentTypeListItem('post').title('News posts'),

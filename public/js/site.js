@@ -1,18 +1,30 @@
 /* Site-wide behaviour: theme switch, mobile menu, copy buttons, the guiding wind (home), brush-wipe reveals, logo motion on view, the map embed. Ported from the prototype. */
 (function () {
-  // Theme toggle (per-viewer convenience)
+  // Theme switch (per-viewer convenience): a role="switch" whose checked state is "dark theme on"
   var root = document.documentElement, tb = document.getElementById('themeBtn');
   try { var saved = localStorage.getItem('rk-theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  function isDark() { return root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches); }
+  function reflectTheme() { if (tb) tb.setAttribute('aria-checked', String(isDark())); }
+  reflectTheme();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', reflectTheme);
   if (tb) tb.addEventListener('click', function () {
-    var dark = root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
-    var next = dark ? 'light' : 'dark'; root.setAttribute('data-theme', next);
+    var next = isDark() ? 'light' : 'dark'; root.setAttribute('data-theme', next);
     try { localStorage.setItem('rk-theme', next); } catch (e) {}
+    reflectTheme();
   });
 
-  // Mobile menu
+  // Mobile menu: the button toggles it, Escape closes it, focus moves to the first link on open and back on close
   var mb = document.getElementById('menuBtn'), mm = document.getElementById('mobileMenu');
-  if (mb && mm) mb.addEventListener('click', function () { var open = mm.hidden; mm.hidden = !open; mb.setAttribute('aria-expanded', String(open)); });
-  if (mm) mm.addEventListener('click', function (e) { if (e.target.tagName === 'A') { mm.hidden = true; mb.setAttribute('aria-expanded', 'false'); } });
+  function setMenu(open) {
+    if (!mb || !mm) return;
+    mm.hidden = !open; mb.setAttribute('aria-expanded', String(open)); mb.textContent = open ? 'Close' : 'Menu';
+    if (open) { var first = mm.querySelector('a'); if (first) first.focus(); }
+  }
+  if (mb && mm) {
+    mb.addEventListener('click', function () { setMenu(mm.hidden); });
+    mm.addEventListener('click', function (e) { if (e.target.tagName === 'A') setMenu(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !mm.hidden) { setMenu(false); mb.focus(); } });
+  }
 
   // Copy buttons
   document.querySelectorAll('.copy').forEach(function (b) {

@@ -5,23 +5,60 @@ const [site, classes] = await Promise.all([getSite(), getClasses()]);
 const days = daysLabel(classes);
 const a = site.address;
 ---
-<Base title="Visit" description={`${a.street}, ${a.city}, ${a.region} ${a.postalCode}. ${days} ${site.hours}. New students walk in; no appointment needed.`}>
-<section id="visit-page" aria-labelledby="visit-title">
-  <div class="wrap">
-    <p class="eyebrow">Visit</p>
-    <h2 id="visit-title" class="wipe">Visit the dojo</h2>
-    <p class="lede">{site.policy}</p>
-    <div class="two">
-      <dl>
-        <div class="row"><dt>Hours</dt><dd>{days}, {site.hours}</dd></div>
-        <div class="row"><dt>Address</dt><dd>{a.venue}<br>{a.street}<br>{a.city}, {a.region} {a.postalCode}</dd></div>
-        <div class="row"><dt>Contact</dt><dd><span>{site.email}</span><button class="copy" type="button" data-copy={site.email}>Copy</button></dd></div>
-      </dl>
-      <div class="map" id="map">
-        <div class="frame" id="mapFrame" aria-hidden="true">MAP</div>
-        <p class="links"><a href={site.mapsSearch} target="_blank" rel="noopener">Open in Google Maps</a><a href={site.mapsDirections} target="_blank" rel="noopener">Directions</a></p>
+
+<Base
+  title="Visit"
+  description={`${a.street}, ${a.city}, ${a.region} ${a.postalCode}. ${days} ${site.hours}. New students walk in; no appointment needed.`}
+>
+  <section id="visit-page" class="page" aria-labelledby="visit-title">
+    <div class="wrap">
+      <p class="eyebrow">Visit</p>
+      <h1 id="visit-title" class="wipe page-title">
+        Visit the dojo
+      </h1>
+      <p class="lede">{site.policy}</p>
+      <div class="two">
+        <dl>
+          <div class="row">
+            <dt>Hours</dt>
+            <dd>
+              {days}, {site.hours}
+            </dd>
+          </div>
+          <div class="row">
+            <dt>Address</dt>
+            <dd>
+              {a.venue}
+              <br />
+              {a.street}
+              <br />
+              {a.city}, {a.region} {a.postalCode}
+            </dd>
+          </div>
+          <div class="row">
+            <dt>Contact</dt>
+            <dd>
+              <span>{site.email}</span>
+              <button class="copy" type="button" data-copy={site.email}>
+                Copy
+              </button>
+            </dd>
+          </div>
+        </dl>
+        <div class="map" id="map">
+          <div class="frame" id="mapFrame" aria-hidden="true">
+            MAP
+          </div>
+          <p class="links">
+            <a href={site.mapsSearch} target="_blank" rel="noopener">
+              Open in Google Maps
+            </a>
+            <a href={site.mapsDirections} target="_blank" rel="noopener">
+              Directions
+            </a>
+          </p>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 </Base>

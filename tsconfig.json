@@ -1,0 +1,10 @@
+{
+  "extends": "astro/tsconfigs/base",
+  "include": [".astro/types.d.ts", "src/**/*", "sanity/**/*", "api/**/*", "tests/**/*", "*.ts", "*.mjs"],
+  "exclude": ["dist", "node_modules"],
+  "compilerOptions": {
+    "strict": true,
+    "resolveJsonModule": true,
+    "jsx": "react-jsx"
+  }
+}

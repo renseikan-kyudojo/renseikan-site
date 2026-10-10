@@ -8,11 +8,15 @@
     "build": "astro build && sanity build dist/studio --yes",
     "preview": "astro preview",
     "check": "astro check",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:smoke": "playwright test",
     "studio": "sanity dev"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
-    "astro": "^5.0.0",
+    "astro": "^7.3.8",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "sanity": "^6.18.0",
@@ -20,5 +24,17 @@
   },
   "engines": {
     "node": "22.x"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.0",
+    "eslint": "^10.12.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.1"
   }
 }

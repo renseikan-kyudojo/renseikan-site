@@ -2,8 +2,21 @@
 // Every reader falls back to src/data/site.json (or the inline defaults) when Sanity is unreachable, empty or a field is
 // blank, so a build never fails on content. A publish in the Studio triggers the `content-publish` deploy hook.
 import local from '../data/site.json';
+import { SANITY_PROJECT_ID, SANITY_DATASET, SANITY_API_VERSION } from '../../sanity/project';
 
-export const SANITY = { projectId: 'bfgbeqq4', dataset: 'production', apiVersion: '2025-02-19' };
+export const SANITY = {
+  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || SANITY_PROJECT_ID,
+  dataset: import.meta.env.PUBLIC_SANITY_DATASET || SANITY_DATASET,
+  apiVersion: SANITY_API_VERSION,
+};
+
+// Say once per build which source the content came from, so a stale deploy built on the fallback is noticed in the log.
+let reported: string | undefined;
+function report(source: string) {
+  if (reported === source) return;
+  reported = source;
+  console.log(`[sanity] content source: ${source}`);
+}
 
 async function query<T>(groq: string): Promise<T | null> {
   // The live API (not the CDN), so a rebuild fired right after a publish sees the new content.
@@ -11,9 +24,14 @@ async function query<T>(groq: string): Promise<T | null> {
   url.searchParams.set('query', groq);
   try {
     const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      report(`site.json fallback (Sanity responded ${r.status})`);
+      return null;
+    }
+    report(`Sanity ${SANITY.projectId}/${SANITY.dataset}`);
     return ((await r.json()).result ?? null) as T | null;
-  } catch {
+  } catch (e) {
+    report(`site.json fallback (Sanity unreachable: ${e instanceof Error ? e.message : e})`);
     return null;
   }
 }
@@ -24,7 +42,8 @@ function overlay<T extends Record<string, any>>(base: T, over: Record<string, an
   if (!over) return base;
   const out: Record<string, any> = { ...base };
   for (const [k, v] of Object.entries(over)) {
-    if (v && typeof v === 'object' && !Array.isArray(v) && base[k] && typeof base[k] === 'object') out[k] = overlay(base[k], v);
+    if (v && typeof v === 'object' && !Array.isArray(v) && base[k] && typeof base[k] === 'object')
+      out[k] = overlay(base[k], v);
     else if (filled(v)) out[k] = v;
   }
   return out as T;
@@ -46,11 +65,19 @@ export function getSite(): Promise<Site> {
   return sitePromise;
 }
 
-export interface Ev { date: string; title: string; place?: string; kind?: string; body?: string }
+export interface Ev {
+  date: string;
+  title: string;
+  place?: string;
+  kind?: string;
+  body?: string;
+}
 /** Upcoming events, soonest first; the given defaults if the dataset has none. */
 export async function getEvents(defaults: Ev[]): Promise<Ev[]> {
   const today = new Date().toISOString().slice(0, 10);
-  const evs = await query<Ev[]>(`*[_type == "event" && defined(date) && coalesce(endDate, date) >= "${today}"] | order(date asc){
+  const evs = await query<
+    Ev[]
+  >(`*[_type == "event" && defined(date) && coalesce(endDate, date) >= "${today}"] | order(date asc){
     title, date, place, kind, "body": pt::text(body)
   }`);
   return evs && evs.length ? evs : defaults;
@@ -59,16 +86,31 @@ export async function getEvents(defaults: Ev[]): Promise<Ev[]> {
 // ---- Instructors (`person`) -------------------------------------------------------------------------------------
 
 export interface Instructor {
-  name: string; title?: string; rank?: string; rankPlain?: string; credentials: string[]; email?: string; portrait?: string; portraitRatio?: [number, number];
+  name: string;
+  title?: string;
+  rank?: string;
+  rankPlain?: string;
+  credentials: string[];
+  email?: string;
+  portrait?: string;
+  portraitRatio?: [number, number];
 }
 /** Instructors in menu order. The first one is laid over site.json's instructor, so a half-filled document still renders. */
 export async function getInstructors(): Promise<Instructor[]> {
   const t = (await getSite()).instructor;
   const fallback: Instructor = {
-    name: t.name, title: 'Chief Instructor', rank: t.rank, rankPlain: t.rankPlain, credentials: [t.role, t.former], email: t.email,
-    portrait: '/people/steve-scott.jpg', portraitRatio: [1, 1], // shown, uncropped, until a portrait is uploaded in the Studio
+    name: t.name,
+    title: 'Chief Instructor',
+    rank: t.rank,
+    rankPlain: t.rankPlain,
+    credentials: [t.role, t.former],
+    email: t.email,
+    portrait: '/people/steve-scott.jpg',
+    portraitRatio: [1, 1], // shown, uncropped, until a portrait is uploaded in the Studio
   };
-  const docs = await query<Record<string, any>[]>(`*[_type == "person"] | order(coalesce(order, 999) asc, _createdAt asc){
+  const docs = await query<
+    Record<string, any>[]
+  >(`*[_type == "person"] | order(coalesce(order, 999) asc, _createdAt asc){
     name, title, rank, rankPlain, credentials, email,
     "portrait": portrait.asset->url, "fp": portrait.hotspot{ x, y }
   }`);
@@ -76,10 +118,12 @@ export async function getInstructors(): Promise<Instructor[]> {
   return docs
     .map((d, i) => {
       const { fp, portrait, ...rest } = d;
-      const p: Instructor = i === 0 ? overlay(fallback, rest) : ({ credentials: [], ...rest } as Instructor);
+      const p: Instructor =
+        i === 0 ? overlay(fallback, rest) : ({ name: '', credentials: [] as string[], ...rest } as Instructor);
       if (portrait) {
         // 5:6 crop around the hotspot Steve sets in the Studio, sized for the 160px card at 3x
-        const x = fp?.x ?? 0.5, y = fp?.y ?? 0.4;
+        const x = fp?.x ?? 0.5,
+          y = fp?.y ?? 0.4;
         p.portraitRatio = undefined;
         p.portrait = `${portrait}?w=480&h=576&fit=crop&crop=focalpoint&fp-x=${x}&fp-y=${y}&auto=format`;
       }
@@ -91,18 +135,26 @@ export async function getInstructors(): Promise<Instructor[]> {
 // ---- Classes (`classSession`) and the dates they fall on ----------------------------------------------------------
 
 const WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-export interface ClassSession { title: string; weekday: string; start?: string; end?: string; place: string; status: string; note?: string }
+export interface ClassSession {
+  title: string;
+  weekday: string;
+  start?: string;
+  end?: string;
+  place: string;
+  status: string;
+  note?: string;
+}
 
 let classesPromise: Promise<ClassSession[]> | undefined;
 /** The weekly classes; one Sunday class from site.json's hours if the Studio has none. */
 export function getClasses(): Promise<ClassSession[]> {
   classesPromise ??= (async () => {
     const fallback: ClassSession = { title: 'Kyudo class', weekday: 'Sunday', place: 'JACC, San Jose', status: 'Open' };
-    const docs = await query<Record<string, any>[]>(`*[_type == "classSession" && defined(weekday)]{ title, weekday, start, end, place, status, note }`);
+    const docs = await query<Record<string, any>[]>(
+      `*[_type == "classSession" && defined(weekday)]{ title, weekday, start, end, place, status, note }`,
+    );
     if (!docs || !docs.length) return [fallback];
-    return docs
-      .map((d) => overlay(fallback, d))
-      .sort((a, b) => WEEK.indexOf(a.weekday) - WEEK.indexOf(b.weekday));
+    return docs.map((d) => overlay(fallback, d)).sort((a, b) => WEEK.indexOf(a.weekday) - WEEK.indexOf(b.weekday));
   })();
   return classesPromise;
 }
@@ -133,7 +185,15 @@ export function startTime(c: Pick<ClassSession, 'start'>, hours: string): string
 }
 
 export interface ClassDate {
-  date: string; dow: string; day: number; title: string; time: string; place: string; status: string; off: boolean; note?: string;
+  date: string;
+  dow: string;
+  day: number;
+  title: string;
+  time: string;
+  place: string;
+  status: string;
+  off: boolean;
+  note?: string;
 }
 /** The next `n` class dates from today (Pacific time). A Closure event covering a date marks it "No class". */
 export async function getClassDates(n = 8): Promise<ClassDate[]> {
@@ -153,10 +213,15 @@ export async function getClassDates(n = 8): Promise<ClassDate[]> {
       if (WEEK.indexOf(c.weekday) !== day.getUTCDay()) continue;
       const closed = closures.find((e) => e.date <= iso && iso <= (e.endDate || e.date));
       out.push({
-        date: iso, dow: c.weekday.slice(0, 3).toUpperCase(), day: day.getUTCDate(), title: c.title,
-        time: timeRange(c, site.hours), place: c.place,
+        date: iso,
+        dow: c.weekday.slice(0, 3).toUpperCase(),
+        day: day.getUTCDate(),
+        title: c.title,
+        time: timeRange(c, site.hours),
+        place: c.place,
         status: closed ? 'NO CLASS' : c.status === 'Members only' ? 'MEMBERS' : 'OPEN',
-        off: !!closed, note: closed ? closed.title : c.note,
+        off: !!closed,
+        note: closed ? closed.title : c.note,
       });
     }
   }

@@ -275,8 +275,8 @@
       ], { duration: 900, delay: t + p[1] }));
     });
     // the Latin names wipe on (from 1900ms)
-    seq.push(anim(host, wt, [{ width: 0 }, { width: D.box.latinTop[2] + 20 }], { duration: 900, delay: t + 1900 }));
-    seq.push(anim(host, wb, [{ width: 0 }, { width: D.box.latinBottom[2] + 20 }], { duration: 900, delay: t + 2300 }));
+    seq.push(anim(host, wt, [{ width: '0px' }, { width: D.box.latinTop[2] + 20 + 'px' }], { duration: 900, delay: t + 1900 }));
+    seq.push(anim(host, wb, [{ width: '0px' }, { width: D.box.latinBottom[2] + 20 + 'px' }], { duration: 900, delay: t + 2300 }));
     // the four fletchings land last (from 2900ms)
     Object.keys(fl).forEach(function (k, i) {
       var d = fl[k].__dir;

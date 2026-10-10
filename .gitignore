@@ -6,5 +6,7 @@ dist/
 .env.*
 !.env.example
 .DS_Store
-src/data/instagram.json
 .sanity/
+tests/.playwright/
+playwright-report/
+test-results/
