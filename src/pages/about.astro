@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import { getSite } from '../lib/sanity';
 const site = await getSite();
 ---
-<Base title="About" description="What kyudo is, the dojo's name 練誠館, and its place in the Northern California Kyudo Federation and the American Kyudo Renmei.">
+<Base title="About" description="What kyudo is, the dojo's name 練誠館 (Hall of Sincere Training), its history since the late 1970s, and its place in the Northern California Kyudo Federation and the American Kyudo Renmei.">
 <section id="about" aria-labelledby="about-title">
   <div class="wrap">
     <div class="about-mon" id="aboutMon" aria-hidden="true"></div>
@@ -11,11 +11,14 @@ const site = await getSite();
     <h2 id="about-title" class="wipe">練誠館, the Renseikan</h2>
     <p class="lede">Kyudo (弓道, "the way of the bow") is Japanese archery practised as a discipline: one arrow at a time, the same eight movements, the same breath. {site.name} teaches it every Sunday at the Japanese Art &amp; Cultural Center (JACC) in San Jose, California.</p>
     <h3>The name</h3>
-    <p>練 <em>ren</em> is to train, to refine; 誠 <em>sei</em> is sincerity; 館 <em>kan</em> is the hall. A hall for refining sincerity. <span class="muted">(Steve's own account of the name goes here.)</span></p>
+    <p>練 <em>ren</em> is to train, to refine; 誠 <em>sei</em> is sincerity; 館 <em>kan</em> is the hall. Together, the Hall of Sincere Training.</p>
+    <h3>History</h3>
+    <p>The Renseikan began as the San Jose Kyudo Club, formed in the late 1970s. The club was the original founding dojo of the Northern California Kyudo Federation (NCKF), which Japan accepted as a foreign <em>renmei</em> in 1981.</p>
+    <p>In 2003, several years after the Kurumi-an dojo in San Jose closed in 1999, Sensei Steve Scott renamed the San Jose Kyudo Club the Renseikan.</p>
     <h3>What a class looks like</h3>
     <p>Students shoot in turn at the makiwara (a straw practice target at arm's length) and at the mato, 28 metres away. Beginners learn the eight stages of the shot, the <em>shahō hassetsu</em>, with a bow and arrows the dojo lends. Nothing is rushed; a Sunday has room for everyone to shoot.</p>
     <h3>Affiliation</h3>
-    <p>Renseikan is a member dojo of the Northern California Kyudo Federation (NCKF) and the American Kyudo Renmei. <span class="muted">(Founding year and lineage: to be supplied by the dojo.)</span></p>
+    <p>Renseikan is the founding dojo of the Northern California Kyudo Federation (NCKF) and a member of the American Kyudo Renmei.</p>
     <p class="notice">{site.policy}</p>
   </div>
 </section>
