@@ -1,0 +1,91 @@
+---
+// Joining: what happens after the free first lesson. The facts that only the dojo knows (membership, fees, when to
+// buy equipment, grading) come from Dojo settings in the Studio; until they are filled in, the page says to ask.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { getSite, getClasses, daysLabel } from '../lib/sanity';
+const [site, classes] = await Promise.all([getSite(), getClasses()]);
+const days = daysLabel(classes);
+const fees = (site.fees ?? []).filter((f) => f.item && f.amount);
+---
+
+<Base
+  title="Joining the dojo"
+  description={`How to start kyudo at ${site.name}: a free first lesson with no booking, then regular ${days} classes through JACC. What the dojo lends and what it costs.`}
+>
+  <section id="join-page" class="page" aria-labelledby="join-title">
+    <div class="wrap">
+      <PageHeader eyebrow="Joining" title="From your first lesson on" id="join-title">
+        <p class="lede">{site.policy}</p>
+      </PageHeader>
+
+      <ol class="path">
+        <li>
+          <h3>Your first lesson</h3>
+          <p>
+            Walk in during any class, {days} {site.hours}, at the Japanese Art &amp; Cultural Center. It is free, there
+            is nothing to book and nothing to bring beyond loose clothing you can kneel in and socks. You will learn how
+            to enter the hall, the eight stages of the shot with a practice bow, and, if the form settles, your first
+            arrows at the makiwara.
+          </p>
+        </li>
+        <li>
+          <h3>After that</h3>
+          <p>
+            {site.membershipNote ||
+              `Regular classes are booked through the Japanese Art & Cultural Center (JACC) on WellnessLiving. Ask the instructor about membership and class fees at your first visit, or email ${site.email}.`}
+          </p>
+        </li>
+        <li>
+          <h3>Equipment</h3>
+          <p>
+            {site.equipmentNote ||
+              'The dojo lends the bow, glove and arrows for the first lessons. When you are ready for your own, the instructor will help you choose a glove and a bow that fits your draw.'}
+          </p>
+        </li>
+        {site.gradingNote && (
+          <li>
+            <h3>Grading</h3>
+            <p>{site.gradingNote}</p>
+          </li>
+        )}
+      </ol>
+
+      <h3>Fees</h3>
+      {fees.length ? (
+        <table class="fees">
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fees.map((f) => (
+              <tr>
+                <th scope="row">{f.item}</th>
+                <td>{f.amount}</td>
+                <td class="muted">{f.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>
+          The first lesson is free. For class and membership fees, ask at your first class or email{' '}
+          <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+      )}
+
+      <div class="actions">
+        <a class="btn primary" href="/classes">
+          See the class dates
+        </a>
+        <a class="btn secondary" href="/faq">
+          Questions new students ask
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>

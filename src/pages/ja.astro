@@ -1,0 +1,91 @@
+---
+// 日本語の案内ページ: the essentials in Japanese for visiting kyudoka and the JACC community.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { getSite, getClasses, getInstructors } from '../lib/sanity';
+const [site, classes, instructors] = await Promise.all([getSite(), getClasses(), getInstructors()]);
+const chief = instructors[0];
+const JA: Record<string, string> = {
+  Sunday: '日曜日',
+  Monday: '月曜日',
+  Tuesday: '火曜日',
+  Wednesday: '水曜日',
+  Thursday: '木曜日',
+  Friday: '金曜日',
+  Saturday: '土曜日',
+};
+const days =
+  [...new Set(classes.filter((c) => c.status !== 'Cancelled').map((c) => JA[c.weekday] ?? c.weekday))].join('・') ||
+  '日曜日';
+const hours =
+  site.hours.replace(/\s*(am|pm)\s*$/i, '').replace(/–|-/, '〜') + (/pm\s*$/i.test(site.hours) ? '（午後）' : '');
+const a = site.address;
+---
+
+<Base
+  lang="ja"
+  title="練誠館弓道場（日本語）"
+  description={`カリフォルニア州サンノゼの弓道場。毎週${days} ${hours}、日本芸術文化センター（JACC）にて稽古。初心者歓迎、初回無料、予約不要。`}
+>
+  <section id="ja-page" class="page" aria-labelledby="ja-title" lang="ja">
+    <div class="wrap">
+      <PageHeader eyebrow="日本語" title="練誠館弓道場" id="ja-title">
+        <p class="lede">
+          カリフォルニア州サンノゼにある弓道場です。毎週{days}、{hours}
+          に日本芸術文化センター（JACC）で稽古をしています。初心者の方も歓迎します。初回の稽古は無料で、予約は不要です。道着や道具は要りません。経験も問いません。
+        </p>
+      </PageHeader>
+      <dl>
+        <div class="row">
+          <dt>稽古日</dt>
+          <dd>
+            毎週{days}、<span class="nowrap">{hours}</span>
+          </dd>
+        </div>
+        <div class="row">
+          <dt>場所</dt>
+          <dd>
+            {a.venue}
+            <br />
+            {a.street}
+            <br />
+            {a.city}, {a.region} {a.postalCode}
+          </dd>
+        </div>
+        <div class="row">
+          <dt>指導</dt>
+          <dd>
+            {chief.name}
+            {chief.rank && <span>（{chief.rank === 'Renshi Rokudan' ? '錬士六段' : chief.rank}）</span>}
+          </dd>
+        </div>
+        <div class="row">
+          <dt>連絡先</dt>
+          <dd>
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+          </dd>
+        </div>
+        <div class="row">
+          <dt>所属</dt>
+          <dd>北カリフォルニア弓道連盟（NCKF）創設道場、米国弓道連盟（AKR）会員</dd>
+        </div>
+      </dl>
+      <h3>はじめての方へ</h3>
+      <p>
+        稽古の時間中にそのままお越しください。はじめは射場への入り方と礼法、ゴム弓での射法八節から始めます。道場の弓・ゆがけ・矢をお貸しします。動きやすい服装と靴下でお越しください。
+      </p>
+      <h3>道場について</h3>
+      <p>
+        練誠館は1970年代後半にサンノゼ弓道クラブとして始まり、1981年に日本から外国連盟として認められた北カリフォルニア弓道連盟の創設道場です。2003年にスコット先生が練誠館と改名しました。
+      </p>
+      <div class="actions">
+        <a class="btn primary" href="/classes">
+          稽古日程（英語）
+        </a>
+        <a class="btn secondary" href="/visit">
+          アクセス（英語）
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>

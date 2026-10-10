@@ -27,8 +27,9 @@ const hoursSpec = classes
 interface Props {
   title?: string;
   description?: string;
+  lang?: 'en' | 'ja';
 }
-const { title, description = site.description } = Astro.props;
+const { title, description = site.description, lang = 'en' } = Astro.props;
 const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.tagline}`;
 // build.format 'file' makes the pathname '/about.html'; strip it so canonical, og:url and aria-current use the
 // clean URL that Vercel serves (cleanUrls in vercel.json).
@@ -36,9 +37,20 @@ const path = Astro.url.pathname.replace(/(index)?\.html$/, '').replace(/\/$/, ''
 const links = [
   ['/about', 'About'],
   ['/classes', 'Classes'],
+  ['/join', 'Join'],
   ['/instructor', 'Instructor'],
-  ['/visit', 'Visit'],
+  ['/gallery', 'Gallery'],
   ['/news', 'News'],
+  ['/visit', 'Visit'],
+];
+const footLinks = [
+  ['/faq', 'Questions'],
+  ['/join', 'Joining'],
+  ['/ja', '日本語'],
+  ['/classes.ics', 'Class calendar'],
+  ['/rss.xml', 'Feed'],
+  ...(site.instagram ? [[site.instagram, 'Instagram']] : []),
+  ['https://www.nckf.org', 'NCKF'],
 ];
 const canonical = new URL(path === '/' ? '/' : path, Astro.site);
 const a = site.address;
@@ -46,7 +58,7 @@ const addressLine = `${a.street}, ${a.city}, ${a.region} ${a.postalCode}`;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -104,6 +116,23 @@ const addressLine = `${a.street}, ${a.city}, ${a.region} ${a.postalCode}`;
         sport: 'Kyudo',
       })}
     />
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: site.name,
+        url: Astro.site?.toString(),
+        logo: new URL('/icon-512.png', Astro.site).toString(),
+        email: site.email,
+        sameAs: [site.instagram, 'https://www.nckf.org'].filter(Boolean),
+        member: { '@type': 'Organization', name: 'Northern California Kyudo Federation', url: 'https://www.nckf.org' },
+      })}
+    />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name}: news and events`} href="/rss.xml" />
+    {path === '/' && <link rel="alternate" hreflang="ja" href={new URL('/ja', Astro.site)} />}
+    {path === '/ja' && <link rel="alternate" hreflang="en" href={new URL('/', Astro.site)} />}
   </head>
   <body>
     <a class="skip" href="#main">
@@ -167,9 +196,20 @@ const addressLine = `${a.street}, ${a.city}, ${a.region} ${a.postalCode}`;
     <footer>
       <div class="wrap">
         <div class="lockup" id="footLockup"></div>
-        <span>
-          {addressLine} · {days} <span class="nowrap">{site.hours}</span>
-        </span>
+        <div>
+          <span>
+            {addressLine} · {days} <span class="nowrap">{site.hours}</span>
+          </span>
+          <ul class="foot-links">
+            {footLinks.map(([href, label]) => (
+              <li>
+                <a href={href} rel={href.startsWith('http') ? 'noopener' : undefined}>
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </footer>
 

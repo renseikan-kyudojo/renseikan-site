@@ -1348,3 +1348,223 @@ section::before {
   height: 0;
   overflow: hidden;
 }
+
+/* --- Phase 3: joining, questions, gallery, event pages, the Japanese page, footer links --- */
+.path {
+  list-style: none;
+  margin: var(--space-8) 0;
+  padding: 0;
+  counter-reset: step;
+  display: grid;
+  gap: var(--space-8);
+}
+.path li {
+  position: relative;
+  padding-left: 56px;
+  counter-increment: step;
+}
+.path li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--hairline);
+  background: var(--washi-raised);
+  font: 600 18px/1 var(--font-serif);
+  color: var(--shu);
+}
+.path h3 {
+  margin: 0 0 var(--space-2);
+}
+.path p {
+  margin: 0;
+  max-width: 64ch;
+}
+.fees {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 0 var(--space-8);
+  font-size: 15px;
+  line-height: 24px;
+}
+.fees th,
+.fees td {
+  text-align: left;
+  padding: var(--space-2) var(--space-4) var(--space-2) 0;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: top;
+}
+.fees thead th {
+  font: 500 12px/16px var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sumi-muted);
+}
+.fees tbody th {
+  font-weight: 500;
+}
+.page .actions {
+  margin-top: var(--space-8);
+}
+
+.faq {
+  border-top: 1px solid var(--hairline);
+  max-width: 72ch;
+}
+.faq details {
+  border-bottom: 1px solid var(--hairline);
+}
+.faq summary {
+  cursor: pointer;
+  list-style: none;
+  padding: var(--space-4) 44px var(--space-4) 0;
+  position: relative;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-right: 1.5px solid var(--sumi-muted);
+  border-bottom: 1.5px solid var(--sumi-muted);
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform 420ms var(--ease-breath);
+}
+.faq details[open] summary::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+.faq summary h3 {
+  display: inline;
+  font-size: 18px;
+  line-height: 26px;
+  margin: 0;
+}
+.faq summary:focus-visible {
+  outline: 2px solid var(--shu);
+  outline-offset: 2px;
+}
+.faq .answer {
+  padding: 0 0 var(--space-4);
+  color: var(--sumi-muted);
+}
+.faq .answer p {
+  margin: 0 0 var(--space-2);
+}
+
+.gallery {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 1;
+  column-gap: var(--space-4);
+}
+@media (min-width: 600px) {
+  .gallery {
+    columns: 2;
+  }
+}
+@media (min-width: 840px) {
+  .gallery {
+    columns: 3;
+  }
+}
+.gallery li {
+  break-inside: avoid;
+  margin: 0 0 var(--space-4);
+}
+.gallery img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--ar);
+  border: 1px solid var(--hairline);
+  background: var(--take);
+}
+/* photographs rest in monochrome and come to colour under the pointer (Kurosawa treatment) */
+.mono-lift {
+  filter: grayscale(1) contrast(1.15);
+  transition: filter 900ms var(--ease-breath);
+}
+.gallery a:hover .mono-lift,
+.gallery a:focus-visible .mono-lift {
+  filter: none;
+}
+.gallery figcaption {
+  margin: var(--space-2) 0 0;
+}
+
+.event-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 0 var(--space-8);
+  border: 1px solid var(--hairline);
+}
+.prose {
+  max-width: 68ch;
+}
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0 0 var(--space-4);
+}
+.prose h2,
+.prose h3 {
+  margin: var(--space-8) 0 var(--space-2);
+}
+.prose blockquote {
+  margin: var(--space-4) 0;
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--shu);
+  color: var(--sumi-muted);
+}
+.prose figure {
+  margin: var(--space-8) 0;
+}
+.prose img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--hairline);
+}
+.events h2 a {
+  text-decoration: none;
+}
+.events h2 a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--hairline);
+  text-underline-offset: 4px;
+}
+
+#ja-page {
+  font-family: var(--font-sans);
+}
+#ja-page dl {
+  margin: 0 0 var(--space-8);
+}
+
+.foot-links {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+}
+.foot-links a {
+  display: inline-block;
+  padding: 11px 0;
+  text-decoration: underline;
+  text-decoration-color: var(--hairline);
+  text-underline-offset: 4px;
+}

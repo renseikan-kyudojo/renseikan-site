@@ -1,7 +1,19 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const pages = ['/', '/about', '/classes', '/instructor', '/visit', '/news'];
+const pages = [
+  '/',
+  '/about',
+  '/classes',
+  '/join',
+  '/faq',
+  '/instructor',
+  '/gallery',
+  '/visit',
+  '/news',
+  '/events/winter-practice-continues',
+  '/ja',
+];
 
 // Requests that are expected to fail off Vercel (analytics) or off the public internet (maps, fonts) are not errors.
 const ignorable = /_vercel\/insights|maps\.google\.com|fonts\.g(oogleapis|static)\.com|ERR_NAME_NOT_RESOLVED|net::ERR/;
@@ -66,4 +78,16 @@ test('the theme switch toggles and persists', async ({ page }) => {
   await expect(sw).toHaveAttribute('aria-checked', before === 'true' ? 'false' : 'true');
   await page.reload();
   await expect(sw).toHaveAttribute('aria-checked', before === 'true' ? 'false' : 'true');
+});
+
+test('the calendar and RSS feeds are served', async ({ request }) => {
+  const ics = await request.get('/classes.ics');
+  expect(ics.status()).toBe(200);
+  expect(ics.headers()['content-type']).toContain('text/calendar');
+  const body = await ics.text();
+  expect(body).toContain('BEGIN:VCALENDAR');
+  expect(body).toContain('BEGIN:VEVENT');
+  const rss = await request.get('/rss.xml');
+  expect(rss.status()).toBe(200);
+  expect(await rss.text()).toContain('<rss');
 });

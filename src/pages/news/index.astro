@@ -1,41 +1,56 @@
 ---
+// News: upcoming events, then posts, newest first. Each links to its own page.
 import Base from '../../layouts/Base.astro';
 import PageHeader from '../../components/PageHeader.astro';
-import { getEvents } from '../../lib/sanity';
-// Events come from Sanity `event` documents; this sample shows until the first one is published.
-const events = await getEvents([
-  {
-    date: '2026-12-06',
-    title: 'Winter practice continues',
-    place: 'JACC, San Jose',
-    body: 'Classes run every Sunday through December except the holiday Sundays the dojo announces here.',
-  },
-]);
-const when = (d: string) =>
-  new Date(d + 'T12:00:00').toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+import { getEvents, getPosts } from '../../lib/sanity';
+import { when } from '../../lib/format';
+const [events, posts] = await Promise.all([getEvents(), getPosts()]);
 ---
 
-<Base title="News and events" description="Taikai, seminars, demonstrations and closures at Renseikan Kyudojo.">
+<Base title="News and events" description="Taikai, seminars, demonstrations, closures and news from Renseikan Kyudojo.">
   <section id="news-page" class="page" aria-labelledby="news-title">
     <div class="wrap">
-      <PageHeader eyebrow="News and events" title="What's coming" id="news-title" />
+      <PageHeader eyebrow="News and events" title="What's coming" id="news-title">
+        <p class="lede">
+          Subscribe to the <a href="/rss.xml">feed</a>, or add the <a href="/classes.ics">class calendar</a> to your
+          own.
+        </p>
+      </PageHeader>
+      {events.length === 0 && <p class="muted">No events are announced right now.</p>}
       <ul class="events">
         {events.map((e) => (
           <li>
             <p class="meta">
               <time datetime={e.date}>{when(e.date)}</time>
+              {e.endDate && e.endDate !== e.date && <span> to {when(e.endDate)}</span>}
               {e.place && <span> · {e.place}</span>}
+              {e.kind && e.kind !== 'Other' && <span> · {e.kind}</span>}
             </p>
-            <h2>{e.title}</h2>
-            {e.body && <p>{e.body}</p>}
+            <h2>
+              <a href={`/events/${e.slug}`}>{e.title}</a>
+            </h2>
+            {e.summary && <p>{e.summary}</p>}
           </li>
         ))}
       </ul>
+      {posts.length > 0 && (
+        <>
+          <h3>News</h3>
+          <ul class="events">
+            {posts.map((p) => (
+              <li>
+                <p class="meta">
+                  <time datetime={p.date}>{when(p.date)}</time>
+                </p>
+                <h2>
+                  <a href={`/news/${p.slug}`}>{p.title}</a>
+                </h2>
+                {p.summary && <p>{p.summary}</p>}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   </section>
 </Base>

@@ -49,7 +49,19 @@ function overlay<T extends Record<string, any>>(base: T, over: Record<string, an
   return out as T;
 }
 
-export type Site = typeof local & { widgetEmbed?: string; instagram?: string };
+export interface Fee {
+  item?: string;
+  amount?: string;
+  note?: string;
+}
+export type Site = typeof local & {
+  widgetEmbed?: string;
+  instagram?: string;
+  membershipNote?: string;
+  fees?: Fee[];
+  equipmentNote?: string;
+  gradingNote?: string;
+};
 
 let sitePromise: Promise<Site> | undefined;
 /** Dojo facts: the `settings` document over site.json. Map links and coordinates stay in site.json (tied to the JACC listing). */
@@ -57,6 +69,7 @@ export function getSite(): Promise<Site> {
   sitePromise ??= (async () => {
     const s = await query<Record<string, any>>(`*[_id == "settings"][0]{
       name, tagline, description, email, hours, policy, widgetEmbed, instagram,
+      membershipNote, fees[]{ item, amount, note }, equipmentNote, gradingNote,
       "booking": bookingUrl,
       address{ venue, street, city, region, postalCode }
     }`);
@@ -65,23 +78,118 @@ export function getSite(): Promise<Site> {
   return sitePromise;
 }
 
+import type { PortableBlock } from './portable';
+import { toText } from './portable';
+
+const BODY = `body[]{ ..., _type == "image" => { "url": asset->url, "alt": alt, "w": asset->metadata.dimensions.width, "h": asset->metadata.dimensions.height } }`;
+
 export interface Ev {
+  slug: string;
   date: string;
+  endDate?: string;
+  start?: string;
+  end?: string;
   title: string;
   place?: string;
   kind?: string;
-  body?: string;
+  summary?: string;
+  body?: PortableBlock[];
+  registrationUrl?: string;
+  photo?: string;
 }
-/** Upcoming events, soonest first; the given defaults if the dataset has none. */
-export async function getEvents(defaults: Ev[]): Promise<Ev[]> {
-  const today = new Date().toISOString().slice(0, 10);
-  const evs = await query<
-    Ev[]
-  >(`*[_type == "event" && defined(date) && coalesce(endDate, date) >= "${today}"] | order(date asc){
-    title, date, place, kind, "body": pt::text(body)
+/** The sample event that shows until the first one is published in the Studio. */
+export const SAMPLE_EVENT: Ev = {
+  slug: 'winter-practice-continues',
+  date: '2026-12-06',
+  title: 'Winter practice continues',
+  place: 'JACC, San Jose',
+  kind: 'Other',
+  summary: 'Classes run every Sunday through December except the holiday Sundays the dojo announces here.',
+};
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+let eventsPromise: Promise<Ev[]> | undefined;
+/** Every event with a date, soonest first (past ones included, for their pages). The sample if the dataset has none. */
+export function getAllEvents(): Promise<Ev[]> {
+  eventsPromise ??= (async () => {
+    const evs = await query<
+      Record<string, any>[]
+    >(`*[_type == "event" && defined(date) && defined(title)] | order(date asc){
+      title, "slug": slug.current, date, endDate, start, end, place, kind, summary, registrationUrl, "photo": photo.asset->url, ${BODY}
+    }`);
+    if (!evs || !evs.length) return [SAMPLE_EVENT];
+    return evs.map(
+      (e) => ({ ...e, slug: e.slug || slugify(e.title), summary: e.summary || toText(e.body).slice(0, 200) }) as Ev,
+    );
+  })();
+  return eventsPromise;
+}
+/** Upcoming events (today or later), soonest first. */
+export async function getEvents(): Promise<Ev[]> {
+  const today = todayPacific();
+  return (await getAllEvents()).filter((e) => (e.endDate || e.date) >= today);
+}
+
+export interface Post {
+  slug: string;
+  date: string;
+  title: string;
+  summary?: string;
+  body?: PortableBlock[];
+  photo?: string;
+}
+let postsPromise: Promise<Post[]> | undefined;
+/** News posts, newest first. */
+export function getPosts(): Promise<Post[]> {
+  postsPromise ??= (async () => {
+    const docs = await query<
+      Record<string, any>[]
+    >(`*[_type == "post" && defined(date) && defined(title)] | order(date desc){
+      title, "slug": slug.current, date, summary, "photo": photo.asset->url, ${BODY}
+    }`);
+    return (docs ?? []).map(
+      (p) => ({ ...p, slug: p.slug || slugify(p.title), summary: p.summary || toText(p.body).slice(0, 200) }) as Post,
+    );
+  })();
+  return postsPromise;
+}
+
+export interface Photo {
+  url: string;
+  w: number;
+  h: number;
+  caption?: string;
+  credit?: string;
+  taken?: string;
+}
+/** Gallery photos in Order, newest first within the same order. */
+export async function getPhotos(): Promise<Photo[]> {
+  const docs = await query<
+    Record<string, any>[]
+  >(`*[_type == "photo" && defined(image.asset)] | order(coalesce(order, 999) asc, taken desc){
+    "url": image.asset->url, "w": image.asset->metadata.dimensions.width, "h": image.asset->metadata.dimensions.height, caption, credit, taken
   }`);
-  return evs && evs.length ? evs : defaults;
+  return (docs ?? []).filter((p) => p.url && p.w && p.h) as Photo[];
 }
+
+export interface Faq {
+  question: string;
+  answer: PortableBlock[];
+}
+/** FAQ entries in Order; the given defaults if the dataset has none. */
+export async function getFaqs(defaults: Faq[]): Promise<Faq[]> {
+  const docs = await query<Faq[]>(
+    `*[_type == "faq" && defined(question)] | order(coalesce(order, 999) asc){ question, answer }`,
+  );
+  return docs && docs.length ? docs : defaults;
+}
+
+export const todayPacific = () =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date());
 
 // ---- Instructors (`person`) -------------------------------------------------------------------------------------
 
@@ -196,7 +304,7 @@ export interface ClassDate {
 /** The next `n` class dates from today (Pacific time). A Closure event covering a date marks it "No class". */
 export async function getClassDates(n = 8): Promise<ClassDate[]> {
   const [classes, site] = await Promise.all([getClasses(), getSite()]);
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date());
+  const today = todayPacific();
   const closures =
     (await query<{ date: string; endDate?: string; title?: string }[]>(
       `*[_type == "event" && kind == "Closure" && defined(date) && coalesce(endDate, date) >= "${today}"]{ date, endDate, title }`,
