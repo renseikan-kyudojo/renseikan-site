@@ -3,20 +3,17 @@
 // <!--@name--> tokens where the Studio's content goes. Text tokens are escaped here; the *Html ones come from render.ts.
 import Base from '../layouts/Base.astro';
 import home from '../partials/home.html?raw';
-import { getSite, getInstructors, getClasses, getClassDates, daysLabel, startTime } from '../lib/sanity';
+import { getSite, getInstructors, getClasses, getClassDates, daysLabel } from '../lib/sanity';
 import { esc, classRows, widgetSlot, instructorCard, instructorLine, shortVenue, regionName } from '../lib/render';
 
 const [site, instructors, classes, dates] = await Promise.all([getSite(), getInstructors(), getClasses(), getClassDates()]);
 const a = site.address;
 const chief = instructors[0];
-const first = classes.find((c) => c.status !== 'Cancelled') ?? classes[0];
 const days = daysLabel(classes);
 
 const text: Record<string, string> = {
   place: `${a.city}, ${regionName(a.region)}`,
-  heroWhen: `${days}, ${startTime(first, site.hours)}`,
-  weekday: first.weekday,
-  days, hours: site.hours, policy: site.policy, email: site.email,
+  days, hours: site.hours, email: site.email,
   venue: shortVenue(a.venue), venueFull: a.venue, street: a.street, city: a.city, region: a.region, postalCode: a.postalCode,
   booking: site.booking, mapsSearch: site.mapsSearch, mapsDirections: site.mapsDirections,
   instrName: chief.name,

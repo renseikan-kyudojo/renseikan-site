@@ -4,7 +4,6 @@ import { getSite, getClasses, getClassDates, daysLabel } from '../lib/sanity';
 import { classRows, widgetSlot } from '../lib/render';
 const [site, classes, dates] = await Promise.all([getSite(), getClasses(), getClassDates()]);
 const days = daysLabel(classes);
-const weekday = (classes.find((c) => c.status !== 'Cancelled') ?? classes[0]).weekday;
 ---
 <Base title="Classes and booking" description={`Kyudo classes ${days} ${site.hours} at JACC in San Jose. New students walk in; members book through JACC on WellnessLiving.`}>
 <section id="classes-page" aria-labelledby="classes-title">
@@ -12,15 +11,15 @@ const weekday = (classes.find((c) => c.status !== 'Cancelled') ?? classes[0]).we
     <p class="eyebrow">Classes</p>
     <h2 id="classes-title" class="wipe">{days}, {site.hours}</h2>
     <div class="kanji" id="pageKanji" lang="ja" aria-hidden="true" style="font-size:40px"></div>
-    <p class="notice">{site.policy}</p>
+    <p class="lede">{site.policy}</p>
     <h3>Coming up</h3>
     <Fragment set:html={classRows(dates)} />
     <h3>What to wear and bring</h3>
-    <p>Loose clothing you can kneel in, socks, and nothing else. The dojo lends the bow, the glove and the arrows for the first lessons.</p>
+    <p>Loose clothing you can kneel in and socks. The dojo lends the bow, glove and arrows for the first lessons.</p>
     <h3>Members' booking</h3>
     <div class="panel" id="book">
       <p class="eyebrow">Members' booking</p>
-      <p class="muted">New students don't need to book: walk in and observe, or take a free trial lesson, any {weekday}. Members reserve their place through the Japanese Art &amp; Cultural Center (JACC) on WellnessLiving.</p>
+      <p class="muted">New students don't need to book. Members reserve their place through the Japanese Art &amp; Cultural Center (JACC) on WellnessLiving.</p>
       <Fragment set:html={widgetSlot(site)} /><!-- JACC Custom Schedule widget: pasted into Dojo settings in the Studio (runbook 06) -->
       <div class="actions" style="align-items:center">
         <a class="btn primary" href={site.booking} target="_blank" rel="noopener">Book on WellnessLiving</a>

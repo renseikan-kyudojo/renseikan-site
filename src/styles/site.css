@@ -44,7 +44,7 @@
   .btn.secondary { border-color: var(--sumi-muted); }
   .btn.quiet { text-decoration: underline; text-decoration-color: var(--hairline); text-underline-offset: 4px; padding-inline: 4px; }
   section { padding-block: var(--space-16); border-top: 1px solid var(--hairline); }
-  section > .wrap > .eyebrow + h2 { margin-bottom: var(--space-4); }
+  section > .wrap > h2 { margin-bottom: var(--space-4); }
 
   /* Nav */
   .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--washi); border-bottom: 1px solid var(--hairline); }
@@ -123,6 +123,7 @@
   .notice p { margin: 0; }
   .notice .eyebrow { color: var(--sumi); margin-bottom: var(--space-2); }
   /* Steps */
+  .steps-title { margin: 0 0 var(--space-4); }
   .steps { display: grid; gap: var(--space-8); counter-reset: step; }
   @media (min-width: 720px) { .steps { grid-template-columns: repeat(3, 1fr); } }
   .step { border-top: 1px solid var(--hairline); padding-top: var(--space-4); min-width: 0; }
