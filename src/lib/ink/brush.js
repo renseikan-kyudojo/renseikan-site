@@ -1,5 +1,5 @@
 /* @ds-lib renseikan-brush 2.3.0 — live ink strokes on a 2D canvas, bristle-bundle model.
-   window.RenseikanBrush = { stroke, animate, sequence, path, presets, pressure, circle, version }
+   The default export: { stroke, animate, sequence, path, presets, pressure, circle, version }
 
    A stroke is 60–130 hairs dragged along a centreline. Each hair has a seat in the bundle
    (dense core, sparse frayed edge), its own ink load, thickness, drift and lag (outer hairs
@@ -9,7 +9,7 @@
    throw spatter. No dependencies. Same model as gen_brushes.py, so SVG and canvas match.
    path() turns any drawn centreline (a glyph's stroke, say) with a width profile into a preset, and sequence()
    paints a list of strokes one after another on the same sheet, so a whole character can be written. */
-(function () {
+const RenseikanBrush = (function () {
   'use strict';
 
   function rng(seed) { var s = seed >>> 0 || 1; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
@@ -304,5 +304,6 @@
     }, Promise.resolve());
   }
 
-  window.RenseikanBrush = { stroke: stroke, animate: animate, sequence: sequence, path: path, presets: presets, pressure: pressure, timing: timing, circle: circle, spline: spline, version: '2.3.0' };
+  return { stroke: stroke, animate: animate, sequence: sequence, path: path, presets: presets, pressure: pressure, timing: timing, circle: circle, spline: spline, version: '2.3.0' };
 })();
+export default RenseikanBrush;

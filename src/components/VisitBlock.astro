@@ -1,0 +1,53 @@
+---
+// Hours, address and contact beside the map; site.js swaps the placeholder for the Google Maps embed.
+import type { Site } from '../lib/sanity';
+interface Props {
+  site: Site;
+  days: string;
+}
+const { site, days } = Astro.props;
+const a = site.address;
+---
+
+<div class="two">
+  <dl>
+    <div class="row">
+      <dt>Hours</dt>
+      <dd>
+        {days}, <span class="nowrap">{site.hours}</span>
+      </dd>
+    </div>
+    <div class="row">
+      <dt>Address</dt>
+      <dd>
+        {a.venue}
+        <br />
+        {a.street}
+        <br />
+        {a.city}, {a.region} {a.postalCode}
+      </dd>
+    </div>
+    <div class="row">
+      <dt>Contact</dt>
+      <dd>
+        <span>{site.email}</span>
+        <button class="copy" type="button" data-copy={site.email}>
+          Copy
+        </button>
+      </dd>
+    </div>
+  </dl>
+  <div class="map" id="map">
+    <div class="frame" id="mapFrame" aria-hidden="true">
+      MAP
+    </div>
+    <p class="links">
+      <a href={site.mapsSearch} target="_blank" rel="noopener">
+        Open in Google Maps
+      </a>
+      <a href={site.mapsDirections} target="_blank" rel="noopener">
+        Directions
+      </a>
+    </p>
+  </div>
+</div>

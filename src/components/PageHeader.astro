@@ -1,0 +1,16 @@
+---
+// The header of an inner page: eyebrow, the page's h1 (wiped on like a section title), and whatever follows it
+// (a lede, a painted kanji) in the slot.
+interface Props {
+  eyebrow: string;
+  title: string;
+  id?: string;
+}
+const { eyebrow, title, id = 'page-title' } = Astro.props;
+---
+
+<p class="eyebrow">{eyebrow}</p>
+<h1 id={id} class="wipe page-title">
+  {title}
+</h1>
+<slot />

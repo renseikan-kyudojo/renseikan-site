@@ -1,0 +1,70 @@
+---
+// An instructor: portrait, title, name, rank, credentials, email with a Copy button. The shipped portrait is optimized
+// by Astro; one uploaded in the Studio comes cropped from Sanity's CDN.
+import { Image } from 'astro:assets';
+import steve from '../assets/people/steve-scott.jpg';
+import type { Instructor } from '../lib/sanity';
+interface Props {
+  person: Instructor;
+  headingTag?: 'h2' | 'h3';
+  eager?: boolean;
+}
+const { person: t, headingTag, eager = false } = Astro.props;
+const Heading = headingTag ?? 'h2';
+const loading = eager ? 'eager' : 'lazy';
+---
+
+<article class="card">
+  {t.portrait === 'local' ? (
+    <Image
+      class="photo has-img"
+      src={steve}
+      alt={t.name}
+      width={160}
+      height={160}
+      densities={[1, 2, 3]}
+      loading={loading}
+      fetchpriority={eager ? 'high' : undefined}
+    />
+  ) : t.portrait ? (
+    <img
+      class="photo has-img"
+      src={t.portrait}
+      alt={t.name}
+      width="160"
+      height="192"
+      loading={loading}
+      fetchpriority={eager ? 'high' : undefined}
+      decoding="async"
+    />
+  ) : (
+    <div class="photo mono" role="img" aria-label={`Photo of ${t.name}, placeholder`}>
+      PHOTO
+    </div>
+  )}
+  <div>
+    <p class="eyebrow">{t.title || 'Instructor'}</p>
+    <Heading>{t.name}</Heading>
+    {t.rank && (
+      <p class="rank">
+        {t.rank}
+        {t.rankPlain && <span class="muted"> · {t.rankPlain}</span>}
+      </p>
+    )}
+    {t.credentials?.length > 0 && (
+      <ul class="creds">
+        {t.credentials.map((c) => (
+          <li>{c}</li>
+        ))}
+      </ul>
+    )}
+    {t.email && (
+      <p>
+        <span class="small">{t.email}</span>
+        <button class="copy" type="button" data-copy={t.email}>
+          Copy
+        </button>
+      </p>
+    )}
+  </div>
+</article>

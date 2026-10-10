@@ -1,10 +1,8 @@
 dist/
 node_modules/
 .astro/
-public/lib/
-public/js/
 package-lock.json
-# formatted when they are rebuilt as components in the modernization pass
-src/partials/home.html
-src/styles/site.css
 .sanity/
+# the ink libraries keep their own compact style
+src/lib/ink/
+src/scripts/home.js

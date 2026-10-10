@@ -92,8 +92,8 @@ export interface Instructor {
   rankPlain?: string;
   credentials: string[];
   email?: string;
+  /** a Sanity CDN URL, or 'local' for the portrait shipped in src/assets */
   portrait?: string;
-  portraitRatio?: [number, number];
 }
 /** Instructors in menu order. The first one is laid over site.json's instructor, so a half-filled document still renders. */
 export async function getInstructors(): Promise<Instructor[]> {
@@ -105,8 +105,7 @@ export async function getInstructors(): Promise<Instructor[]> {
     rankPlain: t.rankPlain,
     credentials: [t.role, t.former],
     email: t.email,
-    portrait: '/people/steve-scott.jpg',
-    portraitRatio: [1, 1], // shown, uncropped, until a portrait is uploaded in the Studio
+    portrait: 'local', // the shipped portrait, until one is uploaded in the Studio
   };
   const docs = await query<
     Record<string, any>[]
@@ -124,7 +123,6 @@ export async function getInstructors(): Promise<Instructor[]> {
         // 5:6 crop around the hotspot Steve sets in the Studio, sized for the 160px card at 3x
         const x = fp?.x ?? 0.5,
           y = fp?.y ?? 0.4;
-        p.portraitRatio = undefined;
         p.portrait = `${portrait}?w=480&h=576&fit=crop&crop=focalpoint&fp-x=${x}&fp-y=${y}&auto=format`;
       }
       return p;
