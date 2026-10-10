@@ -31,6 +31,11 @@
   a { color: inherit; }
   .wrap { max-width: 1080px; margin: 0 auto; padding-inline: var(--space-4); }
   @media (min-width: 720px) { .wrap { padding-inline: var(--space-8); } }
+  /* Skip link: visually hidden until it has keyboard focus */
+  .skip { position: absolute; left: var(--space-4); top: -100px; z-index: 10; padding: 10px 16px; background: var(--shu); color: var(--on-shu); font: 500 14px/20px var(--font-sans); text-decoration: none; border-radius: var(--radius-sm); }
+  .skip:focus { top: var(--space-2); }
+  main:focus { outline: none; }
+  .nowrap { white-space: nowrap; }
   h1, h2, h3 { font-family: var(--font-serif); font-weight: 600; margin: 0; text-wrap: balance; }
   h1 { font-size: clamp(36px, 6vw, 56px); line-height: 1.1; }
   h2 { font-size: 28px; line-height: 36px; }
@@ -45,6 +50,10 @@
   .btn.quiet { text-decoration: underline; text-decoration-color: var(--hairline); text-underline-offset: 4px; padding-inline: 4px; }
   section { padding-block: var(--space-16); border-top: 1px solid var(--hairline); }
   section > .wrap > h2 { margin-bottom: var(--space-4); }
+  /* Inner pages: the page title is the h1, sized like a section title; h3s get room above them */
+  .page-title { font-size: 28px; line-height: 36px; margin-bottom: var(--space-4); }
+  .page h3 { margin-top: var(--space-8); margin-bottom: var(--space-2); }
+  .page h3 + p { margin-top: 0; }
 
   /* Nav */
   .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--washi); border-bottom: 1px solid var(--hairline); }
@@ -55,16 +64,22 @@
   @media (max-width: 479px) { .wordmark .name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .wordmark .mon { width: 32px; height: 32px; } }
   footer .lockup { --m: url("/logo/renseikan-lockup.svg"); width: 168px; aspect-ratio: 876.34 / 785.71; color: var(--sumi); }
   .links { display: none; gap: var(--space-8); margin-left: auto; list-style: none; padding: 0; margin-block: 0; }
-  .links a { font: 500 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--sumi-muted); text-decoration: none; padding: 8px 0; position: relative; }
+  .links a { font: 500 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--sumi-muted); text-decoration: none; padding: 14px 0; position: relative; display: inline-block; }
   .links a { transition: color 420ms var(--ease-breath); }
   .links a:hover { color: var(--sumi); }
   .links a[aria-current="page"] { color: var(--sumi); }
   .links a[aria-current="page"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--shu); }
-  .menu-btn { font: 500 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; background: none; border: 0; color: var(--sumi); padding: 8px; cursor: pointer; }
-  .theme-btn { background: none; border: 1px solid var(--hairline); color: var(--sumi-muted); font: 500 12px/16px var(--font-sans); letter-spacing: .08em; padding: 6px 10px; cursor: pointer; border-radius: var(--radius-sm); }
+  .menu-btn { font: 500 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; background: none; border: 0; color: var(--sumi); padding: 14px 8px; margin-left: auto; cursor: pointer; }
+  .theme-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; background: none; border: 1px solid var(--hairline); color: var(--sumi-muted); font: 500 12px/16px var(--font-sans); letter-spacing: .08em; padding: 6px 10px; cursor: pointer; border-radius: var(--radius-sm); }
+  .theme-btn svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .theme-btn .moon { display: none; }
+  .theme-btn[aria-checked="true"] .moon { display: block; }
+  .theme-btn[aria-checked="true"] .sun { display: none; }
+  .theme-btn .theme-label { display: none; }
+  @media (min-width: 480px) { .theme-btn .theme-label { display: inline; } }
   .mobile-menu { border-bottom: 1px solid var(--hairline); background: var(--washi); }
   .mobile-menu ul { list-style: none; margin: 0; padding: var(--space-2) var(--space-4); display: grid; }
-  .mobile-menu a { display: block; padding: 10px 0; text-decoration: none; font: 500 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--sumi); border-bottom: 1px solid var(--hairline); }
+  .mobile-menu a { display: block; padding: 14px 0; text-decoration: none; font: 500 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--sumi); border-bottom: 1px solid var(--hairline); }
   .mobile-menu li:last-child a { border: 0; }
   @media (min-width: 840px) { .links { display: flex; } .menu-btn { display: none; } }
 
@@ -144,6 +159,11 @@
   .rows li.today .meta { color: var(--sumi); }
   .status { font: 500 12px/16px var(--font-sans); letter-spacing: .08em; color: var(--sumi-muted); white-space: nowrap; }
   .status.on { color: var(--sumi); } .status.on::before { content: "● "; color: var(--matsu); }
+  .events { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--hairline); }
+  .events li { display: grid; gap: var(--space-2); padding: var(--space-4) 0; border-bottom: 1px solid var(--hairline); }
+  .events .meta { margin: 0; color: var(--sumi-muted); font-size: 14px; line-height: 22px; }
+  .events h2 { font-size: 22px; line-height: 30px; }
+  .events p { margin: 0; max-width: 64ch; }
   .panel { background: var(--washi-raised); border: 1px solid var(--hairline); padding: var(--space-8) var(--space-4); }
   @media (min-width: 720px) { .panel { padding: var(--space-8); } }
   .widget-slot { border: 1px dashed var(--sumi-muted); padding: var(--space-4); margin: var(--space-4) 0; display: grid; gap: var(--space-2); }
@@ -177,7 +197,7 @@
   :root[data-theme="dark"] .map iframe { filter: grayscale(1) invert(.92) contrast(1.1) sepia(.18); }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .map iframe { filter: grayscale(1) invert(.92) contrast(1.1) sepia(.18); } }
   .map .links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); font: 400 14px/22px var(--font-sans); }
-  .map .links a { color: var(--sumi); text-decoration: underline; text-decoration-color: var(--hairline); text-underline-offset: 4px; }
+  .map .links a { color: var(--sumi); text-decoration: underline; text-decoration-color: var(--hairline); text-underline-offset: 4px; display: inline-block; padding: 11px 0; }
   /* The mon inks itself beside the "at a glance" title, once, as the section scrolls in */
   .about-mon { display: none; }
   @media (min-width: 840px) { #about .wrap { position: relative; } .about-mon { display: block; position: absolute; right: 0; top: -20px; width: 112px; height: 112px; } }
@@ -185,9 +205,11 @@
   .loading { display: flex; align-items: center; gap: var(--space-2); font: 400 14px/22px var(--font-sans); color: var(--sumi-muted); }
   .loading .breath { width: 28px; height: 28px; flex: none; }
   footer .lockup { --m: none; }
-  .copy { font: 500 12px/16px var(--font-sans); letter-spacing: .08em; background: none; border: 1px solid var(--hairline); color: var(--sumi-muted); padding: 4px 8px; margin-left: var(--space-2); cursor: pointer; border-radius: var(--radius-sm); }
+  .copy { font: 500 12px/16px var(--font-sans); letter-spacing: .08em; background: none; border: 1px solid var(--hairline); color: var(--sumi-muted); padding: 4px 8px; margin-left: var(--space-2); cursor: pointer; border-radius: var(--radius-sm); position: relative; }
+  .copy::before { content: ""; position: absolute; inset: -9px -4px; }
   footer { border-top: 1px solid var(--hairline); padding-block: var(--space-8); color: var(--sumi-muted); font-size: 14px; line-height: 22px; }
   footer .wrap { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); align-items: center; }
+  .nf-link { display: inline-block; padding: 10px 2px; text-underline-offset: 4px; }
   .draft { background: var(--take); color: var(--sumi); font: 500 12px/16px var(--font-sans); letter-spacing: .08em; padding: 4px 8px; }
 
 

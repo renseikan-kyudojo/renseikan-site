@@ -7,13 +7,27 @@ import site from '../../src/data/site.json';
 const t = site.instructor;
 const DEFAULTS: Record<string, Record<string, unknown>> = {
   settings: {
-    name: site.name, tagline: site.tagline, description: site.description, hours: site.hours, email: site.email,
-    policy: site.policy, bookingUrl: site.booking,
-    'address.venue': site.address.venue, 'address.street': site.address.street, 'address.city': site.address.city,
-    'address.region': site.address.region, 'address.postalCode': site.address.postalCode,
+    name: site.name,
+    tagline: site.tagline,
+    description: site.description,
+    hours: site.hours,
+    email: site.email,
+    policy: site.policy,
+    bookingUrl: site.booking,
+    'address.venue': site.address.venue,
+    'address.street': site.address.street,
+    'address.city': site.address.city,
+    'address.region': site.address.region,
+    'address.postalCode': site.address.postalCode,
   },
   person: {
-    name: t.name, title: 'Chief Instructor', rank: t.rank, rankPlain: t.rankPlain, credentials: [t.role, t.former], email: t.email, order: 1,
+    name: t.name,
+    title: 'Chief Instructor',
+    rank: t.rank,
+    rankPlain: t.rankPlain,
+    credentials: [t.role, t.former],
+    email: t.email,
+    order: 1,
   },
 };
 

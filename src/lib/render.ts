@@ -3,7 +3,10 @@
 import type { ClassDate, Instructor, Site } from './sanity';
 
 export const esc = (s: unknown) =>
-  String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  String(s ?? '').replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
+  );
 
 /** Upcoming class dates. All of them are rendered; site.js hides past ones and marks today, so a page built days ago
  *  still reads right. Without JS the first four show. */
@@ -30,13 +33,17 @@ export function widgetSlot(site: Site): string {
         </div>`;
 }
 
-export function instructorCard(t: Instructor, headingTag: 'h2' | 'h3' = 'h2'): string {
+export function instructorCard(t: Instructor, headingTag: 'h2' | 'h3' = 'h2', opts: { eager?: boolean } = {}): string {
   const [pw, ph] = t.portraitRatio ?? [5, 6];
   const photo = t.portrait
-    ? `<img class="photo has-img" src="${esc(t.portrait)}" alt="${esc(t.name)}" width="160" height="${Math.round((160 * ph) / pw)}" loading="lazy" decoding="async">`
+    ? `<img class="photo has-img" src="${esc(t.portrait)}" alt="${esc(t.name)}" width="160" height="${Math.round((160 * ph) / pw)}"${opts.eager ? ' fetchpriority="high"' : ' loading="lazy"'} decoding="async">`
     : `<div class="photo mono" role="img" aria-label="Photo of ${esc(t.name)}, placeholder">PHOTO</div>`;
-  const rank = t.rank ? `<p style="margin:var(--space-2) 0 0">${esc(t.rank)}${t.rankPlain ? ` <span class="muted">· ${esc(t.rankPlain)}</span>` : ''}</p>` : '';
-  const creds = t.credentials?.length ? `<ul class="creds">${t.credentials.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '';
+  const rank = t.rank
+    ? `<p style="margin:var(--space-2) 0 0">${esc(t.rank)}${t.rankPlain ? ` <span class="muted">· ${esc(t.rankPlain)}</span>` : ''}</p>`
+    : '';
+  const creds = t.credentials?.length
+    ? `<ul class="creds">${t.credentials.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>`
+    : '';
   const email = t.email
     ? `<p><span class="small">${esc(t.email)}</span> <button class="copy" type="button" data-copy="${esc(t.email)}">Copy</button></p>`
     : '';
@@ -57,7 +64,10 @@ export function instructorLine(t: Instructor): string {
   const rank = [t.rank, t.rankPlain].filter(Boolean).join(' · ');
   // the first credential usually repeats the title ("Chief Instructor, Renseikan Kyudo Dojo"), so the tile skips it
   const creds = (t.credentials ?? []).filter((c, i) => !(i === 0 && t.title && c.startsWith(t.title)));
-  return [rank, ...creds].filter(Boolean).map((s) => esc(s.replace(/\.$/, '')) + '.').join(' ');
+  return [rank, ...creds]
+    .filter(Boolean)
+    .map((s) => esc(s.replace(/\.$/, '')) + '.')
+    .join(' ');
 }
 
 export const shortVenue = (venue: string) => venue.replace(/\s*\([^)]*\)\s*$/, '');

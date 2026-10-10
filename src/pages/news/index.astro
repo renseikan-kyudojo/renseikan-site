@@ -3,17 +3,41 @@ import Base from '../../layouts/Base.astro';
 import { getEvents } from '../../lib/sanity';
 // Events come from Sanity `event` documents; this sample shows until the first one is published.
 const events = await getEvents([
-  { date: '2026-12-06', title: 'Winter practice continues', place: 'JACC, San Jose', body: 'Classes run every Sunday through December except the holiday Sundays the dojo announces here.' },
+  {
+    date: '2026-12-06',
+    title: 'Winter practice continues',
+    place: 'JACC, San Jose',
+    body: 'Classes run every Sunday through December except the holiday Sundays the dojo announces here.',
+  },
 ]);
 ---
+
 <Base title="News and events" description="Taikai, seminars, demonstrations and closures at Renseikan Kyudojo.">
-<section id="news-page" aria-labelledby="news-title">
-  <div class="wrap">
-    <p class="eyebrow">News and events</p>
-    <h2 id="news-title" class="wipe">What's coming</h2>
-    <ul class="rows">
-      {events.map(e => <li><p class="meta">{new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} · {e.place}</p><h3>{e.title}</h3><p>{e.body}</p></li>)}
-    </ul>
-  </div>
-</section>
+  <section id="news-page" class="page" aria-labelledby="news-title">
+    <div class="wrap">
+      <p class="eyebrow">News and events</p>
+      <h1 id="news-title" class="wipe page-title">
+        What's coming
+      </h1>
+      <ul class="events">
+        {events.map((e) => (
+          <li>
+            <p class="meta">
+              <time datetime={e.date}>
+                {new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </time>
+              {e.place && <span> · {e.place}</span>}
+            </p>
+            <h2>{e.title}</h2>
+            {e.body && <p>{e.body}</p>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
 </Base>

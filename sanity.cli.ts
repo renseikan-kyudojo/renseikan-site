@@ -1,6 +1,7 @@
 import { defineCliConfig } from 'sanity/cli';
+import { SANITY_PROJECT_ID, SANITY_DATASET } from './sanity/project';
 export default defineCliConfig({
-  api: { projectId: 'bfgbeqq4', dataset: 'production' },
+  api: { projectId: SANITY_PROJECT_ID, dataset: SANITY_DATASET },
   // Built into dist/studio and served from renseikan.org/studio, so assets must resolve under /studio.
   project: { basePath: '/studio' },
   deployment: { autoUpdates: false },

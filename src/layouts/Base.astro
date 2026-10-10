@@ -1,6 +1,6 @@
 ---
-// Base layout: head, nav (mon + name, links, theme), the page, footer with the lockup,
-// the paper overlay and the three ink libraries. Every page uses this.
+// Base layout: head, skip link, nav (mon + name, links, theme switch), the page inside <main>, footer with the lockup,
+// the paper overlay and the ink libraries. Every page uses this.
 import '../styles/site.css';
 import { getSite, getClasses, daysLabel } from '../lib/sanity';
 const [site, classes] = await Promise.all([getSite(), getClasses()]);
@@ -14,10 +14,15 @@ const to24 = (t: string, fallbackMeridiem: string) => {
   return `${String(h).padStart(2, '0')}:${m[2] ?? '00'}`;
 };
 const [hStart, hEnd] = site.hours.split(/[–-]/).map((x) => x.trim());
-const pm = (site.hours.match(/(am|pm)\s*$/i)?.[1] ?? 'pm');
+const pm = site.hours.match(/(am|pm)\s*$/i)?.[1] ?? 'pm';
 const hoursSpec = classes
   .filter((c) => c.status !== 'Cancelled')
-  .map((c) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: c.weekday, opens: to24(c.start || hStart, pm), closes: to24(c.end || hEnd || '', pm) }));
+  .map((c) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: c.weekday,
+    opens: to24(c.start || hStart, pm),
+    closes: to24(c.end || hEnd || '', pm),
+  }));
 
 interface Props {
   title?: string;
@@ -30,82 +35,164 @@ const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.t
 // clean URL that Vercel serves (cleanUrls in vercel.json).
 const path = Astro.url.pathname.replace(/(index)?\.html$/, '').replace(/\/$/, '') || '/';
 const links = [
-  ['/about', 'About'], ['/classes', 'Classes'], ['/instructor', 'Instructor'], ['/visit', 'Visit'], ['/news', 'News'],
+  ['/about', 'About'],
+  ['/classes', 'Classes'],
+  ['/instructor', 'Instructor'],
+  ['/visit', 'Visit'],
+  ['/news', 'News'],
 ];
 const canonical = new URL(path === '/' ? '/' : path, Astro.site);
+const a = site.address;
+const addressLine = `${a.street}, ${a.city}, ${a.region} ${a.postalCode}`;
 ---
+
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{pageTitle}</title>
-  <meta name="description" content={description}>
-  <link rel="canonical" href={canonical}>
-  <link rel="icon" type="image/svg+xml" href="/logo/renseikan-mon.svg">
-  <meta property="og:site_name" content={site.name}>
-  <meta property="og:title" content={pageTitle}>
-  <meta property="og:description" content={description}>
-  <meta property="og:type" content="website">
-  <meta property="og:url" content={canonical}>
-  <meta property="og:image" content={new URL('/share/renseikan-share.png', Astro.site)}>
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1b1916" media="(prefers-color-scheme: dark)">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=Shippori+Mincho:wght@600&family=Yuji+Syuku&display=swap">
-  <script is:inline>
-    // Theme before paint, so a saved choice never flashes
-    try { var t = localStorage.getItem('rk-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
-  </script>
-  <script type="application/ld+json" is:inline set:html={JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'SportsActivityLocation',
-    name: site.name,
-    description: site.description,
-    url: Astro.site?.toString(),
-    email: site.email,
-    address: { '@type': 'PostalAddress', streetAddress: site.address.street, addressLocality: site.address.city, addressRegion: site.address.region, postalCode: site.address.postalCode, addressCountry: 'US' },
-    geo: { '@type': 'GeoCoordinates', latitude: site.geo.latitude, longitude: site.geo.longitude },
-    hasMap: site.mapsSearch,
-    openingHoursSpecification: hoursSpec,
-    sport: 'Kyudo',
-  })} />
-</head>
-<body>
-<nav class="nav" aria-label="Main">
-  <div class="wrap">
-    <a class="wordmark" href="/" aria-label="Renseikan, home"><span class="brand mon" aria-hidden="true"></span><span class="name">Renseikan</span></a>
-    <ul class="links">
-      {links.map(([href, label]) => <li><a href={href} aria-current={path === href ? 'page' : undefined}>{label}</a></li>)}
-    </ul>
-    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" style="margin-left:auto">Menu</button>
-    <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch theme">Theme</button>
-  </div>
-  <div class="mobile-menu" id="mobileMenu" hidden>
-    <ul>
-      {links.map(([href, label]) => <li><a href={href}>{label}</a></li>)}
-    </ul>
-  </div>
-</nav>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/logo/renseikan-mon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/share/renseikan-share.jpg', Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name}: the dojo crest on washi paper`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1b1916" media="(prefers-color-scheme: dark)" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=Shippori+Mincho:wght@600&family=Yuji+Syuku&display=swap"
+    />
+    <script is:inline>
+      // Theme before paint, so a saved choice never flashes
+      try {
+        const t = localStorage.getItem('rk-theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+      } catch {
+        /* storage can be unavailable; the OS theme applies */
+      }
+    </script>
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SportsActivityLocation',
+        name: site.name,
+        description: site.description,
+        url: Astro.site?.toString(),
+        email: site.email,
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: site.address.street,
+          addressLocality: site.address.city,
+          addressRegion: site.address.region,
+          postalCode: site.address.postalCode,
+          addressCountry: 'US',
+        },
+        geo: { '@type': 'GeoCoordinates', latitude: site.geo.latitude, longitude: site.geo.longitude },
+        hasMap: site.mapsSearch,
+        openingHoursSpecification: hoursSpec,
+        sport: 'Kyudo',
+      })}
+    />
+  </head>
+  <body>
+    <a class="skip" href="#main">
+      Skip to content
+    </a>
+    <nav class="nav" aria-label="Main">
+      <div class="wrap">
+        <a class="wordmark" href="/" aria-label="Renseikan, home">
+          <span class="brand mon" aria-hidden="true"></span>
+          <span class="name">Renseikan</span>
+        </a>
+        <ul class="links">
+          {links.map(([href, label]) => (
+            <li>
+              <a href={href} aria-current={path === href ? 'page' : undefined}>
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu">
+          Menu
+        </button>
+        <button
+          class="theme-btn"
+          id="themeBtn"
+          type="button"
+          role="switch"
+          aria-checked="false"
+          aria-label="Dark theme"
+        >
+          <svg class="sun" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" />
+          </svg>
+          <svg class="moon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
+            <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+          </svg>
+          <span class="theme-label" aria-hidden="true">
+            Theme
+          </span>
+        </button>
+      </div>
+      <div class="mobile-menu" id="mobileMenu" hidden>
+        <ul>
+          {links.map(([href, label]) => (
+            <li>
+              <a href={href} aria-current={path === href ? 'page' : undefined}>
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
 
-<slot />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
 
-<footer>
-  <div class="wrap">
-    <div class="lockup" id="footLockup" style="width:168px;aspect-ratio:876.34/785.71"></div>
-    <span>{site.address.street}, {site.address.city}, {site.address.region} {site.address.postalCode} · {days} {site.hours}</span>
-  </div>
-</footer>
+    <footer>
+      <div class="wrap">
+        <div class="lockup" id="footLockup"></div>
+        <span>
+          {addressLine} · {days} <span class="nowrap">{site.hours}</span>
+        </span>
+      </div>
+    </footer>
 
-<script is:inline src="/lib/renseikan-logo.js"></script>
-{home && <script is:inline src="/lib/renseikan-wind.js"></script>}
-{home && <script is:inline src="/lib/renseikan-brush.js"></script>}
-{home && <script is:inline src="/js/home.js"></script>}
-<script is:inline src="/js/site.js"></script>
-<!-- Vercel Web Analytics (cookieless; enabled in the dashboard). The script is served by Vercel at this path. -->
-<script is:inline>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
-<script is:inline defer src="/_vercel/insights/script.js"></script>
-</body>
+    <script is:inline src="/lib/renseikan-logo.js"></script>
+    {home && <script is:inline src="/lib/renseikan-wind.js" />}
+    {home && <script is:inline src="/lib/renseikan-brush.js" />}
+    {home && <script is:inline src="/js/home.js" />}
+    <script is:inline src="/js/site.js"></script>
+    <!-- Vercel Web Analytics (cookieless; enabled in the dashboard). The script is served by Vercel at this path. -->
+    <script is:inline>
+      // Vercel's own queue stub, kept verbatim
+      /* eslint-disable prefer-rest-params */
+      window.va =
+        window.va ||
+        function () {
+          (window.vaq = window.vaq || []).push(arguments);
+        };
+    </script>
+    <script is:inline defer src="/_vercel/insights/script.js"></script>
+  </body>
 </html>
