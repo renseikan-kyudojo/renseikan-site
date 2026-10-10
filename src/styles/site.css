@@ -199,9 +199,9 @@
   /* Kanji bleeds into the paper on load: blur settles to a hard edge */
 
   /* Brush-wipe reveal: headings enter as if wiped on with one stroke; resting state is fully visible */
-  .wipe { clip-path: inset(0 0 0 0); }
+  .wipe { clip-path: inset(0 0 -0.3em 0); }
   .wipe.in { animation: wipe 900ms var(--ease-breath) both; }
-  @keyframes wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes wipe { from { clip-path: inset(0 100% -0.3em 0); } to { clip-path: inset(0 0 -0.3em 0); } }
   /* A short red brush mark paints under each section title */
   .mark { display: block; width: 80px; height: 16px; margin: var(--space-2) 0 var(--space-4); color: var(--shu); }
   .mark .rk-reveal { animation-play-state: paused; animation-delay: 520ms; animation-duration: 760ms; animation-timing-function: var(--ease-breath); }
