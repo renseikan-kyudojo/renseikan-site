@@ -80,14 +80,31 @@ test('the theme switch toggles and persists', async ({ page }) => {
   await expect(sw).toHaveAttribute('aria-checked', before === 'true' ? 'false' : 'true');
 });
 
-test('the calendar and RSS feeds are served', async ({ request }) => {
+test('the class calendar is served', async ({ request }) => {
   const ics = await request.get('/classes.ics');
   expect(ics.status()).toBe(200);
   expect(ics.headers()['content-type']).toContain('text/calendar');
   const body = await ics.text();
   expect(body).toContain('BEGIN:VCALENDAR');
   expect(body).toContain('BEGIN:VEVENT');
-  const rss = await request.get('/rss.xml');
-  expect(rss.status()).toBe(200);
-  expect(await rss.text()).toContain('<rss');
+});
+
+test('the RSS feed is well-formed XML', async ({ page }) => {
+  // a browser shows an XML error page for a feed with an undeclared namespace prefix; DOMParser reports the same
+  const res = await page.request.get('/rss.xml');
+  expect(res.status()).toBe(200);
+  const xml = await res.text();
+  await page.goto('/');
+  const result = await page.evaluate((text) => {
+    const doc = new DOMParser().parseFromString(text, 'application/xml');
+    const err = doc.querySelector('parsererror');
+    return {
+      error: err ? err.textContent : null,
+      root: doc.documentElement.nodeName,
+      items: doc.querySelectorAll('item').length,
+    };
+  }, xml);
+  expect(result.error).toBeNull();
+  expect(result.root).toBe('rss');
+  expect(result.items).toBeGreaterThan(0);
 });

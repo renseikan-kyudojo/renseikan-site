@@ -50,7 +50,7 @@ const footLinks = [
   ['/classes.ics', 'Class calendar'],
   ['/rss.xml', 'Feed'],
   ...(site.instagram ? [[site.instagram, 'Instagram']] : []),
-  ['https://www.nckf.org', 'NCKF'],
+  [site.links.nckf, 'NCKF'],
 ];
 const canonical = new URL(path === '/' ? '/' : path, Astro.site);
 const a = site.address;
@@ -126,8 +126,11 @@ const addressLine = `${a.street}, ${a.city}, ${a.region} ${a.postalCode}`;
         url: Astro.site?.toString(),
         logo: new URL('/icon-512.png', Astro.site).toString(),
         email: site.email,
-        sameAs: [site.instagram, 'https://www.nckf.org'].filter(Boolean),
-        member: { '@type': 'Organization', name: 'Northern California Kyudo Federation', url: 'https://www.nckf.org' },
+        ...(site.instagram ? { sameAs: [site.instagram] } : {}),
+        memberOf: [
+          { '@type': 'Organization', name: 'Northern California Kyudo Federation', url: site.links.nckf },
+          { '@type': 'Organization', name: 'American Kyudo Renmei', url: site.links.akr },
+        ],
       })}
     />
     <link rel="alternate" type="application/rss+xml" title={`${site.name}: news and events`} href="/rss.xml" />
