@@ -5,5 +5,6 @@ import classSession from './classSession';
 import event from './event';
 import post from './post';
 import photo from './photo';
+import album from './album';
 import faq from './faq';
-export const schemaTypes = [settings, page, person, classSession, event, post, photo, faq];
+export const schemaTypes = [settings, page, person, classSession, event, post, photo, album, faq];

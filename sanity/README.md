@@ -21,7 +21,12 @@ with `npm run studio`.
     text and images), a registration button if a link is set, and "Add to Google Calendar". Closures still mark class
     dates "No class".
   - News posts: listed under the events on the News page, each at /news/<slug>. Both feed /rss.xml.
-  - Gallery photos: the Gallery page, in Order; until there are any it points to Instagram when that URL is set.
+  - Albums and Gallery photos: the Gallery page, in Order (an album's photos keep the order they have in the Studio);
+    until there are any it points to Instagram when that URL is set. To add many at once, drop the files onto an
+    Album's Photos field, or run `scripts/upload-photos.mjs` on a folder (needs `SANITY_WRITE_TOKEN`). The grid shows
+    resized copies; the link on each opens the original file, so an **Ultra HDR JPEG** (a JPEG with a gain map, as
+    Lightroom, Pixel and Android export) shows in HDR there on screens that can and as a normal photo elsewhere.
+    Sanity's resizing drops HDR, and the grid is monochrome until hovered, so only the full-size view is HDR.
   - FAQ: the Questions page, in Order; built-in answers show until the first entry is published.
   - Dojo settings also holds the Joining page's facts (after the first lesson, fees, equipment, grading); blank fields
     fall back to cautious wording that says to ask.

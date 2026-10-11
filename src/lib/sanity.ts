@@ -159,21 +159,39 @@ export function getPosts(): Promise<Post[]> {
 }
 
 export interface Photo {
+  /** The uploaded file itself, untouched: an Ultra HDR JPEG stays HDR here. Resized copies come from `?w=` on it. */
   url: string;
   w: number;
   h: number;
   caption?: string;
   credit?: string;
   taken?: string;
+  album?: string;
+  order?: number;
 }
-/** Gallery photos in Order, newest first within the same order. */
+// Projection of one image's file: `at` is the path to the image field ('' when the fields are on the image itself).
+const file = (at: string) =>
+  `"url": ${at}asset->url, "w": ${at}asset->metadata.dimensions.width, "h": ${at}asset->metadata.dimensions.height`;
+/**
+ * Gallery photos: every Album's photos (in the album's order, then as arranged in the Studio) and every single Gallery
+ * photo, sorted together by Order, newest first within the same order. Any photo whose file has not been processed yet
+ * (no dimensions) is left out rather than breaking the layout.
+ */
 export async function getPhotos(): Promise<Photo[]> {
-  const docs = await query<
-    Record<string, any>[]
-  >(`*[_type == "photo" && defined(image.asset)] | order(coalesce(order, 999) asc, taken desc){
-    "url": image.asset->url, "w": image.asset->metadata.dimensions.width, "h": image.asset->metadata.dimensions.height, caption, credit, taken
+  const docs = await query<{ albums: Record<string, any>[]; singles: Record<string, any>[] }>(`{
+    "albums": *[_type == "album" && count(photos) > 0]{ title, date, order, "photos": photos[defined(asset)]{ ${file('')}, caption, credit } },
+    "singles": *[_type == "photo" && defined(image.asset)]{ order, taken, caption, credit, ${file('image.')} }
   }`);
-  return (docs ?? []).filter((p) => p.url && p.w && p.h) as Photo[];
+  const items: Photo[] = [
+    ...(docs?.albums ?? []).flatMap((a) =>
+      (a.photos ?? []).map((p: Record<string, any>) => ({ ...p, taken: a.date, album: a.title, order: a.order })),
+    ),
+    ...(docs?.singles ?? []),
+  ];
+  const rank = (o: unknown) => (typeof o === 'number' ? o : 999);
+  return items
+    .filter((p) => p.url && p.w && p.h)
+    .sort((a, b) => rank(a.order) - rank(b.order) || (b.taken ?? '').localeCompare(a.taken ?? ''));
 }
 
 export interface Faq {

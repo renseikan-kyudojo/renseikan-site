@@ -1,5 +1,5 @@
-// ESLint flat config: TypeScript, JavaScript and Astro files in src/, sanity/, api/ and tests/. The ink libraries in
-// src/lib/ink predate this config and keep their own style; they are linted for errors only.
+// ESLint flat config: TypeScript, JavaScript and Astro files in src/, sanity/, api/, scripts/ and tests/. The ink
+// libraries in src/lib/ink predate this config and keep their own style; they are linted for errors only.
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import astro from 'eslint-plugin-astro';
@@ -17,7 +17,7 @@ export default tseslint.config(
     },
   },
   { files: ['src/**/*.js'], languageOptions: { globals: globals.browser } },
-  { files: ['tests/**/*.mjs'], languageOptions: { globals: globals.node } },
+  { files: ['tests/**/*.mjs', 'scripts/**/*.mjs'], languageOptions: { globals: globals.node } },
   {
     files: ['src/lib/ink/*.js', 'src/scripts/home.js'],
     rules: {
