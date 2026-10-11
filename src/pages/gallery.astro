@@ -1,13 +1,34 @@
 ---
-// Gallery: photos uploaded in the Studio (Albums and single Gallery photos), in their Order. Until there are any, the
-// page says so and points to Instagram when the dojo has set its URL.
+// Gallery: photos uploaded in the Studio (Albums and single Gallery photos), in their Order, each album under its own
+// heading. Until there are any, the page says so and points to Instagram when the dojo has set its URL.
 // The grid shows resized copies from Sanity's image API; the link under each opens the original file as uploaded, so
 // an Ultra HDR JPEG keeps its gain map and shows in HDR on screens that can.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
-import { getSite, getPhotos } from '../lib/sanity';
+import { getSite, getPhotos, type Photo } from '../lib/sanity';
+import { when } from '../lib/format';
 const [site, photos] = await Promise.all([getSite(), getPhotos()]);
 const src = (url: string, w: number) => `${url}?w=${w}&auto=format&q=80`;
+
+// Consecutive photos from the same album form one group; single photos between albums form an untitled one. With no
+// albums at all the page is the plain grid it was.
+interface Group {
+  title?: string;
+  date?: string;
+  photos: Photo[];
+}
+const groups = photos.reduce<Group[]>((acc, p) => {
+  const last = acc[acc.length - 1];
+  if (last && last.title === p.album) last.photos.push(p);
+  else acc.push({ title: p.album, date: p.album ? p.taken : undefined, photos: [p] });
+  return acc;
+}, []);
+const titled = groups.some((g) => g.title);
+const slug = (t: string) =>
+  t
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 ---
 
 <Base
@@ -18,32 +39,53 @@ const src = (url: string, w: number) => `${url}?w=${w}&auto=format&q=80`;
     <div class="wrap">
       <PageHeader eyebrow="Gallery" title="The dojo in pictures" id="gallery-title" />
       {photos.length ? (
-        <ul class="gallery">
-          {photos.map((p, i) => (
-            <li style={`--ar: ${p.w} / ${p.h}`}>
-              <a href={p.url} target="_blank" rel="noopener" title="Open the full-size original">
-                <img
-                  class="mono-lift"
-                  src={src(p.url, 800)}
-                  srcset={`${src(p.url, 480)} 480w, ${src(p.url, 800)} 800w, ${src(p.url, 1200)} 1200w`}
-                  sizes="(min-width: 840px) 33vw, (min-width: 600px) 50vw, 100vw"
-                  width={p.w}
-                  height={p.h}
-                  alt={p.caption || `Photograph from ${site.name}`}
-                  loading={i < 3 ? 'eager' : 'lazy'}
-                  decoding="async"
-                />
-              </a>
-              {(p.caption || p.album || p.credit) && (
-                <figcaption class="small muted">
-                  {p.caption}
-                  {p.album && !p.caption && <span>{p.album}</span>}
-                  {p.credit && <span> · Photo: {p.credit}</span>}
-                </figcaption>
+        groups.map((g, gi) => {
+          const heading = g.title || (titled ? 'More photos' : undefined);
+          const id = heading ? `album-${slug(heading)}-${gi}` : undefined;
+          return (
+            <section class="album" aria-labelledby={id}>
+              {heading && (
+                <header class="album-head">
+                  <h2 id={id}>{heading}</h2>
+                  <p class="meta">
+                    {g.date && <time datetime={g.date}>{when(g.date)}</time>}
+                    {g.date && ' · '}
+                    {g.photos.length} photo{g.photos.length === 1 ? '' : 's'}
+                  </p>
+                </header>
               )}
-            </li>
-          ))}
-        </ul>
+              <ul class="gallery">
+                {g.photos.map((p, i) => (
+                  <li style={`--ar: ${p.w} / ${p.h}`}>
+                    <a href={p.url} target="_blank" rel="noopener" title="Open the full-size original">
+                      <img
+                        class="mono-lift"
+                        src={src(p.url, 800)}
+                        srcset={`${src(p.url, 480)} 480w, ${src(p.url, 800)} 800w, ${src(p.url, 1200)} 1200w`}
+                        sizes="(min-width: 840px) 33vw, (min-width: 600px) 50vw, 100vw"
+                        width={p.w}
+                        height={p.h}
+                        alt={p.caption || `Photograph from ${site.name}${g.title ? `: ${g.title}` : ''}`}
+                        loading={gi === 0 && i < 3 ? 'eager' : 'lazy'}
+                        decoding="async"
+                      />
+                    </a>
+                    {(p.caption || p.credit) && (
+                      <figcaption class="small muted">
+                        {p.caption}
+                        {p.credit && (
+                          <span>
+                            {p.caption && ' · '}Photo: {p.credit}
+                          </span>
+                        )}
+                      </figcaption>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })
       ) : (
         <p class="muted">
           Photographs are on their way.{' '}
