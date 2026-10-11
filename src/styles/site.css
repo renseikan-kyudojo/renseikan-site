@@ -1502,6 +1502,21 @@ section::before {
 .gallery figcaption {
   margin: var(--space-2) 0 0;
 }
+/* one album per section; the heading carries its date and count */
+.album + .album {
+  margin-top: var(--space-8);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--hairline);
+}
+.album-head {
+  margin: 0 0 var(--space-4);
+}
+.album-head .meta {
+  margin: var(--space-2) 0 0;
+  color: var(--sumi-muted);
+  font-size: 14px;
+  line-height: 22px;
+}
 
 .event-photo {
   display: block;

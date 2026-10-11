@@ -21,7 +21,8 @@ with `npm run studio`.
     text and images), a registration button if a link is set, and "Add to Google Calendar". Closures still mark class
     dates "No class".
   - News posts: listed under the events on the News page, each at /news/<slug>. Both feed /rss.xml.
-  - Albums and Gallery photos: the Gallery page, in Order (an album's photos keep the order they have in the Studio);
+  - Albums and Gallery photos: the Gallery page, each album under its own heading with its date, in Order (an album's
+    photos keep the order they have in the Studio; single photos gather under "More photos");
     until there are any it points to Instagram when that URL is set. To add many at once, drop the files onto an
     Album's Photos field, or run `scripts/upload-photos.mjs` on a folder (needs `SANITY_WRITE_TOKEN`). The grid shows
     resized copies; the link on each opens the original file, so an **Ultra HDR JPEG** (a JPEG with a gain map, as
