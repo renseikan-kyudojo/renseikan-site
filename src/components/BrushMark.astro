@@ -1,6 +1,8 @@
 ---
 // A short red brush mark under a section title. The wipe-on reveal runs when the heading before it gets `.in`
 // (site.js adds it as the heading scrolls into view); see `.mark` in site.css. Needs <BrushMarkDefs /> once on the page.
+// This <use> is the no-JS fallback: home.js swaps each one for a canvas with its own take of the stroke, so the
+// titles on a page do not repeat the same mark.
 ---
 
 <svg class="mark" aria-hidden="true">
