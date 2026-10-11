@@ -1,6 +1,8 @@
 ---
-// Gallery: photos uploaded in the Studio, in their Order. Until there are any, the page says so and points to
-// Instagram when the dojo has set its URL.
+// Gallery: photos uploaded in the Studio (Albums and single Gallery photos), in their Order. Until there are any, the
+// page says so and points to Instagram when the dojo has set its URL.
+// The grid shows resized copies from Sanity's image API; the link under each opens the original file as uploaded, so
+// an Ultra HDR JPEG keeps its gain map and shows in HDR on screens that can.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import { getSite, getPhotos } from '../lib/sanity';
@@ -19,7 +21,7 @@ const src = (url: string, w: number) => `${url}?w=${w}&auto=format&q=80`;
         <ul class="gallery">
           {photos.map((p, i) => (
             <li style={`--ar: ${p.w} / ${p.h}`}>
-              <a href={src(p.url, 2000)} target="_blank" rel="noopener">
+              <a href={p.url} target="_blank" rel="noopener" title="Open the full-size original">
                 <img
                   class="mono-lift"
                   src={src(p.url, 800)}
@@ -32,9 +34,10 @@ const src = (url: string, w: number) => `${url}?w=${w}&auto=format&q=80`;
                   decoding="async"
                 />
               </a>
-              {(p.caption || p.credit) && (
+              {(p.caption || p.album || p.credit) && (
                 <figcaption class="small muted">
                   {p.caption}
+                  {p.album && !p.caption && <span>{p.album}</span>}
                   {p.credit && <span> · Photo: {p.credit}</span>}
                 </figcaption>
               )}
