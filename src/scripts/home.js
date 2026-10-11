@@ -97,3 +97,25 @@ import RenseikanWind from '../lib/ink/wind.js';
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', inkChanged);
   var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(refresh, 150); });
 })();
+
+// Section marks: the red brush mark under each title is painted as its own take, so no two titles share a stroke. The
+// pool below is walked in order and only wraps round if the page ever has more titles than takes. The static <use>
+// symbol stays for no-JS and is what the first take replaces; it is swapped for a canvas of the same size.
+(function () {
+  var TAKES = [['mark', 59], ['rule', 61], ['mark', 71], ['rule', 73], ['mark', 83], ['rule', 89], ['mark', 97], ['rule', 101]];
+  var root = document.documentElement, canvases = [];
+  function shu() { return getComputedStyle(root).getPropertyValue('--shu').trim() || '#c4382a'; }
+  function paint(c, i) { var t = TAKES[i % TAKES.length]; RenseikanBrush.stroke(c, { preset: t[0], seed: t[1], ink: shu() }); }
+  document.querySelectorAll('svg.mark').forEach(function (svg, i) {
+    var c = document.createElement('canvas');
+    c.className = svg.getAttribute('class');
+    c.setAttribute('aria-hidden', 'true');
+    svg.replaceWith(c);
+    canvases.push(c);
+    paint(c, i);
+  });
+  function repaint() { canvases.forEach(function (c, i) { paint(c, i); }); }
+  new MutationObserver(repaint).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', repaint);
+  var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(repaint, 150); });
+})();
