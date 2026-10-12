@@ -81,7 +81,7 @@ const alt = (p: Photo, album?: string) => p.caption || `Photograph from ${site.n
       {photos.length ? (
         indexed.map((g, gi) => (
           <section class="album" aria-labelledby={g.id}>
-            {g.heading && (
+            {g.heading && g.id && (
               <header class="album-head">
                 <SectionTitle id={g.id} title={g.heading} />
                 <p class="meta">
