@@ -87,9 +87,9 @@ test('the gallery viewer opens, steps, passes axe and returns focus', async ({ p
   const viewer = page.locator('#viewer');
   await photos.first().click();
   await expect(viewer).toBeVisible();
-  await expect(viewer.locator('.viewer-count')).toHaveText(/^1 \//);
+  await expect(viewer.locator('.viewer-num')).toHaveText('1');
   await page.keyboard.press('ArrowRight');
-  await expect(viewer.locator('.viewer-count')).toHaveText(/^2 \//);
+  await expect(viewer.locator('.viewer-num')).toHaveText('2');
   await expect(page).toHaveURL(/#photo-2$/);
   const axe = await new AxeBuilder({ page }).include('#viewer').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   const serious = axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
