@@ -98,6 +98,12 @@
   --take: #d8c9a3;
   --matsu: #3f6b4a;
   --ink-wash: 31, 28, 25; /* rgb of sumi for the canvas */
+  /* the photo viewer's stage: dark in both themes */
+  --stage: #12100e;
+  --stage-rgb: 18, 16, 14;
+  --on-stage: #ece6da;
+  --on-stage-rgb: 236, 230, 218;
+  --on-stage-muted: #a59d90;
   --font-brush: 'Yuji Syuku', 'Shippori Mincho', serif;
   --font-serif: 'Shippori Mincho', 'Noto Serif JP', Georgia, serif;
   --font-sans: 'Noto Sans JP', system-ui, sans-serif;
@@ -1461,52 +1467,78 @@ section::before {
   margin: 0 0 var(--space-2);
 }
 
-.gallery {
-  list-style: none;
+/* Gallery: justified rows. Each photo's share of a row is its aspect ratio (--r, set per item), so every row is one
+   height and fills the width; the last row keeps its natural size. A blurred preview sits under each until it loads. */
+.gallery-intro {
+  max-width: 60ch;
   margin: 0;
-  padding: 0;
-  columns: 1;
-  column-gap: var(--space-4);
 }
-@media (min-width: 600px) {
-  .gallery {
-    columns: 2;
-  }
+.album-nav {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 57px);
+  z-index: 4;
+  margin-top: var(--space-8);
+  background: var(--washi);
+  border-bottom: 1px solid var(--hairline);
 }
-@media (min-width: 840px) {
-  .gallery {
-    columns: 3;
-  }
+.album-nav ul {
+  display: flex;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0 auto;
+  padding-block: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-padding-inline: var(--space-4);
 }
-.gallery li {
-  break-inside: avoid;
-  margin: 0 0 var(--space-4);
+.album-nav ul::-webkit-scrollbar {
+  display: none;
 }
-.gallery img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: var(--ar);
+.album-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 14px;
   border: 1px solid var(--hairline);
-  background: var(--take);
+  border-radius: 22px;
+  font: 500 14px/20px var(--font-sans);
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--sumi-muted);
+  transition:
+    color 420ms var(--ease-breath),
+    border-color 420ms var(--ease-breath),
+    background-color 420ms var(--ease-breath);
 }
-/* photographs rest in monochrome and come to colour under the pointer (Kurosawa treatment) */
-.mono-lift {
-  filter: grayscale(1) contrast(1.15);
-  transition: filter 900ms var(--ease-breath);
+.album-nav a:hover {
+  color: var(--sumi);
+  border-color: var(--sumi-muted);
 }
-.gallery a:hover .mono-lift,
-.gallery a:focus-visible .mono-lift {
-  filter: none;
+.album-nav a[aria-current] {
+  color: var(--on-shu);
+  background: var(--shu);
+  border-color: var(--shu);
 }
-.gallery figcaption {
-  margin: var(--space-2) 0 0;
+.album-nav-count {
+  font-size: 12px;
+  opacity: 0.75;
 }
-/* one album per section; the heading carries its date and count */
+.album {
+  padding-block: var(--space-8) 0;
+  border-top: 0;
+  scroll-margin-top: 128px;
+}
 .album + .album {
   margin-top: var(--space-8);
-  padding-top: var(--space-8);
-  border-top: 1px solid var(--hairline);
+}
+/* albums are divided by the brushed rule, drawn across the column; the album bar already closes off the first */
+.album::before {
+  left: 0;
+  right: 0;
+}
+.album:first-child::before {
+  display: none;
 }
 .album-head {
   margin: 0 0 var(--space-4);
@@ -1516,6 +1548,312 @@ section::before {
   color: var(--sumi-muted);
   font-size: 14px;
   line-height: 22px;
+}
+.gallery {
+  --row: 120px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+@media (min-width: 600px) {
+  .gallery {
+    --row: 170px;
+  }
+}
+@media (min-width: 840px) {
+  .gallery {
+    --row: 210px;
+  }
+}
+.gallery::after {
+  content: '';
+  flex-grow: 1000000;
+}
+.gallery li {
+  flex: calc(var(--r) * 100) 1 calc(var(--r) * var(--row));
+  min-width: 0;
+  /* a row that cannot fill (a panorama after a few portraits) stops at about twice the height rather than going huge */
+  max-width: calc(var(--r) * var(--row) * 2);
+}
+.gallery figure {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--take);
+}
+.gallery a {
+  display: block;
+  cursor: zoom-in;
+}
+.gallery img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--r);
+  object-fit: cover;
+  background-size: cover;
+  transition:
+    filter 900ms var(--ease-breath),
+    transform 900ms var(--ease-release);
+}
+.gallery a:hover img,
+.gallery a:focus-visible img {
+  transform: scale(1.03);
+}
+.gallery a:focus-visible {
+  outline-offset: -2px;
+}
+/* photographs rest in monochrome and come to colour under the pointer (Kurosawa treatment); on touch screens, as they
+   cross the middle of the screen */
+.mono-lift {
+  filter: grayscale(1) contrast(1.15);
+  transition: filter 900ms var(--ease-breath);
+}
+.gallery a:hover .mono-lift,
+.gallery a:focus-visible .mono-lift,
+.gallery a.lit .mono-lift {
+  filter: none;
+}
+.gallery figcaption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: var(--space-8) 12px 10px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--on-stage);
+  background: linear-gradient(transparent, rgba(var(--stage-rgb), 0.78));
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 420ms var(--ease-breath),
+    transform 420ms var(--ease-breath);
+}
+.gallery figure:hover figcaption,
+.gallery figure:focus-within figcaption {
+  opacity: 1;
+  transform: none;
+}
+.gallery .credit {
+  color: var(--on-stage-muted);
+}
+
+/* The viewer: a full-screen stage, always dark whatever the theme, so photographs are seen as they were taken */
+html.viewing {
+  overflow: hidden;
+}
+.viewer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--on-stage);
+  background: var(--stage);
+  overflow: hidden;
+}
+.viewer[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  animation: viewer-in 420ms var(--ease-release);
+}
+.viewer::backdrop {
+  background: var(--stage);
+}
+@keyframes viewer-in {
+  from {
+    opacity: 0;
+  }
+}
+.viewer-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--space-2)) var(--space-4) var(--space-2);
+}
+.viewer-count {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: 500 14px/20px var(--font-sans);
+  letter-spacing: 0.04em;
+  color: var(--on-stage-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.viewer-original,
+.viewer-close {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(var(--on-stage-rgb), 0.28);
+  border-radius: 22px;
+  font: 500 14px/20px var(--font-sans);
+  color: var(--on-stage);
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 420ms var(--ease-breath);
+}
+.viewer-original:hover,
+.viewer-close:hover {
+  background: rgba(var(--on-stage-rgb), 0.12);
+}
+.viewer-track {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.viewer-track::-webkit-scrollbar {
+  display: none;
+}
+.viewer-track:focus-visible {
+  outline: 2px solid var(--on-stage);
+  outline-offset: -4px;
+}
+.viewer-slide {
+  flex: 0 0 100%;
+  display: grid;
+  place-items: center;
+  padding: var(--space-2) var(--space-4);
+  container-type: size;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+/* as large as the slide allows at the photo's own shape (--r, set by the script) */
+.viewer-slide img {
+  width: min(100cqw, 100cqh * var(--r));
+  height: auto;
+  aspect-ratio: var(--r);
+  background-size: cover;
+  user-select: none;
+}
+.viewer-step {
+  position: absolute;
+  top: 50%;
+  width: 52px;
+  height: 52px;
+  margin-top: -26px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--on-stage);
+  background: rgba(var(--stage-rgb), 0.55);
+  cursor: pointer;
+  transition:
+    opacity 420ms var(--ease-breath),
+    background-color 420ms var(--ease-breath);
+}
+.viewer-step:hover {
+  background: rgba(var(--stage-rgb), 0.85);
+}
+.viewer-step:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+.viewer-step.prev {
+  left: var(--space-4);
+}
+.viewer-step.next {
+  right: var(--space-4);
+}
+.viewer-step span {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin: auto;
+  border: solid currentColor;
+  border-width: 2px 2px 0 0;
+  transform: translateX(-2px) rotate(45deg);
+}
+.viewer-step.prev span {
+  transform: translateX(2px) rotate(-135deg);
+}
+/* on phones the swipe is the way through; the arrows would sit on the photo */
+@media (hover: none) and (max-width: 719px) {
+  .viewer-step {
+    display: none;
+  }
+}
+.viewer-caption {
+  max-width: 68ch;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4) 0;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  color: var(--on-stage-muted);
+}
+.viewer-strip {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: var(--space-2) var(--space-4) calc(env(safe-area-inset-bottom, 0px) + 12px);
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.viewer-strip::-webkit-scrollbar {
+  display: none;
+}
+.viewer-strip button {
+  display: block;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: rgba(var(--on-stage-rgb), 0.1);
+  opacity: 0.45;
+  cursor: pointer;
+  transition: opacity 420ms var(--ease-breath);
+}
+.viewer-strip button:hover,
+.viewer-strip button[aria-current] {
+  opacity: 1;
+}
+.viewer-strip button[aria-current] {
+  outline: 2px solid var(--on-stage);
+  outline-offset: -2px;
+}
+.viewer-strip img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.viewer :focus-visible {
+  outline-color: var(--on-stage);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery img,
+  .gallery figcaption,
+  .album-nav a,
+  .viewer-strip button {
+    transition: none;
+  }
+  .gallery a:hover img,
+  .gallery a:focus-visible img {
+    transform: none;
+  }
+  .viewer[open] {
+    animation: none;
+  }
 }
 
 .event-photo {

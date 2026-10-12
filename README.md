@@ -29,23 +29,23 @@ CI (`.github/workflows/ci.yml`) runs all of the above on every pull request; Ver
 
 ## Where things are
 
-| Path                           | What                                                                                                         |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `src/pages/`                   | One file per page: home, about, classes, instructor, visit, news, 404                                        |
-| `src/layouts/Base.astro`       | Head, nav, `<main>`, footer, the site script; used by every page                                             |
-| `src/lib/sanity.ts`            | Reads settings, instructors, classes and events from Sanity, with `site.json` fallbacks                      |
-| `src/components/`              | Hero, Bento, Steps, ClassList, BookingPanel, InstructorCard, VisitBlock, PageHeader, SectionTitle, BrushMark |
-| `src/lib/format.ts`            | Small text helpers (`src/lib/format.ts`)                                                                     |
-| `src/data/site.json`           | The dojo's facts as shipped; the Studio's values override them                                               |
-| `src/styles/site.css`          | All styles; self-hosted font faces and design tokens at the top                                              |
-| `src/lib/ink/`                 | The ink libraries as ES modules: logo (the mark in motion), brush (live ink), wind (the petals)              |
-| `src/scripts/`                 | `site.js` (theme, menu, copy, reveals, class dates, map) and `home.js` (wind and the painted hero)           |
-| `src/assets/`                  | Images Astro optimizes at build (the shipped portrait)                                                       |
-| `public/fonts/`, `public/ink/` | Subset WOFF2 files; the brushed rule, stamp and grain masks                                                  |
-| `brand/`                       | Logo source SVGs the site does not use (not deployed)                                                        |
-| `sanity/`                      | Studio schema, menu and actions; `sanity/project.ts` names the project once                                  |
-| `api/daily.ts`                 | Vercel cron: rebuilds daily so class dates roll forward                                                      |
-| `docs/`                        | The site audit and plan                                                                                      |
+| Path                           | What                                                                                                            |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `src/pages/`                   | One file per page: home, about, classes, instructor, visit, news, 404                                           |
+| `src/layouts/Base.astro`       | Head, nav, `<main>`, footer, the site script; used by every page                                                |
+| `src/lib/sanity.ts`            | Reads settings, instructors, classes and events from Sanity, with `site.json` fallbacks                         |
+| `src/components/`              | Hero, Bento, Steps, ClassList, BookingPanel, InstructorCard, VisitBlock, PageHeader, SectionTitle, BrushMark    |
+| `src/lib/format.ts`            | Small text helpers (`src/lib/format.ts`)                                                                        |
+| `src/data/site.json`           | The dojo's facts as shipped; the Studio's values override them                                                  |
+| `src/styles/site.css`          | All styles; self-hosted font faces and design tokens at the top                                                 |
+| `src/lib/ink/`                 | The ink libraries as ES modules: logo (the mark in motion), brush (live ink), wind (the petals)                 |
+| `src/scripts/`                 | `site.js` (theme, menu, copy, reveals, class dates, map), `home.js` (wind, painted hero), `gallery.js` (viewer) |
+| `src/assets/`                  | Images Astro optimizes at build (the shipped portrait)                                                          |
+| `public/fonts/`, `public/ink/` | Subset WOFF2 files; the brushed rule, stamp and grain masks                                                     |
+| `brand/`                       | Logo source SVGs the site does not use (not deployed)                                                           |
+| `sanity/`                      | Studio schema, menu and actions; `sanity/project.ts` names the project once                                     |
+| `api/daily.ts`                 | Vercel cron: rebuilds daily so class dates roll forward                                                         |
+| `docs/`                        | The site audit and plan                                                                                         |
 
 ## Deploy
 
