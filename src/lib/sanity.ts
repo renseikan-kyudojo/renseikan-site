@@ -163,6 +163,8 @@ export interface Photo {
   url: string;
   w: number;
   h: number;
+  /** A tiny blurred preview (base64 data URL) shown while the photo loads. */
+  lqip?: string;
   caption?: string;
   credit?: string;
   taken?: string;
@@ -171,7 +173,7 @@ export interface Photo {
 }
 // Projection of one image's file: `at` is the path to the image field ('' when the fields are on the image itself).
 const file = (at: string) =>
-  `"url": ${at}asset->url, "w": ${at}asset->metadata.dimensions.width, "h": ${at}asset->metadata.dimensions.height`;
+  `"url": ${at}asset->url, "w": ${at}asset->metadata.dimensions.width, "h": ${at}asset->metadata.dimensions.height, "lqip": ${at}asset->metadata.lqip`;
 /**
  * Gallery photos: every Album's photos (in the album's order, then as arranged in the Studio) and every single Gallery
  * photo, sorted together by Order, newest first within the same order. Any photo whose file has not been processed yet

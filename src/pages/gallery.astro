@@ -1,17 +1,21 @@
 ---
 // Gallery: photos uploaded in the Studio (Albums and single Gallery photos), in their Order, each album under its own
 // heading. Until there are any, the page says so and points to Instagram when the dojo has set its URL.
-// The grid shows resized copies from Sanity's image API; the link under each opens the original file as uploaded, so
-// an Ultra HDR JPEG keeps its gain map and shows in HDR on screens that can.
+// The grid lays photos in justified rows (each keeps its shape; rows fill the width) over a blurred preview while they
+// load; each album is a section title, wiped on with its red brush mark. Selecting a photo opens the viewer
+// (src/scripts/gallery.js): every photo on the page, full screen, swipe or arrow keys to move. Without the script each photo is a link to the original file as uploaded, so an Ultra HDR JPEG keeps
+// its gain map and shows in HDR on screens that can; the viewer links the same original.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
+import SectionTitle from '../components/SectionTitle.astro';
+import BrushMarkDefs from '../components/BrushMarkDefs.astro';
 import { getSite, getPhotos, type Photo } from '../lib/sanity';
 import { when } from '../lib/format';
 const [site, photos] = await Promise.all([getSite(), getPhotos()]);
 const src = (url: string, w: number) => `${url}?w=${w}&auto=format&q=80`;
 
 // Consecutive photos from the same album form one group; single photos between albums form an untitled one. With no
-// albums at all the page is the plain grid it was.
+// albums at all the page is one plain grid.
 interface Group {
   title?: string;
   date?: string;
@@ -29,63 +33,108 @@ const slug = (t: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
+const count = (n: number) => `${n} photo${n === 1 ? '' : 's'}`;
+const sections = groups.map((g, gi) => {
+  const heading = g.title || (titled ? 'More photos' : undefined);
+  return { ...g, heading, id: heading ? `album-${slug(heading)}-${gi}` : undefined };
+});
+// Each photo's place across the whole page: the viewer moves through all of them, album after album.
+let n = 0;
+const indexed = sections.map((s) => ({ ...s, photos: s.photos.map((p) => ({ ...p, index: n++ })) }));
+const alt = (p: Photo, album?: string) => p.caption || `Photograph from ${site.name}${album ? `: ${album}` : ''}`;
 ---
 
 <Base
   title="Gallery"
   description={`Photographs from ${site.name}: the hall, the makiwara, the mato, taikai and seminars.`}
 >
+  <BrushMarkDefs />
   <section id="gallery-page" class="page" aria-labelledby="gallery-title">
     <div class="wrap">
-      <PageHeader eyebrow="Gallery" title="The dojo in pictures" id="gallery-title" />
+      <PageHeader eyebrow="Gallery" title="The dojo in pictures" id="gallery-title">
+        {photos.length > 0 && (
+          <p class="muted gallery-intro">
+            {count(photos.length)}
+            {titled && ` in ${sections.length} album${sections.length === 1 ? '' : 's'}`}. Select a photo to see it full
+            size; swipe or use the arrow keys to move through them.
+          </p>
+        )}
+      </PageHeader>
+    </div>
+    {photos.length > 0 && sections.length > 1 && (
+      <nav class="album-nav" aria-label="Albums">
+        <ul class="wrap">
+          {sections.map((s) => (
+            <li>
+              <a href={`#${s.id}`} aria-label={`${s.heading}, ${count(s.photos.length)}`}>
+                {s.heading}
+                <span class="album-nav-count" aria-hidden="true">
+                  {s.photos.length}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+    <div class="wrap">
       {photos.length ? (
-        groups.map((g, gi) => {
-          const heading = g.title || (titled ? 'More photos' : undefined);
-          const id = heading ? `album-${slug(heading)}-${gi}` : undefined;
-          return (
-            <section class="album" aria-labelledby={id}>
-              {heading && (
-                <header class="album-head">
-                  <h2 id={id}>{heading}</h2>
-                  <p class="meta">
-                    {g.date && <time datetime={g.date}>{when(g.date)}</time>}
-                    {g.date && ' · '}
-                    {g.photos.length} photo{g.photos.length === 1 ? '' : 's'}
-                  </p>
-                </header>
-              )}
-              <ul class="gallery">
-                {g.photos.map((p, i) => (
-                  <li style={`--ar: ${p.w} / ${p.h}`}>
-                    <a href={p.url} target="_blank" rel="noopener" title="Open the full-size original">
+        indexed.map((g, gi) => (
+          <section class="album" aria-labelledby={g.id}>
+            {g.heading && g.id && (
+              <header class="album-head">
+                <SectionTitle id={g.id} title={g.heading} />
+                <p class="meta">
+                  {g.date && <time datetime={g.date}>{when(g.date)}</time>}
+                  {g.date && ' · '}
+                  {count(g.photos.length)}
+                </p>
+              </header>
+            )}
+            <ul class="gallery" data-gallery>
+              {g.photos.map((p, i) => (
+                <li style={`--r: ${(p.w / p.h).toFixed(4)}`}>
+                  <figure>
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener"
+                      id={`photo-${p.index + 1}`}
+                      data-index={p.index}
+                      data-w={p.w}
+                      data-h={p.h}
+                      data-album={g.title}
+                      aria-label={`${alt(p, g.title)}. Open full size`}
+                    >
                       <img
                         class="mono-lift"
                         src={src(p.url, 800)}
                         srcset={`${src(p.url, 480)} 480w, ${src(p.url, 800)} 800w, ${src(p.url, 1200)} 1200w`}
-                        sizes="(min-width: 840px) 33vw, (min-width: 600px) 50vw, 100vw"
+                        sizes="(min-width: 840px) 40vw, (min-width: 600px) 60vw, 100vw"
                         width={p.w}
                         height={p.h}
-                        alt={p.caption || `Photograph from ${site.name}${g.title ? `: ${g.title}` : ''}`}
-                        loading={gi === 0 && i < 3 ? 'eager' : 'lazy'}
+                        alt={alt(p, g.title)}
+                        loading={gi === 0 && i < 4 ? 'eager' : 'lazy'}
                         decoding="async"
+                        style={p.lqip ? `background-image: url(${p.lqip})` : undefined}
                       />
                     </a>
                     {(p.caption || p.credit) && (
-                      <figcaption class="small muted">
+                      <figcaption>
                         {p.caption}
                         {p.credit && (
-                          <span>
+                          <span class="credit">
                             {p.caption && ' · '}Photo: {p.credit}
                           </span>
                         )}
                       </figcaption>
                     )}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })
+                  </figure>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
       ) : (
         <p class="muted">
           Photographs are on their way.{' '}
@@ -102,4 +151,41 @@ const slug = (t: string) =>
       )}
     </div>
   </section>
+
+  {photos.length > 0 && (
+    <dialog class="viewer" id="viewer" aria-label="Photo viewer" tabindex="-1">
+      <div class="viewer-veil" aria-hidden="true" />
+      <div class="viewer-bar viewer-chrome">
+        <p class="viewer-count" aria-live="polite">
+          <span class="viewer-num" />
+          <span class="viewer-total" />
+          <span class="viewer-album" />
+        </p>
+        <a class="viewer-btn viewer-original" href="#" target="_blank" rel="noopener">
+          Original
+        </a>
+        <button type="button" class="viewer-btn" data-close>
+          Close
+        </button>
+      </div>
+      <ul class="viewer-track" tabindex="0" aria-label="Photos" />
+      <button
+        type="button"
+        class="viewer-btn viewer-step prev viewer-chrome"
+        data-step="-1"
+        aria-label="Previous photo"
+      >
+        <span aria-hidden="true" />
+      </button>
+      <button type="button" class="viewer-btn viewer-step next viewer-chrome" data-step="1" aria-label="Next photo">
+        <span aria-hidden="true" />
+      </button>
+      <p class="viewer-caption viewer-chrome" />
+      <ol class="viewer-strip viewer-chrome" aria-label="All photos" />
+    </dialog>
+  )}
 </Base>
+
+<script>
+  import '../scripts/gallery.js';
+</script>

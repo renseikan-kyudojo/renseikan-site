@@ -98,6 +98,12 @@
   --take: #d8c9a3;
   --matsu: #3f6b4a;
   --ink-wash: 31, 28, 25; /* rgb of sumi for the canvas */
+  /* the photo viewer's stage: dark in both themes */
+  --stage: #12100e;
+  --stage-rgb: 18, 16, 14;
+  --on-stage: #ece6da;
+  --on-stage-rgb: 236, 230, 218;
+  --on-stage-muted: #a59d90;
   --font-brush: 'Yuji Syuku', 'Shippori Mincho', serif;
   --font-serif: 'Shippori Mincho', 'Noto Serif JP', Georgia, serif;
   --font-sans: 'Noto Sans JP', system-ui, sans-serif;
@@ -1308,7 +1314,9 @@ section::before {
   .wipe.late {
     animation: none;
   }
-  .mark {
+  .mark,
+  .in + .mark,
+  .mark.in {
     clip-path: none;
     animation: none;
   }
@@ -1461,61 +1469,554 @@ section::before {
   margin: 0 0 var(--space-2);
 }
 
+/* Gallery: justified rows. Each photo's share of a row is its aspect ratio (--r, set per item), so every row is one
+   height and fills the width; the last row keeps its natural size. A blurred preview sits under each until it loads. */
+.gallery-intro {
+  max-width: 60ch;
+  margin: 0;
+}
+/* Jumps on this page (an album, a photo, focus moving through the grid) glide, and stop clear of the two sticky bars */
+html:has(.album-nav) {
+  scroll-padding-top: 128px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.album-nav) {
+    scroll-behavior: smooth;
+  }
+}
+/* The album bar: the nav's own labels, the album in view underlined in shu. The underline is brushed on from the left
+   and lifts off to the right as the next album takes it. */
+.album-nav {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 57px);
+  z-index: 4;
+  margin-top: var(--space-8);
+  background: var(--washi);
+  border-bottom: 1px solid var(--hairline);
+}
+.album-nav ul {
+  display: flex;
+  gap: var(--space-8);
+  list-style: none;
+  margin: 0 auto;
+  padding-block: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.album-nav ul::-webkit-scrollbar {
+  display: none;
+}
+.album-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 16px 0 14px;
+  font: 500 12px/16px var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--sumi-muted);
+  transition: color 420ms var(--ease-breath);
+}
+.album-nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--shu);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 520ms var(--ease-breath);
+}
+.album-nav a:hover,
+.album-nav a[aria-current] {
+  color: var(--sumi);
+}
+.album-nav a[aria-current]::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.album-nav-count {
+  font: 600 13px/16px var(--font-serif);
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--sumi-muted);
+}
+/* each album is a section title (wiped on, its brush mark under it) over its photos */
+.album {
+  padding-block: var(--space-8) 0;
+  border-top: 0;
+}
+.album + .album {
+  margin-top: var(--space-8);
+}
+.album::before {
+  left: 0;
+  right: 0;
+}
+.album:first-child::before {
+  display: none;
+}
+.album-head {
+  margin: 0 0 var(--space-4);
+}
+.album-head .mark {
+  margin-bottom: var(--space-2);
+}
+.album-head .meta {
+  margin: 0;
+  color: var(--sumi-muted);
+  font-size: 14px;
+  line-height: 22px;
+}
 .gallery {
+  --row: 120px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
   list-style: none;
   margin: 0;
   padding: 0;
-  columns: 1;
-  column-gap: var(--space-4);
 }
 @media (min-width: 600px) {
   .gallery {
-    columns: 2;
+    --row: 170px;
   }
 }
 @media (min-width: 840px) {
   .gallery {
-    columns: 3;
+    --row: 210px;
   }
 }
+.gallery::after {
+  content: '';
+  flex-grow: 1000000;
+}
 .gallery li {
-  break-inside: avoid;
-  margin: 0 0 var(--space-4);
+  flex: calc(var(--r) * 100) 1 calc(var(--r) * var(--row));
+  min-width: 0;
+  /* a row that cannot fill (a panorama after a few portraits) stops at about twice the height rather than going huge */
+  max-width: calc(var(--r) * var(--row) * 2);
+}
+/* brushed on as they come into view (gallery.js sets .pending, then .in with a stagger in --delay): the frame is wiped
+   open from the left while the photo inside settles */
+.gallery li.pending {
+  clip-path: inset(0 100% 0 0);
+}
+.gallery li.in {
+  animation: photo-brush 760ms var(--ease-breath) var(--delay, 0ms) backwards;
+}
+.gallery li.in img {
+  animation: photo-settle 1200ms var(--ease-release) var(--delay, 0ms) backwards;
+}
+@keyframes photo-brush {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+@keyframes photo-settle {
+  from {
+    transform: scale(1.06);
+  }
+}
+.gallery figure {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--take);
+}
+.gallery a {
+  position: relative;
+  display: block;
+  cursor: zoom-in;
+}
+/* the grain of the monochrome treatment, gone when the photo comes to colour */
+.gallery a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  mix-blend-mode: multiply;
+  background-image: url('/ink/grain.svg');
+  transition: opacity 900ms var(--ease-breath);
+}
+.gallery a:hover::after,
+.gallery a:focus-visible::after,
+.gallery a.lit::after {
+  opacity: 0;
 }
 .gallery img {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: var(--ar);
-  border: 1px solid var(--hairline);
-  background: var(--take);
+  aspect-ratio: var(--r);
+  object-fit: cover;
+  background-size: cover;
+  transition:
+    filter 900ms var(--ease-breath),
+    transform 700ms var(--ease-release);
 }
-/* photographs rest in monochrome and come to colour under the pointer (Kurosawa treatment) */
+.gallery a:hover img,
+.gallery a:focus-visible img {
+  transform: scale(1.03);
+}
+.gallery a:active img {
+  transform: scale(1.01);
+  transition-duration: 900ms, 120ms;
+}
+.gallery a:focus-visible {
+  outline-offset: -2px;
+}
+/* photographs rest in monochrome and come to colour under the pointer (Kurosawa treatment); on touch screens, as they
+   cross the middle of the screen */
 .mono-lift {
   filter: grayscale(1) contrast(1.15);
   transition: filter 900ms var(--ease-breath);
 }
 .gallery a:hover .mono-lift,
-.gallery a:focus-visible .mono-lift {
+.gallery a:focus-visible .mono-lift,
+.gallery a.lit .mono-lift {
   filter: none;
 }
 .gallery figcaption {
-  margin: var(--space-2) 0 0;
+  position: absolute;
+  inset: auto 0 0;
+  padding: var(--space-8) 12px 10px;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--on-stage);
+  background: linear-gradient(transparent, rgba(var(--stage-rgb), 0.78));
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 320ms var(--ease-release),
+    transform 320ms var(--ease-release);
 }
-/* one album per section; the heading carries its date and count */
-.album + .album {
-  margin-top: var(--space-8);
-  padding-top: var(--space-8);
-  border-top: 1px solid var(--hairline);
+.gallery figure:hover figcaption,
+.gallery figure:focus-within figcaption {
+  opacity: 1;
+  transform: none;
 }
-.album-head {
-  margin: 0 0 var(--space-4);
+.gallery .credit {
+  color: var(--on-stage-muted);
 }
-.album-head .meta {
-  margin: var(--space-2) 0 0;
-  color: var(--sumi-muted);
+
+/* The viewer: a full-screen stage, always dark whatever the theme, so photographs are seen as they were taken. The
+   stage is a veil that gallery.js fades in and out while the photo travels; the controls follow the site's (square,
+   an ink wipe on hover, the nav's labels) in the stage's colours. */
+html.viewing {
+  overflow: hidden;
+}
+.viewer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--on-stage);
+  background: transparent;
+  overflow: hidden;
+}
+.viewer:focus {
+  outline: none;
+}
+.viewer[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+}
+.viewer::backdrop {
+  background: transparent;
+}
+.viewer > * {
+  z-index: 1;
+}
+.viewer .viewer-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--stage);
+}
+.viewer .viewer-ghost {
+  position: absolute;
+  z-index: 3;
+  margin: 0;
+  object-fit: cover;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.viewer-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--space-2)) var(--space-4) var(--space-2);
+}
+.viewer-count {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+.viewer-num {
+  font: 600 24px/32px var(--font-serif);
+  font-variant-numeric: tabular-nums;
+  color: var(--on-stage);
+}
+.viewer-total,
+.viewer-album {
+  font: 500 12px/16px var(--font-sans);
+  letter-spacing: 0.08em;
+  color: var(--on-stage-muted);
+}
+.viewer-album {
+  min-width: 0;
+  margin-left: 6px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(var(--on-stage-rgb), 0.28);
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.viewer-album:empty {
+  display: none;
+}
+.viewer-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(var(--on-stage-rgb), 0.32);
+  border-radius: var(--radius-sm);
+  font: 500 12px/16px var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--on-stage);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 420ms var(--ease-breath),
+    transform 120ms var(--ease-release);
+}
+.viewer-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--on-stage);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 460ms var(--ease-breath);
+}
+.viewer-btn:hover {
+  color: var(--stage);
+}
+.viewer-btn:hover::after {
+  transform: scaleX(1);
+}
+.viewer-btn:active {
+  transform: scale(0.97);
+}
+.viewer-track {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.viewer-track::-webkit-scrollbar {
+  display: none;
+}
+.viewer-track:focus-visible {
+  outline: 2px solid var(--on-stage);
+  outline-offset: -4px;
+}
+.viewer-slide {
+  flex: 0 0 100%;
+  display: grid;
+  place-items: center;
+  padding: var(--space-2) var(--space-4);
+  container-type: size;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+/* as large as the slide allows at the photo's own shape (--r, set by the script) */
+.viewer-slide img {
+  width: min(100cqw, 100cqh * var(--r));
+  height: auto;
+  aspect-ratio: var(--r);
+  background-size: cover;
+  user-select: none;
+}
+.viewer .viewer-step {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  padding: 0;
+  background: rgba(var(--stage-rgb), 0.45);
+  transition:
+    color 420ms var(--ease-breath),
+    transform 120ms var(--ease-release),
+    opacity 320ms var(--ease-breath),
+    visibility 0s;
+}
+/* at either end the arrow fades away (and only then stops taking clicks or focus) */
+.viewer .viewer-step:disabled {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 320ms var(--ease-breath),
+    visibility 0s 320ms;
+}
+.viewer-step.prev {
+  left: var(--space-4);
+}
+.viewer-step.next {
+  right: var(--space-4);
+}
+.viewer-step span {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border: solid currentColor;
+  border-width: 1.5px 1.5px 0 0;
+  transform: translateX(-2px) rotate(45deg);
+}
+.viewer-step.prev span {
+  transform: translateX(2px) rotate(-135deg);
+}
+/* on phones the swipe is the way through; the arrows would sit on the photo */
+@media (hover: none) and (max-width: 719px) {
+  .viewer .viewer-step {
+    display: none;
+  }
+}
+.viewer-caption {
+  display: -webkit-box;
+  max-width: 68ch;
+  min-height: calc(22px + var(--space-2));
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4) 0;
   font-size: 14px;
   line-height: 22px;
+  text-align: center;
+  color: var(--on-stage-muted);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+/* the thumbnail strip: monochrome until chosen, the current one underlined in shu like the album bar */
+.viewer-strip {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: var(--space-2) var(--space-4) calc(env(safe-area-inset-bottom, 0px) + 14px);
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.viewer-strip::-webkit-scrollbar {
+  display: none;
+}
+.viewer-strip button {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 420ms var(--ease-breath);
+}
+.viewer-strip button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background: var(--shu);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 420ms var(--ease-breath);
+}
+.viewer-strip img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: rgba(var(--on-stage-rgb), 0.1);
+  filter: grayscale(1);
+  transition: filter 420ms var(--ease-breath);
+}
+.viewer-strip button:hover,
+.viewer-strip button[aria-current] {
+  opacity: 1;
+}
+.viewer-strip button:hover img,
+.viewer-strip button[aria-current] img {
+  filter: none;
+}
+.viewer-strip button[aria-current]::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.viewer :focus-visible {
+  outline-color: var(--on-stage);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery img,
+  .gallery a::after,
+  .gallery figcaption,
+  .album-nav a,
+  .album-nav a::after,
+  .viewer-btn,
+  .viewer-btn::after,
+  .viewer .viewer-step,
+  .viewer-strip button,
+  .viewer-strip button::after,
+  .viewer-strip img {
+    transition: none;
+  }
+  .gallery a:hover img,
+  .gallery a:focus-visible img,
+  .gallery a:active img,
+  .viewer-btn:active {
+    transform: none;
+  }
+  .gallery figcaption {
+    transform: none;
+  }
 }
 
 .event-photo {

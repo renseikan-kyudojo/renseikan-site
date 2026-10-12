@@ -80,6 +80,25 @@ test('the theme switch toggles and persists', async ({ page }) => {
   await expect(sw).toHaveAttribute('aria-checked', before === 'true' ? 'false' : 'true');
 });
 
+test('the gallery viewer opens, steps, passes axe and returns focus', async ({ page }) => {
+  await page.goto('/gallery');
+  const photos = page.locator('[data-gallery] a');
+  test.skip((await photos.count()) < 2, 'the dataset has fewer than two photos');
+  const viewer = page.locator('#viewer');
+  await photos.first().click();
+  await expect(viewer).toBeVisible();
+  await expect(viewer.locator('.viewer-num')).toHaveText('1');
+  await page.keyboard.press('ArrowRight');
+  await expect(viewer.locator('.viewer-num')).toHaveText('2');
+  await expect(page).toHaveURL(/#photo-2$/);
+  const axe = await new AxeBuilder({ page }).include('#viewer').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  const serious = axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+  expect(serious.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`)).toEqual([]);
+  await page.keyboard.press('Escape');
+  await expect(viewer).toBeHidden();
+  await expect(photos.nth(1)).toBeFocused();
+});
+
 test('the class calendar is served', async ({ request }) => {
   const ics = await request.get('/classes.ics');
   expect(ics.status()).toBe(200);
