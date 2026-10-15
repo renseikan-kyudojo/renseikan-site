@@ -13,6 +13,7 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '@sanity/client';
+import { hasGainMap } from '../sanity/hdr.js';
 
 // sanity/project.ts is the one place the project is named; read its constants without needing TypeScript at runtime.
 const projectTs = await readFile(join(dirname(fileURLToPath(import.meta.url)), '../sanity/project.ts'), 'utf8');
@@ -83,7 +84,7 @@ for (const name of files) {
   const asset = await client.assets.upload('image', createReadStream(path), { filename: name });
   // an Ultra HDR (or ISO 21496-1) gain map: keep the untouched file too, since the image above has lost it
   const bytes = await readFile(path);
-  const isHdr = bytes.includes('hdrgm:') || bytes.includes('urn:iso:std:iso:ts:21496');
+  const isHdr = hasGainMap(bytes);
   const hdr = isHdr
     ? await client.assets.upload('file', bytes, { filename: name, contentType: 'image/jpeg' })
     : undefined;

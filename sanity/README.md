@@ -27,11 +27,15 @@ with `npm run studio`.
     until there are any it points to Instagram when that URL is set. To add many at once, drop the files onto an
     Album's Photos field, or run `scripts/upload-photos.mjs` on a folder (needs `SANITY_WRITE_TOKEN`). The grid shows
     resized copies. **HDR:** Sanity strips the gain map from an **Ultra HDR JPEG** (a JPEG with a gain map, as
-    Lightroom, Pixel and Android export) when it is uploaded as an image, but keeps files byte for byte. So a photo's
-    HDR original (in its edit dialog) holds the same JPEG as a file; on a screen that can show HDR the viewer swaps the
-    photo in view for that file, and its Original button opens it. `scripts/upload-photos.mjs` fills it in for every
-    Ultra HDR JPEG it uploads; in the Studio, add it by hand. The grid is monochrome until hovered, so only the
-    full-size view is HDR.
+    Lightroom, Pixel and Android export) when it is uploaded as an image, but keeps files byte for byte, so a photo
+    keeps the JPEG as its **HDR original** (a file) beside its Image. Upload each photo once: files dropped on an
+    Album's Photos, or chosen with **Add photos**, become photos, and each Ultra HDR JPEG is also kept as its HDR
+    original; on any single photo, putting the JPEG in HDR original alone makes the Image from it
+    (`sanity/components/photoInputs.tsx`; `scripts/upload-photos.mjs` does the same). On a screen that can show HDR
+    the viewer swaps the photo in view for its HDR original, on a layer of its own (iOS Safari draws an image inside
+    the swipe track in standard range otherwise); its Original button opens it. Export HDR photos at about 4000 px
+    on the long edge so phones load them quickly. The grid is monochrome until hovered, so only the full-size view
+    is HDR.
   - FAQ: the Questions page, in Order; built-in answers show until the first entry is published.
   - Dojo settings also holds the Joining page's facts (after the first lesson, fees, equipment, grading); blank fields
     fall back to cautious wording that says to ask.
