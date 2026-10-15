@@ -17,6 +17,7 @@
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
+    "@sanity/ui": "^4.4.0",
     "astro": "^7.3.8",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

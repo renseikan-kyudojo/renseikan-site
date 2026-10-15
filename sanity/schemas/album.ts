@@ -1,10 +1,11 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
+import { ImageFromHdrInput, PhotosInput } from '../components/photoInputs';
 
-// A set of gallery photos added together (a taikai, a seminar, a season). Dropping several files onto Photos makes one
-// entry per file, which is how many photos go in at once; each entry's caption and credit sit in its edit dialog.
-// For HDR, also put the Ultra HDR JPEG (a JPEG with a gain map) in a photo's HDR original: Sanity strips the gain map
-// from images but keeps files byte for byte, so the Gallery viewer shows that file on HDR screens.
-// scripts/upload-photos.mjs fills it in for every Ultra HDR JPEG it uploads.
+// A set of gallery photos added together (a taikai, a seminar, a season). Dropping several files onto Photos (or "Add
+// photos") makes one entry per file, which is how many photos go in at once; each entry's caption and credit sit in its
+// edit dialog. Sanity strips the gain map from an Ultra HDR JPEG uploaded as an image but keeps files byte for byte, so
+// each Ultra HDR JPEG is also kept as that photo's HDR original, which the Gallery viewer shows on HDR screens
+// (sanity/components/photoInputs.tsx; scripts/upload-photos.mjs does the same).
 export default defineType({
   name: 'album',
   title: 'Album',
@@ -22,11 +23,14 @@ export default defineType({
       name: 'photos',
       type: 'array',
       title: 'Photos',
-      description: 'Drop several files here at once; each becomes a photo. Drag to reorder.',
+      description:
+        'Drop several files here at once, or use Add photos; each becomes a photo, and Ultra HDR JPEGs keep their HDR. Drag to reorder.',
+      components: { input: PhotosInput },
       of: [
         defineArrayMember({
           type: 'image',
           options: { hotspot: true },
+          components: { input: ImageFromHdrInput },
           fields: [
             defineField({ name: 'caption', type: 'string', title: 'Caption' }),
             defineField({ name: 'credit', type: 'string', title: 'Photographer' }),
@@ -35,7 +39,7 @@ export default defineType({
               type: 'file',
               title: 'HDR original',
               description:
-                'Optional. The same photo as an Ultra HDR JPEG, kept byte for byte (the Image above loses its HDR on upload). Shown full size on HDR screens; export it at about 4000 px on the long edge so phones load it quickly.',
+                'The same photo as an Ultra HDR JPEG, kept byte for byte (an Image loses its HDR on upload). If the Image is empty, it is made from this file, so an HDR photo needs only this. Shown full size on HDR screens; export it at about 4000 px on the long edge so phones load it quickly.',
               options: { accept: 'image/jpeg' },
             }),
           ],
