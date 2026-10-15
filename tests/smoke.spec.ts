@@ -99,6 +99,29 @@ test('the gallery viewer opens, steps, passes axe and returns focus', async ({ p
   await expect(photos.nth(1)).toBeFocused();
 });
 
+// An Ultra HDR JPEG keeps its gain map only in the original file (Sanity's resizing drops it), so on an HDR screen the
+// viewer must end up showing the original. Chromium reports an HDR screen when forced to an HDR colour profile.
+test('on an HDR screen the viewer shows the original file of the photo in view', async ({ playwright, baseURL }) => {
+  const browser = await playwright.chromium.launch({
+    executablePath: process.env.PW_CHROMIUM || undefined,
+    args: ['--force-color-profile=hdr10'],
+  });
+  const page = await browser.newPage({ baseURL });
+  try {
+    await page.goto('/gallery');
+    const photos = page.locator('[data-gallery] a');
+    test.skip((await photos.count()) < 1, 'the dataset has no photos');
+    expect(await page.evaluate(() => matchMedia('(dynamic-range: high)').matches)).toBe(true);
+    const original = await photos.first().getAttribute('href');
+    await photos.first().click();
+    const slide = page.locator('.viewer-slide img').first();
+    await expect(slide).toHaveAttribute('data-original', '1', { timeout: 15_000 });
+    expect(await slide.evaluate((img: HTMLImageElement) => img.currentSrc)).toBe(original);
+  } finally {
+    await browser.close();
+  }
+});
+
 test('the class calendar is served', async ({ request }) => {
   const ics = await request.get('/classes.ics');
   expect(ics.status()).toBe(200);

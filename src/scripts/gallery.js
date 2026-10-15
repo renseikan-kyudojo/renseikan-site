@@ -15,6 +15,10 @@ const token = (name, fallback) => getComputedStyle(root).getPropertyValue(name).
 const BREATH = token('--ease-breath', 'ease-in-out');
 const RELEASE = token('--ease-release', 'ease-out');
 const MONO = 'grayscale(1) contrast(1.15)'; // the grid's resting treatment (.mono-lift)
+// Sanity's resizing drops an Ultra HDR JPEG's gain map, so on a screen that can show HDR the photo the viewer settles on
+// is swapped for the original file once that has loaded. Only that one: originals are large, passing photos stay resized.
+const hdr = matchMedia('(dynamic-range: high)');
+const SETTLE = 400; // ms on a photo before its original is fetched
 
 paintMarks();
 
@@ -122,6 +126,7 @@ if (dialog && links.length) {
     const url = items[i].url;
     const srcset = [1200, 1800, 2400].map((w) => `${sized(url, w)} ${w}w`).join(', ');
     const full = () => {
+      if (img.dataset.original === '1') return; // the original is already up; a late resized copy must not replace it
       img.sizes = '100vw';
       img.srcset = srcset;
       img.src = sized(url, 1800);
@@ -133,6 +138,29 @@ if (dialog && links.length) {
     big.srcset = srcset;
     big.src = sized(url, 1800);
     big.decode().then(full, full);
+  }
+
+  // The untouched upload in place of the resized copy (see `hdr` above), swapped in only once decoded so it never blanks
+  let settle = 0;
+  function toOriginal(i) {
+    clearTimeout(settle);
+    if (!hdr.matches) return;
+    settle = setTimeout(() => {
+      const img = slides[i]?.querySelector('img');
+      if (i !== current || !img || img.dataset.original) return;
+      img.dataset.original = 'loading';
+      const file = new Image();
+      file.src = items[i].url;
+      file.decode().then(
+        () => {
+          img.removeAttribute('srcset');
+          img.removeAttribute('sizes');
+          img.src = file.src;
+          img.dataset.original = '1';
+        },
+        () => delete img.dataset.original,
+      );
+    }, SETTLE);
   }
 
   // Text that changes with the photo fades in rather than snapping; the number rises or falls with the direction
@@ -154,6 +182,7 @@ if (dialog && links.length) {
     const rise = current < 0 ? 0 : Math.sign(i - current);
     current = i;
     for (const j of [i, i + 1, i - 1, i + 2]) load(j);
+    toOriginal(i);
     const it = items[i];
     swap(num, String(i + 1), rise);
     swap(albumName, it.album);
@@ -349,6 +378,7 @@ if (dialog && links.length) {
   // Back on the page, focus returns to the photo last seen (scrolled to, if the viewer moved past the one opened)
   dialog.addEventListener('close', () => {
     closing = false;
+    clearTimeout(settle);
     root.classList.remove('viewing');
     for (const anim of dialog.getAnimations({ subtree: true })) anim.cancel();
     history.replaceState(null, '', location.pathname + location.search);
