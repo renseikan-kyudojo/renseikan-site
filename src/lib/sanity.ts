@@ -159,8 +159,10 @@ export function getPosts(): Promise<Post[]> {
 }
 
 export interface Photo {
-  /** The uploaded file itself, untouched: an Ultra HDR JPEG stays HDR here. Resized copies come from `?w=` on it. */
+  /** The image as Sanity stores it (any HDR gain map stripped). Resized copies come from `?w=` on it. */
   url: string;
+  /** The Ultra HDR JPEG kept byte for byte as a file asset, when one was added: the only copy that is still HDR. */
+  hdr?: string;
   w: number;
   h: number;
   /** A tiny blurred preview (base64 data URL) shown while the photo loads. */
@@ -181,8 +183,8 @@ const file = (at: string) =>
  */
 export async function getPhotos(): Promise<Photo[]> {
   const docs = await query<{ albums: Record<string, any>[]; singles: Record<string, any>[] }>(`{
-    "albums": *[_type == "album" && count(photos) > 0]{ title, date, order, "photos": photos[defined(asset)]{ ${file('')}, caption, credit } },
-    "singles": *[_type == "photo" && defined(image.asset)]{ order, taken, caption, credit, ${file('image.')} }
+    "albums": *[_type == "album" && count(photos) > 0]{ title, date, order, "photos": photos[defined(asset)]{ ${file('')}, "hdr": hdr.asset->url, caption, credit } },
+    "singles": *[_type == "photo" && defined(image.asset)]{ order, taken, caption, credit, "hdr": hdr.asset->url, ${file('image.')} }
   }`);
   const items: Photo[] = [
     ...(docs?.albums ?? []).flatMap((a) =>

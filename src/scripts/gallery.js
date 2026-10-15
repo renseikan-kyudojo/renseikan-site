@@ -15,8 +15,9 @@ const token = (name, fallback) => getComputedStyle(root).getPropertyValue(name).
 const BREATH = token('--ease-breath', 'ease-in-out');
 const RELEASE = token('--ease-release', 'ease-out');
 const MONO = 'grayscale(1) contrast(1.15)'; // the grid's resting treatment (.mono-lift)
-// Sanity's resizing drops an Ultra HDR JPEG's gain map, so on a screen that can show HDR the photo the viewer settles on
-// is swapped for the original file once that has loaded. Only that one: originals are large, passing photos stay resized.
+// Sanity strips an Ultra HDR JPEG's gain map from images, so a photo's HDR original is kept as a separate file (data-hdr).
+// On a screen that can show HDR, the photo the viewer settles on is swapped for that file once it has loaded. Only that
+// one, and only photos that have one: the files are large, passing photos and SDR photos stay resized.
 const hdr = matchMedia('(dynamic-range: high)');
 const SETTLE = 400; // ms on a photo before its original is fetched
 
@@ -66,7 +67,8 @@ if (dialog && links.length) {
   const items = links.map((a) => {
     const img = a.querySelector('img');
     return {
-      url: a.href,
+      url: img.src.split('?')[0], // the image's own URL (the link may point at the HDR original)
+      hdr: a.dataset.hdr,
       w: a.dataset.w,
       h: a.dataset.h,
       album: a.dataset.album ?? '',
@@ -140,17 +142,17 @@ if (dialog && links.length) {
     big.decode().then(full, full);
   }
 
-  // The untouched upload in place of the resized copy (see `hdr` above), swapped in only once decoded so it never blanks
+  // The HDR original in place of the resized copy (see `hdr` above), swapped in only once decoded so it never blanks
   let settle = 0;
   function toOriginal(i) {
     clearTimeout(settle);
-    if (!hdr.matches) return;
+    if (!hdr.matches || !items[i].hdr) return;
     settle = setTimeout(() => {
       const img = slides[i]?.querySelector('img');
       if (i !== current || !img || img.dataset.original) return;
       img.dataset.original = 'loading';
       const file = new Image();
-      file.src = items[i].url;
+      file.src = items[i].hdr;
       file.decode().then(
         () => {
           img.removeAttribute('srcset');
@@ -187,7 +189,7 @@ if (dialog && links.length) {
     swap(num, String(i + 1), rise);
     swap(albumName, it.album);
     swap(caption, it.caption);
-    original.href = it.url;
+    original.href = it.hdr || it.url;
     prev.disabled = i === 0;
     next.disabled = i === items.length - 1;
     thumbs.forEach((b, j) => (j === i ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current')));

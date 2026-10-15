@@ -3,10 +3,11 @@
 //
 //   SANITY_WRITE_TOKEN=... node scripts/upload-photos.mjs "Autumn taikai 2026" ./photos --date 2026-10-05 --credit "A. Name"
 //
-// Makes the album if no album has that title, otherwise appends to it. Files are sent as they are, so an Ultra HDR
-// JPEG keeps its gain map and the Gallery's full-size link shows it in HDR. Files already in the album (same name
-// and size) are skipped, so a rerun after a failure picks up where it stopped. Needs a token with Editor rights from
-// sanity.io/manage; never commit it (.env is ignored).
+// Makes the album if no album has that title, otherwise appends to it. Sanity strips an Ultra HDR JPEG's gain map from
+// images, so each Ultra HDR JPEG is also uploaded as a file (kept byte for byte) and set as the photo's HDR original,
+// which the Gallery viewer shows on HDR screens. Files already in the album (same name and size) are skipped, so a
+// rerun after a failure picks up where it stopped. Needs a token with Editor rights from sanity.io/manage; never commit
+// it (.env is ignored).
 import { createReadStream } from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -53,7 +54,7 @@ const files = (await readdir(folder)).filter((f) => IMAGE.test(f)).sort();
 if (!files.length) usage(`no photos in ${folder}`);
 
 let album = await client.fetch(
-  `*[_type == "album" && title == $title][0]{ _id, "have": photos[].asset->{ originalFilename, size } }`,
+  `*[_type == "album" && title == $title][0]{ _id, "have": [...photos[].asset->{ originalFilename, size }, ...photos[].hdr.asset->{ originalFilename, size }] }`,
   { title },
 );
 if (!album) {
@@ -80,14 +81,23 @@ for (const name of files) {
     continue;
   }
   const asset = await client.assets.upload('image', createReadStream(path), { filename: name });
+  // an Ultra HDR (or ISO 21496-1) gain map: keep the untouched file too, since the image above has lost it
+  const bytes = await readFile(path);
+  const isHdr = bytes.includes('hdrgm:') || bytes.includes('urn:iso:std:iso:ts:21496');
+  const hdr = isHdr
+    ? await client.assets.upload('file', bytes, { filename: name, contentType: 'image/jpeg' })
+    : undefined;
   const photo = {
     _type: 'image',
     _key: asset._id.replace(/^image-/, '').slice(0, 24),
     asset: { _type: 'reference', _ref: asset._id },
+    ...(hdr ? { hdr: { _type: 'file', asset: { _type: 'reference', _ref: hdr._id } } } : {}),
     ...(opts.credit ? { credit: opts.credit } : {}),
   };
   await client.patch(album._id).setIfMissing({ photos: [] }).append('photos', [photo]).commit();
   added++;
-  console.log(`  + ${name} (${asset.metadata?.dimensions?.width}×${asset.metadata?.dimensions?.height})`);
+  console.log(
+    `  + ${name} (${asset.metadata?.dimensions?.width}×${asset.metadata?.dimensions?.height}${hdr ? ', HDR' : ''})`,
+  );
 }
 console.log(`${added} added to "${title}". Captions can be filled in the Studio; the site rebuilds on publish.`);

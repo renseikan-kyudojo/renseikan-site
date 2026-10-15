@@ -99,9 +99,9 @@ test('the gallery viewer opens, steps, passes axe and returns focus', async ({ p
   await expect(photos.nth(1)).toBeFocused();
 });
 
-// An Ultra HDR JPEG keeps its gain map only in the original file (Sanity's resizing drops it), so on an HDR screen the
-// viewer must end up showing the original. Chromium reports an HDR screen when forced to an HDR colour profile.
-test('on an HDR screen the viewer shows the original file of the photo in view', async ({ playwright, baseURL }) => {
+// Sanity strips an Ultra HDR JPEG's gain map from images, so a photo's HDR original is a separate file; on an HDR screen
+// the viewer must end up showing that file. Chromium reports an HDR screen when forced to an HDR colour profile.
+test('on an HDR screen the viewer shows the HDR original of the photo in view', async ({ playwright, baseURL }) => {
   const browser = await playwright.chromium.launch({
     executablePath: process.env.PW_CHROMIUM || undefined,
     args: ['--force-color-profile=hdr10'],
@@ -109,14 +109,15 @@ test('on an HDR screen the viewer shows the original file of the photo in view',
   const page = await browser.newPage({ baseURL });
   try {
     await page.goto('/gallery');
-    const photos = page.locator('[data-gallery] a');
-    test.skip((await photos.count()) < 1, 'the dataset has no photos');
+    const photos = page.locator('[data-gallery] a[data-hdr]');
+    test.skip((await photos.count()) < 1, 'no photo has an HDR original');
     expect(await page.evaluate(() => matchMedia('(dynamic-range: high)').matches)).toBe(true);
-    const original = await photos.first().getAttribute('href');
-    await photos.first().click();
-    const slide = page.locator('.viewer-slide img').first();
-    await expect(slide).toHaveAttribute('data-original', '1', { timeout: 15_000 });
-    expect(await slide.evaluate((img: HTMLImageElement) => img.currentSrc)).toBe(original);
+    const photo = photos.first();
+    const [file, index] = await Promise.all([photo.getAttribute('data-hdr'), photo.getAttribute('data-index')]);
+    await photo.click();
+    const slide = page.locator('.viewer-slide img').nth(Number(index));
+    await expect(slide).toHaveAttribute('data-original', '1', { timeout: 30_000 });
+    expect(await slide.evaluate((img: HTMLImageElement) => img.currentSrc)).toBe(file);
   } finally {
     await browser.close();
   }
