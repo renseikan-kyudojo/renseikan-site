@@ -2,8 +2,9 @@ import { defineArrayMember, defineField, defineType } from 'sanity';
 
 // A set of gallery photos added together (a taikai, a seminar, a season). Dropping several files onto Photos makes one
 // entry per file, which is how many photos go in at once; each entry's caption and credit sit in its edit dialog.
-// For HDR, upload the photo as an Ultra HDR JPEG (a JPEG with a gain map): the Gallery links the untouched original,
-// which HDR screens show in HDR and the rest show as a normal photo.
+// For HDR, also put the Ultra HDR JPEG (a JPEG with a gain map) in a photo's HDR original: Sanity strips the gain map
+// from images but keeps files byte for byte, so the Gallery viewer shows that file on HDR screens.
+// scripts/upload-photos.mjs fills it in for every Ultra HDR JPEG it uploads.
 export default defineType({
   name: 'album',
   title: 'Album',
@@ -29,6 +30,14 @@ export default defineType({
           fields: [
             defineField({ name: 'caption', type: 'string', title: 'Caption' }),
             defineField({ name: 'credit', type: 'string', title: 'Photographer' }),
+            defineField({
+              name: 'hdr',
+              type: 'file',
+              title: 'HDR original',
+              description:
+                'Optional. The same photo as an Ultra HDR JPEG, kept byte for byte (the Image above loses its HDR on upload). Shown full size on HDR screens.',
+              options: { accept: 'image/jpeg' },
+            }),
           ],
         }),
       ],

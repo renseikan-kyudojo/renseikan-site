@@ -3,8 +3,9 @@
 // heading. Until there are any, the page says so and points to Instagram when the dojo has set its URL.
 // The grid lays photos in justified rows (each keeps its shape; rows fill the width) over a blurred preview while they
 // load; each album is a section title, wiped on with its red brush mark. Selecting a photo opens the viewer
-// (src/scripts/gallery.js): every photo on the page, full screen, swipe or arrow keys to move. Without the script each photo is a link to the original file as uploaded, so an Ultra HDR JPEG keeps
-// its gain map and shows in HDR on screens that can; on such screens the viewer swaps in the same original.
+// (src/scripts/gallery.js): every photo on the page, full screen, swipe or arrow keys to move. Without the script each
+// photo is a link to its full-size file: the HDR original when it has one (Sanity strips HDR from images, not files),
+// which shows in HDR on screens that can; on such screens the viewer swaps in the same file.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import SectionTitle from '../components/SectionTitle.astro';
@@ -96,7 +97,7 @@ const alt = (p: Photo, album?: string) => p.caption || `Photograph from ${site.n
                 <li style={`--r: ${(p.w / p.h).toFixed(4)}`}>
                   <figure>
                     <a
-                      href={p.url}
+                      href={p.hdr || p.url}
                       target="_blank"
                       rel="noopener"
                       id={`photo-${p.index + 1}`}
@@ -104,6 +105,7 @@ const alt = (p: Photo, album?: string) => p.caption || `Photograph from ${site.n
                       data-w={p.w}
                       data-h={p.h}
                       data-album={g.title}
+                      data-hdr={p.hdr}
                       aria-label={`${alt(p, g.title)}. Open full size`}
                     >
                       <img
