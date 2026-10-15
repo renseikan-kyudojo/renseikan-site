@@ -10,7 +10,7 @@ export default defineType({
       type: 'file',
       title: 'HDR original',
       description:
-        'Optional. The same photo as an Ultra HDR JPEG, kept byte for byte (the Image above loses its HDR on upload). Shown full size on HDR screens.',
+        'Optional. The same photo as an Ultra HDR JPEG, kept byte for byte (the Image above loses its HDR on upload). Shown full size on HDR screens; export it at about 4000 px on the long edge so phones load it quickly.',
       options: { accept: 'image/jpeg' },
     }),
     defineField({ name: 'caption', type: 'string', title: 'Caption' }),

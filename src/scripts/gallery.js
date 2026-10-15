@@ -128,7 +128,7 @@ if (dialog && links.length) {
     const url = items[i].url;
     const srcset = [1200, 1800, 2400].map((w) => `${sized(url, w)} ${w}w`).join(', ');
     const full = () => {
-      if (img.dataset.original === '1') return; // the original is already up; a late resized copy must not replace it
+      if (img.dataset.original) return; // the HDR original is up or on its way; a late resized copy must not replace it
       img.sizes = '100vw';
       img.srcset = srcset;
       img.src = sized(url, 1800);
@@ -142,26 +142,42 @@ if (dialog && links.length) {
     big.decode().then(full, full);
   }
 
-  // The HDR original in place of the resized copy (see `hdr` above), swapped in only once decoded so it never blanks
+  // The HDR original in place of the resized copy (see `hdr` above). iOS Safari draws an image inside the scrolling
+  // track in standard range unless the image has a compositing layer of its own, so the photo in view gets one
+  // (will-change), added once its HDR file is in; it is dropped when the photo leaves, since a full-size HDR layer is
+  // large. The file loads into a fresh <img> that replaces the slide's once it has arrived, so the resized copy stays up
+  // until then.
   let settle = 0;
+  let lifted = null;
+  function lift(img) {
+    if (lifted) lifted.style.willChange = '';
+    lifted = img;
+    if (img) img.style.willChange = 'transform';
+  }
   function toOriginal(i) {
     clearTimeout(settle);
+    lift(null);
     if (!hdr.matches || !items[i].hdr) return;
     settle = setTimeout(() => {
       const img = slides[i]?.querySelector('img');
-      if (i !== current || !img || img.dataset.original) return;
+      if (i !== current || !img) return;
+      if (img.dataset.original === '1') return lift(img); // back on a photo already swapped
+      if (img.dataset.original) return;
       img.dataset.original = 'loading';
       const file = new Image();
+      file.alt = img.alt;
+      file.width = img.width;
+      file.height = img.height;
+      file.draggable = false;
+      file.dataset.loading = '1'; // load() must not put a resized copy back in
+      file.dataset.original = '1';
+      file.onload = () => {
+        if (!img.isConnected) return;
+        img.replaceWith(file);
+        if (i === current && dialog.open) lift(file);
+      };
+      file.onerror = () => delete img.dataset.original;
       file.src = items[i].hdr;
-      file.decode().then(
-        () => {
-          img.removeAttribute('srcset');
-          img.removeAttribute('sizes');
-          img.src = file.src;
-          img.dataset.original = '1';
-        },
-        () => delete img.dataset.original,
-      );
     }, SETTLE);
   }
 
@@ -381,6 +397,7 @@ if (dialog && links.length) {
   dialog.addEventListener('close', () => {
     closing = false;
     clearTimeout(settle);
+    lift(null);
     root.classList.remove('viewing');
     for (const anim of dialog.getAnimations({ subtree: true })) anim.cancel();
     history.replaceState(null, '', location.pathname + location.search);

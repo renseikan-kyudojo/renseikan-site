@@ -100,7 +100,7 @@ test('the gallery viewer opens, steps, passes axe and returns focus', async ({ p
 });
 
 // Sanity strips an Ultra HDR JPEG's gain map from images, so a photo's HDR original is a separate file; on an HDR screen
-// the viewer must end up showing that file. Chromium reports an HDR screen when forced to an HDR colour profile.
+// the viewer must end up showing that file, on a layer of its own. Chromium reports an HDR screen when forced to an HDR colour profile.
 test('on an HDR screen the viewer shows the HDR original of the photo in view', async ({ playwright, baseURL }) => {
   const browser = await playwright.chromium.launch({
     executablePath: process.env.PW_CHROMIUM || undefined,
@@ -118,6 +118,8 @@ test('on an HDR screen the viewer shows the HDR original of the photo in view', 
     const slide = page.locator('.viewer-slide img').nth(Number(index));
     await expect(slide).toHaveAttribute('data-original', '1', { timeout: 30_000 });
     expect(await slide.evaluate((img: HTMLImageElement) => img.currentSrc)).toBe(file);
+    // iOS Safari draws it in HDR only with a layer of its own
+    expect(await slide.evaluate((img: HTMLImageElement) => img.style.willChange)).toBe('transform');
   } finally {
     await browser.close();
   }
