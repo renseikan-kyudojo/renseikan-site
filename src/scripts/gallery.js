@@ -171,9 +171,10 @@ if (dialog && links.length) {
   }
   if (debugOn) addEventListener('error', (e) => dbg(`page error: ${e.message}`));
 
-  // The HDR original in place of the resized copy (see `hdr` above). Swapped straight into the slide: Safari draws a file
-  // pre-decoded in a detached Image() (or decoded asynchronously) in standard range, so it is loaded by the slide
-  // itself, decoded the normal way. The resized copy stays up until the file has arrived.
+  // The HDR original in place of the resized copy (see `hdr` above). Safari settles whether a layer is drawn in HDR when
+  // the layer is made, so changing the src of a slide already on screen (in the track's layer, made while it held the
+  // resized copy) stays in standard range. The file is loaded into a fresh <img> instead, which replaces the slide's
+  // once it has arrived and gets a layer of its own, made with the HDR image already in it.
   let settle = 0;
   function toOriginal(i) {
     clearTimeout(settle);
@@ -183,22 +184,27 @@ if (dialog && links.length) {
       const img = slides[i]?.querySelector('img');
       if (i !== current || !img || img.dataset.original) return;
       img.dataset.original = 'loading';
-      dbg(`photo ${i + 1}: loading ${items[i].hdr.split('/').pop()} into the slide`);
-      img.addEventListener(
-        'load',
-        () => {
-          img.dataset.original = '1';
-          dbg(
-            `photo ${i + 1}: slide shows ${img.currentSrc.split('/').pop()} ${img.naturalWidth}x${img.naturalHeight}`,
-          );
-        },
-        { once: true },
-      );
-      img.addEventListener('error', () => dbg(`photo ${i + 1}: load FAILED`), { once: true });
-      img.decoding = 'sync';
-      img.removeAttribute('srcset');
-      img.removeAttribute('sizes');
-      img.src = items[i].hdr;
+      dbg(`photo ${i + 1}: loading ${items[i].hdr.split('/').pop()} into a fresh image`);
+      const file = new Image();
+      file.alt = img.alt;
+      file.width = img.width;
+      file.height = img.height;
+      file.draggable = false;
+      file.dataset.loading = '1'; // load() must not put a resized copy back in
+      file.dataset.original = '1';
+      file.style.willChange = 'transform'; // its own layer, made now that the HDR image is in it
+      file.onload = () => {
+        if (!img.isConnected) return;
+        img.replaceWith(file);
+        dbg(
+          `photo ${i + 1}: replaced; slide shows ${file.currentSrc.split('/').pop()} ${file.naturalWidth}x${file.naturalHeight}`,
+        );
+      };
+      file.onerror = () => {
+        dbg(`photo ${i + 1}: load FAILED`);
+        delete img.dataset.original;
+      };
+      file.src = items[i].hdr;
     }, SETTLE);
   }
 

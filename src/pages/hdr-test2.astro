@@ -1,0 +1,120 @@
+---
+// TEMPORARY (hdr-debug branch only): the viewer's conditions, one at a time. Each row is a swipeable track like the
+// viewer's; each variant loads its own copy (?v=N) so one decode cannot stand in for another.
+import { getPhotos } from '../lib/sanity';
+const photo = (await getPhotos()).find((p) => p.hdr);
+const sdr = photo ? `${photo.url}?w=1800&auto=format&q=82` : '';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>HDR test 2</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 12px;
+        background: #12100e;
+        color: #ece6da;
+        font:
+          15px/1.4 system-ui,
+          sans-serif;
+      }
+      h2 {
+        margin: 20px 0 6px;
+        font-size: 15px;
+      }
+      .track {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+      }
+      .track > div {
+        flex: 0 0 100%;
+        scroll-snap-align: center;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .log {
+        color: #0f0;
+        font-family: monospace;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>HDR test 2</h1>
+      {photo ? (
+        <>
+          <h2>E. Track, resized copy first, then src changed to the HDR file</h2>
+          <div class="track">
+            <div>
+              <img id="e" src={sdr} alt="Variant E" />
+            </div>
+            <div />
+          </div>
+          <p class="log" id="e-log" />
+          <h2>F. Track, HDR file from the start</h2>
+          <div class="track">
+            <div>
+              <img src={`${photo.hdr}?v=6`} alt="Variant F" />
+            </div>
+            <div />
+          </div>
+          <h2>G. Like E, then given its own layer (will-change)</h2>
+          <div class="track">
+            <div>
+              <img id="g" src={sdr} alt="Variant G" />
+            </div>
+            <div />
+          </div>
+          <p class="log" id="g-log" />
+          <h2>H. Like E, but replaced by a fresh image element</h2>
+          <div class="track">
+            <div>
+              <img id="h" src={sdr} alt="Variant H" />
+            </div>
+            <div />
+          </div>
+          <p class="log" id="h-log" />
+        </>
+      ) : (
+        <p>No photo has an HDR original.</p>
+      )}
+    </main>
+    <script is:inline define:vars={{ hdr: photo?.hdr }}>
+      if (hdr) {
+        const log = (id, msg) => (document.getElementById(`${id}-log`).textContent += `${msg} `);
+        const swapAfterFirstPaint = (id, v, then) => {
+          const img = document.getElementById(id);
+          const go = () =>
+            setTimeout(() => {
+              img.addEventListener('load', () => (log(id, 'HDR file in'), then && then(img)), { once: true });
+              img.src = `${hdr}?v=${v}`;
+            }, 1500);
+          if (img.complete) go();
+          else img.addEventListener('load', go, { once: true });
+        };
+        swapAfterFirstPaint('e', 5);
+        swapAfterFirstPaint('g', 7, (img) => (img.style.willChange = 'transform'));
+        const h = document.getElementById('h');
+        const fresh = () =>
+          setTimeout(() => {
+            const n = new Image();
+            n.alt = 'Variant H';
+            n.onload = () => (h.replaceWith(n), log('h', 'fresh element in'));
+            n.src = `${hdr}?v=8`;
+          }, 1500);
+        if (h.complete) fresh();
+        else h.addEventListener('load', fresh, { once: true });
+      }
+    </script>
+  </body>
+</html>
