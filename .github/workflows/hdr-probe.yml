@@ -14,6 +14,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: node probe/studio-flow-probe.mjs
-        env:
-          SANITY_WRITE_TOKEN: ${{ secrets.SANITY_WRITE_TOKEN }}
+      - run: node probe/studio-deploy-probe.mjs
