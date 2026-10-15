@@ -197,7 +197,7 @@ if (dialog && links.length) {
         if (!img.isConnected) return;
         img.replaceWith(file);
         dbg(
-          `photo ${i + 1}: replaced; slide shows ${file.currentSrc.split('/').pop()} ${file.naturalWidth}x${file.naturalHeight}`,
+          `photo ${i + 1}: replaced; slide shows ${file.currentSrc.split('/').pop()} ${file.naturalWidth}x${file.naturalHeight}, own layer: ${getComputedStyle(file).willChange}`,
         );
       };
       file.onerror = () => {
