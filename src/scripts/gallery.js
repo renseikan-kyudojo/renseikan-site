@@ -142,49 +142,28 @@ if (dialog && links.length) {
     big.decode().then(full, full);
   }
 
-  // TEMPORARY diagnostics (?hdrdebug): what the swap does on this device, printed over the viewer
-  const debugOn = new URLSearchParams(location.search).has('hdrdebug');
-  let debugBox = null;
-  const t0 = performance.now();
-  function dbg(msg) {
-    if (!debugOn) return;
-    if (!debugBox) {
-      debugBox = document.createElement('pre');
-      Object.assign(debugBox.style, {
-        position: 'absolute',
-        left: '8px',
-        right: '8px',
-        bottom: '8px',
-        zIndex: 9,
-        margin: 0,
-        padding: '8px',
-        font: '11px/1.35 monospace',
-        color: '#0f0',
-        background: 'rgba(0,0,0,.8)',
-        whiteSpace: 'pre-wrap',
-        maxHeight: '45%',
-        overflow: 'auto',
-      });
-      dialog.append(debugBox);
-    }
-    debugBox.textContent += `${((performance.now() - t0) / 1000).toFixed(1)}s ${msg}\n`;
-  }
-  if (debugOn) addEventListener('error', (e) => dbg(`page error: ${e.message}`));
-
-  // The HDR original in place of the resized copy (see `hdr` above). Safari settles whether a layer is drawn in HDR when
-  // the layer is made, so changing the src of a slide already on screen (in the track's layer, made while it held the
-  // resized copy) stays in standard range. The file is loaded into a fresh <img> instead, which replaces the slide's
-  // once it has arrived and gets a layer of its own, made with the HDR image already in it.
+  // The HDR original in place of the resized copy (see `hdr` above). iOS Safari draws an image inside the scrolling
+  // track in standard range unless the image has a compositing layer of its own, so the photo in view gets one
+  // (will-change), added once its HDR file is in; it is dropped when the photo leaves, since a full-size HDR layer is
+  // large. The file loads into a fresh <img> that replaces the slide's once it has arrived, so the resized copy stays up
+  // until then.
   let settle = 0;
+  let lifted = null;
+  function lift(img) {
+    if (lifted) lifted.style.willChange = '';
+    lifted = img;
+    if (img) img.style.willChange = 'transform';
+  }
   function toOriginal(i) {
     clearTimeout(settle);
-    dbg(`photo ${i + 1}: dynamic-range high=${hdr.matches}, has HDR original=${!!items[i].hdr}`);
+    lift(null);
     if (!hdr.matches || !items[i].hdr) return;
     settle = setTimeout(() => {
       const img = slides[i]?.querySelector('img');
-      if (i !== current || !img || img.dataset.original) return;
+      if (i !== current || !img) return;
+      if (img.dataset.original === '1') return lift(img); // back on a photo already swapped
+      if (img.dataset.original) return;
       img.dataset.original = 'loading';
-      dbg(`photo ${i + 1}: loading ${items[i].hdr.split('/').pop()} into a fresh image`);
       const file = new Image();
       file.alt = img.alt;
       file.width = img.width;
@@ -192,18 +171,12 @@ if (dialog && links.length) {
       file.draggable = false;
       file.dataset.loading = '1'; // load() must not put a resized copy back in
       file.dataset.original = '1';
-      file.style.willChange = 'transform'; // its own layer, made now that the HDR image is in it
       file.onload = () => {
         if (!img.isConnected) return;
         img.replaceWith(file);
-        dbg(
-          `photo ${i + 1}: replaced; slide shows ${file.currentSrc.split('/').pop()} ${file.naturalWidth}x${file.naturalHeight}, own layer: ${getComputedStyle(file).willChange}`,
-        );
+        if (i === current && dialog.open) lift(file);
       };
-      file.onerror = () => {
-        dbg(`photo ${i + 1}: load FAILED`);
-        delete img.dataset.original;
-      };
+      file.onerror = () => delete img.dataset.original;
       file.src = items[i].hdr;
     }, SETTLE);
   }
@@ -424,6 +397,7 @@ if (dialog && links.length) {
   dialog.addEventListener('close', () => {
     closing = false;
     clearTimeout(settle);
+    lift(null);
     root.classList.remove('viewing');
     for (const anim of dialog.getAnimations({ subtree: true })) anim.cancel();
     history.replaceState(null, '', location.pathname + location.search);
