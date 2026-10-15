@@ -12,12 +12,15 @@ const markers = (b) => ({ hdrgm: has(b, 'hdrgm:'), mpf: has(b, 'MPF\0'), jpegs: 
 const client = createClient({ projectId: 'bfgbeqq4', dataset: 'production', apiVersion: '2025-02-19', token, useCdn: false });
 const file = readFileSync('probe/uhdr-fixture.jpg');
 console.log('sent:    ', JSON.stringify(markers(file)));
-const asset = await client.assets.upload('image', file, { filename: 'hdr-probe-delete-me.jpg' });
-try {
-  const back = Buffer.from(await (await fetch(asset.url)).arrayBuffer());
-  console.log('stored:  ', JSON.stringify(markers(back)), back.equals(file) ? '(byte-identical)' : '(CHANGED)');
-  console.log('upload test:', has(back, 'hdrgm:') && has(back, 'MPF\0') ? 'Sanity KEEPS the gain map' : 'Sanity STRIPS the gain map');
-} finally {
-  await client.delete(asset._id);
-  console.log('test asset deleted');
+for (const kind of ['image', 'file']) {
+  const asset = await client.assets.upload(kind, file, { filename: 'hdr-probe-delete-me.jpg', contentType: 'image/jpeg' });
+  try {
+    const r = await fetch(asset.url);
+    const back = Buffer.from(await r.arrayBuffer());
+    console.log(`${kind} asset stored:`, JSON.stringify(markers(back)), back.equals(file) ? '(byte-identical)' : '(CHANGED)', r.headers.get('content-type'));
+    console.log(`${kind} asset:`, has(back, 'hdrgm:') && has(back, 'MPF\0') ? 'KEEPS the gain map' : 'STRIPS the gain map');
+  } finally {
+    await client.delete(asset._id);
+    console.log(`${kind} test asset deleted`);
+  }
 }
