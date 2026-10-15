@@ -142,26 +142,75 @@ if (dialog && links.length) {
     big.decode().then(full, full);
   }
 
-  // The HDR original in place of the resized copy (see `hdr` above), swapped in only once decoded so it never blanks
+  // TEMPORARY diagnostics (?hdrdebug): what the swap does on this device, printed over the viewer
+  const debugOn = new URLSearchParams(location.search).has('hdrdebug');
+  let debugBox = null;
+  const t0 = performance.now();
+  function dbg(msg) {
+    if (!debugOn) return;
+    if (!debugBox) {
+      debugBox = document.createElement('pre');
+      Object.assign(debugBox.style, {
+        position: 'absolute',
+        left: '8px',
+        right: '8px',
+        bottom: '8px',
+        zIndex: 9,
+        margin: 0,
+        padding: '8px',
+        font: '11px/1.35 monospace',
+        color: '#0f0',
+        background: 'rgba(0,0,0,.8)',
+        whiteSpace: 'pre-wrap',
+        maxHeight: '45%',
+        overflow: 'auto',
+      });
+      dialog.append(debugBox);
+    }
+    debugBox.textContent += `${((performance.now() - t0) / 1000).toFixed(1)}s ${msg}\n`;
+  }
+  if (debugOn) addEventListener('error', (e) => dbg(`page error: ${e.message}`));
+
+  // The HDR original in place of the resized copy (see `hdr` above), swapped in once it has loaded so it never blanks.
+  // A failed decode() does not stop the swap: iOS Safari can reject decode() for a very large image it still displays.
   let settle = 0;
   function toOriginal(i) {
     clearTimeout(settle);
+    dbg(`photo ${i + 1}: dynamic-range high=${hdr.matches}, has HDR original=${!!items[i].hdr}`);
     if (!hdr.matches || !items[i].hdr) return;
     settle = setTimeout(() => {
       const img = slides[i]?.querySelector('img');
       if (i !== current || !img || img.dataset.original) return;
       img.dataset.original = 'loading';
+      dbg(`photo ${i + 1}: fetching ${items[i].hdr.split('/').pop()}`);
       const file = new Image();
+      const show = () => {
+        if (debugOn)
+          img.addEventListener(
+            'load',
+            () =>
+              dbg(
+                `photo ${i + 1}: slide now shows ${img.currentSrc.split('/').pop()} ${img.naturalWidth}x${img.naturalHeight}`,
+              ),
+            { once: true },
+          );
+        img.removeAttribute('srcset');
+        img.removeAttribute('sizes');
+        img.src = file.src;
+        img.dataset.original = '1';
+      };
+      file.onload = () => {
+        dbg(`photo ${i + 1}: loaded ${file.naturalWidth}x${file.naturalHeight}`);
+        file.decode().then(
+          () => (dbg(`photo ${i + 1}: decode() ok`), show()),
+          (e) => (dbg(`photo ${i + 1}: decode() rejected (${e?.name}: ${e?.message}), swapping anyway`), show()),
+        );
+      };
+      file.onerror = () => {
+        dbg(`photo ${i + 1}: load FAILED`);
+        delete img.dataset.original;
+      };
       file.src = items[i].hdr;
-      file.decode().then(
-        () => {
-          img.removeAttribute('srcset');
-          img.removeAttribute('sizes');
-          img.src = file.src;
-          img.dataset.original = '1';
-        },
-        () => delete img.dataset.original,
-      );
     }, SETTLE);
   }
 
