@@ -128,7 +128,7 @@ if (dialog && links.length) {
     const url = items[i].url;
     const srcset = [1200, 1800, 2400].map((w) => `${sized(url, w)} ${w}w`).join(', ');
     const full = () => {
-      if (img.dataset.original === '1') return; // the original is already up; a late resized copy must not replace it
+      if (img.dataset.original) return; // the HDR original is up or on its way; a late resized copy must not replace it
       img.sizes = '100vw';
       img.srcset = srcset;
       img.src = sized(url, 1800);
@@ -171,8 +171,9 @@ if (dialog && links.length) {
   }
   if (debugOn) addEventListener('error', (e) => dbg(`page error: ${e.message}`));
 
-  // The HDR original in place of the resized copy (see `hdr` above), swapped in once it has loaded so it never blanks.
-  // A failed decode() does not stop the swap: iOS Safari can reject decode() for a very large image it still displays.
+  // The HDR original in place of the resized copy (see `hdr` above). Swapped straight into the slide: Safari draws a file
+  // pre-decoded in a detached Image() (or decoded asynchronously) in standard range, so it is loaded by the slide
+  // itself, decoded the normal way. The resized copy stays up until the file has arrived.
   let settle = 0;
   function toOriginal(i) {
     clearTimeout(settle);
@@ -182,35 +183,22 @@ if (dialog && links.length) {
       const img = slides[i]?.querySelector('img');
       if (i !== current || !img || img.dataset.original) return;
       img.dataset.original = 'loading';
-      dbg(`photo ${i + 1}: fetching ${items[i].hdr.split('/').pop()}`);
-      const file = new Image();
-      const show = () => {
-        if (debugOn)
-          img.addEventListener(
-            'load',
-            () =>
-              dbg(
-                `photo ${i + 1}: slide now shows ${img.currentSrc.split('/').pop()} ${img.naturalWidth}x${img.naturalHeight}`,
-              ),
-            { once: true },
+      dbg(`photo ${i + 1}: loading ${items[i].hdr.split('/').pop()} into the slide`);
+      img.addEventListener(
+        'load',
+        () => {
+          img.dataset.original = '1';
+          dbg(
+            `photo ${i + 1}: slide shows ${img.currentSrc.split('/').pop()} ${img.naturalWidth}x${img.naturalHeight}`,
           );
-        img.removeAttribute('srcset');
-        img.removeAttribute('sizes');
-        img.src = file.src;
-        img.dataset.original = '1';
-      };
-      file.onload = () => {
-        dbg(`photo ${i + 1}: loaded ${file.naturalWidth}x${file.naturalHeight}`);
-        file.decode().then(
-          () => (dbg(`photo ${i + 1}: decode() ok`), show()),
-          (e) => (dbg(`photo ${i + 1}: decode() rejected (${e?.name}: ${e?.message}), swapping anyway`), show()),
-        );
-      };
-      file.onerror = () => {
-        dbg(`photo ${i + 1}: load FAILED`);
-        delete img.dataset.original;
-      };
-      file.src = items[i].hdr;
+        },
+        { once: true },
+      );
+      img.addEventListener('error', () => dbg(`photo ${i + 1}: load FAILED`), { once: true });
+      img.decoding = 'sync';
+      img.removeAttribute('srcset');
+      img.removeAttribute('sizes');
+      img.src = items[i].hdr;
     }, SETTLE);
   }
 

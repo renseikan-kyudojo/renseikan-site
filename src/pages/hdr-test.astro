@@ -1,0 +1,100 @@
+---
+// TEMPORARY (hdr-debug branch only): the first HDR original drawn four ways, to find which one Safari shows in standard
+// range. Each variant loads its own copy (?v=N) so one decode cannot stand in for another.
+import { getPhotos } from '../lib/sanity';
+const hdr = (await getPhotos()).find((p) => p.hdr)?.hdr;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>HDR test</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 12px;
+        background: #12100e;
+        color: #ece6da;
+        font:
+          15px/1.4 system-ui,
+          sans-serif;
+      }
+      h2 {
+        margin: 20px 0 6px;
+        font-size: 15px;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      button {
+        min-height: 44px;
+        padding: 0 16px;
+        font: inherit;
+      }
+      dialog {
+        width: 100%;
+        max-width: none;
+        margin: auto 0;
+        padding: 0;
+        border: 0;
+        background: #12100e;
+      }
+      #status {
+        color: #0f0;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>HDR test</h1>
+      {hdr ? (
+        <>
+          <p id="status" />
+          <h2>A. Plain image in the page</h2>
+          <img src={`${hdr}?v=1`} alt="Variant A" />
+          <h2>B. decoding="async"</h2>
+          <img src={`${hdr}?v=2`} decoding="async" alt="Variant B" />
+          <h2>C. Pre-decoded in a detached Image(), then shown</h2>
+          <img id="c" alt="Variant C" />
+          <h2>D. Plain image inside a modal dialog</h2>
+          <button type="button" id="open">
+            Open dialog
+          </button>
+          <dialog id="d">
+            <img id="dimg" alt="Variant D" />
+            <button type="button" id="close">
+              Close
+            </button>
+          </dialog>
+        </>
+      ) : (
+        <p>No photo has an HDR original.</p>
+      )}
+    </main>
+    <script is:inline define:vars={{ hdr }}>
+      if (hdr) {
+        const status = document.getElementById('status');
+        status.textContent = `dynamic-range high: ${matchMedia('(dynamic-range: high)').matches}`;
+        const pre = new Image();
+        pre.src = `${hdr}?v=3`;
+        pre.decode().then(
+          () => (document.getElementById('c').src = pre.src),
+          (e) => (status.textContent += `\nC: decode() rejected (${e && e.name})`),
+        );
+        const d = document.getElementById('d');
+        document.getElementById('open').addEventListener('click', () => {
+          document.getElementById('dimg').src = `${hdr}?v=4`;
+          d.showModal();
+        });
+        document.getElementById('close').addEventListener('click', () => d.close());
+      }
+    </script>
+  </body>
+</html>
