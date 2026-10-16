@@ -1,12 +1,12 @@
 ---
 // The hero: the name written in the logo face and its mon pressed (left, desktop), the title and lede, and 弓道 painted
 // in live ink with its seal (right). The wind blows across the whole section. home.js runs the sequence.
-import { regionName } from '../lib/format';
-import type { Site } from '../lib/sanity';
+// The words come from the Home page document in the Studio (src/lib/pages.ts).
+import type { Pages } from '../lib/pages';
 interface Props {
-  site: Site;
+  copy: Pages['home']['hero'];
 }
-const { site } = Astro.props;
+const { copy } = Astro.props;
 ---
 
 <section class="hero" id="top" aria-labelledby="hero-title">
@@ -17,23 +17,18 @@ const { site } = Astro.props;
       <span class="hanko stamp" id="hanko"></span>
     </div>
     <div>
-      <p class="eyebrow">
-        {site.address.city}, {regionName(site.address.region)}
-      </p>
+      <p class="eyebrow">{copy.eyebrow}</p>
       <div class="kanji inline" id="heroKanjiInline" lang="ja" aria-hidden="true"></div>
       <h1 id="hero-title" class="wipe in late">
-        Renseikan Kyudojo
+        {copy.title}
       </h1>
-      <p class="lede">
-        Traditional Japanese archery, taught the way it has been for centuries. New students are always welcome. The
-        first lesson is free with no appointments needed, just walk in during a regularly scheduled class time.
-      </p>
+      <p class="lede">{copy.lede}</p>
       <div class="actions">
-        <a class="btn primary" href="#expect">
-          New to the Dojo
+        <a class="btn primary" href={copy.primary.href}>
+          {copy.primary.label}
         </a>
-        <a class="btn secondary" href="#book">
-          Members: book a class
+        <a class="btn secondary" href={copy.secondary.href}>
+          {copy.secondary.label}
         </a>
       </div>
     </div>

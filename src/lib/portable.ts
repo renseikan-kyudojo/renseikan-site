@@ -90,6 +90,14 @@ export function toHtml(blocks: PortableBlock[] | undefined | null): string {
   return out.join('\n');
 }
 
+/** The blocks' text with its marks but no paragraph tags, for a lede or a label that is one line of rich text. */
+export function toInlineHtml(blocks: PortableBlock[] | undefined | null): string {
+  return (blocks ?? [])
+    .filter((b): b is Block => b._type === 'block')
+    .map(spans)
+    .join('<br>');
+}
+
 /** Plain text of the blocks, for descriptions and feeds. */
 export function toText(blocks: PortableBlock[] | undefined | null): string {
   return (blocks ?? [])

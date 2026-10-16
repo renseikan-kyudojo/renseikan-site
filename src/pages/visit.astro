@@ -1,21 +1,19 @@
 ---
+// Visit: hours, address, contact and the map. The words come from the Visit page document in the Studio.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import VisitBlock from '../components/VisitBlock.astro';
 import { getSite, getClasses, daysLabel } from '../lib/sanity';
-const [site, classes] = await Promise.all([getSite(), getClasses()]);
+import { getPage } from '../lib/pages';
+const [site, classes, copy] = await Promise.all([getSite(), getClasses(), getPage('visit')]);
 const days = daysLabel(classes);
-const a = site.address;
 ---
 
-<Base
-  title="Visit"
-  description={`${a.street}, ${a.city}, ${a.region} ${a.postalCode}. ${days} ${site.hours}. New students walk in; no appointment needed.`}
->
+<Base title={copy.seoTitle} description={copy.seoDescription}>
   <section id="visit-page" class="page" aria-labelledby="visit-title">
     <div class="wrap">
-      <PageHeader eyebrow="Visit" title="Visit the dojo" id="visit-title">
-        <p class="lede">{site.policy}</p>
+      <PageHeader eyebrow={copy.eyebrow} title={copy.title} id="visit-title">
+        <p class="lede">{copy.lede}</p>
       </PageHeader>
       <VisitBlock site={site} days={days} />
     </div>

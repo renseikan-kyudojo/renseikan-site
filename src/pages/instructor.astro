@@ -1,18 +1,20 @@
 ---
+// The instructors, one card each. The heading comes from the Instructor page document in the Studio.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import InstructorCard from '../components/InstructorCard.astro';
 import { getInstructors } from '../lib/sanity';
-const instructors = await getInstructors();
+import { getPage } from '../lib/pages';
+const [instructors, copy] = await Promise.all([getInstructors(), getPage('instructor')]);
 const t = instructors[0];
 const desc = [t.name, t.rank, t.credentials[0]].filter(Boolean).join(', ') + '.';
-const label = instructors.length > 1 ? 'Instructors' : 'Instructor';
+const label = instructors.length > 1 ? copy.eyebrowPlural : copy.eyebrow;
 ---
 
 <Base title={label} description={desc}>
   <section id="instructor-page" class="page" aria-labelledby="instr-title">
     <div class="wrap">
-      <PageHeader eyebrow={label} title="Who teaches here" id="instr-title" />
+      <PageHeader eyebrow={label} title={copy.title} id="instr-title" />
       <div class="cards">
         {instructors.map((p, i) => (
           <InstructorCard person={p} headingTag="h2" eager={i === 0} />

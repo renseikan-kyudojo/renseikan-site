@@ -9,6 +9,15 @@ with `npm run studio`.
   field falls back to `src/data/site.json` (or the page's defaults), so an empty dataset or an outage never breaks a build;
   the build log says which source it used. The components in `src/components/` render the same content on the home
   page and the inner pages.
+- `src/lib/pages.ts`: each page's words come from its own document under **Pages** in the Studio (Home, About, Classes,
+  Joining, Visit, Instructor, Questions, News and events, Gallery, 日本語, Not found, and "Navigation and shared text" for
+  the menu, footer, booking panel and visit block). The documents are laid over `src/data/pages.json`, which holds the
+  same text as the site ships it, so a blank field keeps the shipped wording and a new field starts with it. Any text
+  may hold a placeholder (`{days}`, `{hours}`, `{email}`, `{name}`, `{venue}`, `{address}`, `{policy}`, `{nckf}`,
+  `{akr}`, `{instagram}`, `{booking}`), filled at build time from Dojo settings and Classes, so copy never goes stale
+  when a fact changes. Rich-text fields allow bold, italic and links only. `src/lib/copy.js` is the shared piece: it
+  turns `pages.json`'s light markup (`*italic*`, `**bold**`, `[text](url)`, one string per paragraph) into Portable
+  Text with stable keys, fills placeholders, and computes the fill-blanks patch.
 - Wired so far:
   - Dojo settings: name, tagline, description, class time, venue/address, email, policy, booking URL, JACC widget code
     (the widget shows on the home and Classes pages once pasted; until then only the booking button).
@@ -37,13 +46,21 @@ with `npm run studio`.
     on the long edge so phones load them quickly. The grid is monochrome until hovered, so only the full-size view
     is HDR.
   - FAQ: the Questions page, in Order; built-in answers show until the first entry is published.
-  - Dojo settings also holds the Joining page's facts (after the first lesson, fees, equipment, grading); blank fields
-    fall back to cautious wording that says to ask.
-  - Next: Pages.
+  - Dojo settings holds the Fees table for the Joining page; the page's own wording (its steps, what shows while the
+    table is empty) is under Pages, Joining. The three notes the settings document used to hold for that page (after
+    the first lesson, equipment, grading) are still read as fallbacks for the page's steps, so nothing written there
+    is lost, and `npm run seed` carries them into the Joining page document.
+  - Pages: every page's titles, ledes, sections, labels and buttons, as above.
 - Home page: `src/pages/index.astro` composes the components (Hero, Bento, Steps, ClassList, BookingPanel,
   InstructorCard, VisitBlock).
-- Studio action **Fill blanks with the site's current text** (`sanity/actions/fillFromSite.ts`) on Dojo settings and the
-  first instructor: copies site.json into empty fields as a draft; nothing filled in is overwritten.
+- Studio action **Fill blanks with the site's current text** (`sanity/actions/fillFromSite.ts`) on Dojo settings, every
+  page document and the first instructor: copies site.json / pages.json into empty fields as a draft; nothing filled in
+  is overwritten.
+- `npm run seed` (`scripts/seed-content.mjs`, needs `SANITY_WRITE_TOKEN` with Editor rights) does the same for the whole
+  dataset at once, without opening each document: it creates the page documents and fills the blanks in Dojo settings,
+  and creates the first instructor, the Sunday class and the FAQ entries if the dataset has none of them. `--dry` only
+  reports; `--reset` also overwrites every page field with the shipped text. The dataset was seeded this way on
+  2026-10-16, so the Studio shows the site's text section by section.
 - The daily cron (`api/daily.ts`, 09:00 UTC) calls the deploy hook too, so class dates roll forward even with no
   edits. It needs `CRON_SECRET` and `VERCEL_DEPLOY_HOOK` in Vercel; without them it does nothing.
 - Publishing rebuilds the site through a Sanity webhook to the Vercel deploy hook `content-publish` (runbook 04, step 9).

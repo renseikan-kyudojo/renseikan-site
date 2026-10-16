@@ -71,18 +71,11 @@ export default defineType({
     }),
     defineField({ name: 'instagram', title: 'Instagram URL', type: 'url' }),
     defineField({
-      name: 'membershipNote',
-      title: 'After the first lesson',
-      type: 'text',
-      rows: 4,
-      description:
-        "Shown on the Joining page: how someone continues after the free lesson (JACC membership, how classes are paid for). Leave blank for the site's built-in wording.",
-    }),
-    defineField({
       name: 'fees',
       title: 'Fees',
       type: 'array',
-      description: 'Shown as a table on the Joining page once any row is filled in.',
+      description:
+        "Shown as a table on the Joining page once any row is filled in. The page's wording is under Pages, Joining.",
       of: [
         {
           type: 'object',
@@ -94,21 +87,6 @@ export default defineType({
           preview: { select: { title: 'item', subtitle: 'amount' } },
         },
       ],
-    }),
-    defineField({
-      name: 'equipmentNote',
-      title: 'Equipment',
-      type: 'text',
-      rows: 4,
-      description:
-        'Shown on the Joining page: what the dojo lends, for how long, and when a student buys a glove and bow. Leave blank for the built-in wording.',
-    }),
-    defineField({
-      name: 'gradingNote',
-      title: 'Grading',
-      type: 'text',
-      rows: 4,
-      description: 'Shown on the Joining page if filled in: how ranks and examinations work.',
     }),
   ],
   preview: { prepare: () => ({ title: 'Dojo settings' }) },

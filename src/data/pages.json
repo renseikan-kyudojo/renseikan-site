@@ -1,0 +1,399 @@
+{
+  "shared": {
+    "nav": [
+      {
+        "_type": "linkItem",
+        "label": "About",
+        "href": "/about"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Classes",
+        "href": "/classes"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Join",
+        "href": "/join"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Instructor",
+        "href": "/instructor"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Gallery",
+        "href": "/gallery"
+      },
+      {
+        "_type": "linkItem",
+        "label": "News",
+        "href": "/news"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Visit",
+        "href": "/visit"
+      }
+    ],
+    "footerLinks": [
+      {
+        "_type": "linkItem",
+        "label": "Questions",
+        "href": "/faq"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Joining",
+        "href": "/join"
+      },
+      {
+        "_type": "linkItem",
+        "label": "日本語",
+        "href": "/ja"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Class calendar",
+        "href": "/classes.ics"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Feed",
+        "href": "/rss.xml"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Instagram",
+        "href": "{instagram}"
+      },
+      {
+        "_type": "linkItem",
+        "label": "NCKF",
+        "href": "{nckf}"
+      }
+    ],
+    "skipLink": "Skip to content",
+    "menuLabel": "Menu",
+    "themeLabel": "Theme",
+    "copyLabel": "Copy",
+    "booking": {
+      "eyebrow": "Members' booking",
+      "title": "Book a class",
+      "lede": "New students don't need to book. Members reserve their place through the Japanese Art & Cultural Center (JACC) schedule on WellnessLiving.",
+      "button": "Book on WellnessLiving",
+      "note": "Opens the JACC schedule in a new tab.",
+      "loading": "Loading the schedule from WellnessLiving…"
+    },
+    "visit": {
+      "hoursLabel": "Hours",
+      "addressLabel": "Address",
+      "contactLabel": "Contact",
+      "mapLink": "Open in Google Maps",
+      "directionsLink": "Directions"
+    },
+    "classList": {
+      "empty": "No classes are scheduled right now. Check the News page."
+    },
+    "instructorTitle": "Instructor"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "{city}, {state}",
+      "title": "Renseikan Kyudojo",
+      "lede": "Traditional Japanese archery, taught the way it has been for centuries. New students are always welcome. The first lesson is free with no appointments needed, just walk in during a regularly scheduled class time.",
+      "primary": {
+        "label": "New to the Dojo",
+        "href": "#expect"
+      },
+      "secondary": {
+        "label": "Members: book a class",
+        "href": "#book"
+      }
+    },
+    "glance": {
+      "title": "The dojo at a glance",
+      "hoursLabel": "Class hours",
+      "instructorLabel": "Chief Instructor",
+      "instructorLink": "About the instructor",
+      "whereLabel": "Where",
+      "mapLink": "Map",
+      "directionsLink": "Directions",
+      "federationLabel": "Federation",
+      "federation": [
+        "The founding dojo of the [Northern California Kyudo Federation]({nckf}) (NCKF) and a member of the [American Kyudo Renmei]({akr})."
+      ]
+    },
+    "expect": {
+      "title": "Beginning Your Kyudo Journey",
+      "subtitle": "What to expect",
+      "lede": "No uniform or equipment is required and no prior experience is necessary.",
+      "steps": [
+        {
+          "_type": "stepItem",
+          "kanji": "礼",
+          "title": "Etiquette first",
+          "text": "Practice begins with a bow to the shajo (shooting hall). You learn how to enter the hall and where to stand before you handle a bow."
+        },
+        {
+          "_type": "stepItem",
+          "kanji": "型",
+          "title": "Form before arrows",
+          "text": "You learn the eight stages of shooting (shahō hassetsu) with a rubber practice bow called a gomuyumi before you draw a real one. Wear loose clothing you can move in."
+        },
+        {
+          "_type": "stepItem",
+          "kanji": "的",
+          "title": "Makiwara, then the mato",
+          "text": "Next come the glove and your first arrows at the makiwara. That is a straw target shot at close range. Once your form is steady you move on to the mato at 28 metres."
+        }
+      ]
+    },
+    "classes": {
+      "title": "Coming up"
+    },
+    "instructor": {
+      "title": "Who teaches here"
+    },
+    "visit": {
+      "title": "Visit the dojo"
+    }
+  },
+  "about": {
+    "seoTitle": "About",
+    "seoDescription": "What kyudo is, the dojo's name 練誠館 (Hall of Sincere Training), its history since the late 1970s, and its place in the Northern California Kyudo Federation and the American Kyudo Renmei.",
+    "eyebrow": "About the dojo",
+    "title": "練誠館, the Renseikan",
+    "lede": "Kyudo (弓道, \"the way of the bow\") is Japanese archery practised as a discipline: one arrow at a time, the same eight movements, the same breath. {name} teaches it every Sunday at the Japanese Art & Cultural Center (JACC) in San Jose, California.",
+    "sections": [
+      {
+        "_type": "textSection",
+        "title": "The name",
+        "body": [
+          "練 *ren* is to train, to refine; 誠 *sei* is sincerity; 館 *kan* is the hall. Together, the Hall of Sincere Training."
+        ]
+      },
+      {
+        "_type": "textSection",
+        "title": "History",
+        "body": [
+          "The Renseikan began as the San Jose Kyudo Club, formed in the late 1970s. The club was the original founding dojo of the [Northern California Kyudo Federation]({nckf}) (NCKF), which Japan accepted as a foreign *renmei* in 1981.",
+          "Sensei Steve Scott renamed the San Jose Kyudo Club the Renseikan in 2003, a few years after the Kurumi-an dojo in San Jose closed in 1999."
+        ]
+      },
+      {
+        "_type": "textSection",
+        "title": "What a class looks like",
+        "body": [
+          "The dojo usually sets up three makiwara (straw practice targets shot at close range) and students take turns at them and at the mato 28 metres away. Beginners learn the eight stages of the shot (the *shahō hassetsu*) with a rubber practice bow called a gomuyumi before moving to a bow the dojo lends. Next come the glove and the first arrows at the makiwara. The mato comes once the form is steady. Nothing is rushed and a class has room for everyone to shoot."
+        ]
+      },
+      {
+        "_type": "textSection",
+        "title": "Affiliation",
+        "body": [
+          "Renseikan is the founding dojo of the [Northern California Kyudo Federation]({nckf}) (NCKF) and a member of the [American Kyudo Renmei]({akr})."
+        ]
+      }
+    ]
+  },
+  "classes": {
+    "seoTitle": "Classes and booking",
+    "seoDescription": "Kyudo classes {days} {hours} at JACC in San Jose. New students walk in; members book through JACC on WellnessLiving.",
+    "eyebrow": "Classes",
+    "title": "{days}, {hours}",
+    "lede": "{policy}",
+    "comingUpTitle": "Coming up",
+    "wear": {
+      "title": "What to wear and bring",
+      "body": [
+        "Loose clothing you can kneel in and socks. The dojo lends the bow, glove and arrows for the first lessons."
+      ]
+    }
+  },
+  "join": {
+    "seoTitle": "Joining the dojo",
+    "seoDescription": "How to start kyudo at {name}: a free first lesson with no booking, then regular {days} classes through JACC. What the dojo lends and what it costs.",
+    "eyebrow": "Joining",
+    "title": "From your first lesson on",
+    "lede": "{policy}",
+    "steps": [
+      {
+        "_type": "textSection",
+        "title": "Your first lesson",
+        "body": [
+          "Walk in during any class, {days} {hours}, at the Japanese Art & Cultural Center. It is free, there is nothing to book and nothing to bring beyond loose clothing you can kneel in and socks. You will learn how to enter the hall, the eight stages of the shot with a practice bow, and, if the form settles, your first arrows at the makiwara."
+        ]
+      },
+      {
+        "_type": "textSection",
+        "title": "After that",
+        "body": [
+          "Regular classes are booked through the Japanese Art & Cultural Center (JACC) on WellnessLiving. Ask the instructor about membership and class fees at your first visit, or email {email}."
+        ]
+      },
+      {
+        "_type": "textSection",
+        "title": "Equipment",
+        "body": [
+          "The dojo lends the bow, glove and arrows for the first lessons. When you are ready for your own, the instructor will help you choose a glove and a bow that fits your draw."
+        ]
+      }
+    ],
+    "fees": {
+      "title": "Fees",
+      "empty": [
+        "The first lesson is free. For class and membership fees, ask at your first class or email [{email}](mailto:{email})."
+      ]
+    },
+    "buttons": [
+      {
+        "_type": "linkItem",
+        "label": "See the class dates",
+        "href": "/classes"
+      },
+      {
+        "_type": "linkItem",
+        "label": "Questions new students ask",
+        "href": "/faq"
+      }
+    ]
+  },
+  "visit": {
+    "seoTitle": "Visit",
+    "seoDescription": "{address}. {days} {hours}. New students walk in; no appointment needed.",
+    "eyebrow": "Visit",
+    "title": "Visit the dojo",
+    "lede": "{policy}"
+  },
+  "instructor": {
+    "eyebrow": "Instructor",
+    "eyebrowPlural": "Instructors",
+    "title": "Who teaches here"
+  },
+  "faq": {
+    "seoTitle": "Questions",
+    "seoDescription": "Answers for new students at {name}: experience, cost, what to wear, equipment, booking, where the dojo is.",
+    "eyebrow": "Questions",
+    "title": "What new students ask",
+    "lede": ["If yours is not here, email [{email}](mailto:{email})."],
+    "entries": [
+      {
+        "question": "Do I need any experience?",
+        "answer": [
+          "No. Most people who walk in have never held a bow. The first lessons are about posture, breathing and the sequence of the shot, with a rubber practice bow before a real one."
+        ]
+      },
+      {
+        "question": "How much does the first lesson cost?",
+        "answer": ["Nothing. The first lesson is free and needs no booking: come to any class, {days} {hours}."]
+      },
+      {
+        "question": "What should I wear?",
+        "answer": ["Loose clothing you can kneel and raise your arms in, and socks. No uniform is needed to start."]
+      },
+      {
+        "question": "Do I need my own bow?",
+        "answer": ["No. The dojo lends the bow, glove and arrows for the first lessons."]
+      },
+      {
+        "question": "Do I have to book?",
+        "answer": [
+          "New students do not. Members reserve their place through the Japanese Art & Cultural Center on WellnessLiving."
+        ]
+      },
+      {
+        "question": "When do I shoot at the target?",
+        "answer": [
+          "First at the makiwara, a straw target shot at close range, once the glove and the form are in place. The mato at 28 metres comes once the form is steady. Nothing is rushed."
+        ]
+      },
+      {
+        "question": "Where is the dojo?",
+        "answer": ["{venue}, {address}. The Visit page has the map and directions."]
+      },
+      {
+        "question": "Who can I ask?",
+        "answer": ["Email {email}, or ask the instructor at your first class."]
+      }
+    ]
+  },
+  "news": {
+    "seoTitle": "News and events",
+    "seoDescription": "Taikai, seminars, demonstrations, closures and news from {name}.",
+    "eyebrow": "News and events",
+    "title": "What's coming",
+    "lede": ["Subscribe to the [feed](/rss.xml), or add the [class calendar](/classes.ics) to your own."],
+    "empty": "No events are announced right now.",
+    "postsTitle": "News",
+    "eventPage": {
+      "eventEyebrow": "Event",
+      "registerLabel": "Register",
+      "calendarLabel": "Add to Google Calendar",
+      "backLabel": "All news and events"
+    },
+    "postEyebrow": "News"
+  },
+  "gallery": {
+    "seoTitle": "Gallery",
+    "seoDescription": "Photographs from {name}: the hall, the makiwara, the mato, taikai and seminars.",
+    "eyebrow": "Gallery",
+    "title": "The dojo in pictures",
+    "intro": "{count}{albums}. Select a photo to see it full size; swipe or use the arrow keys to move through them.",
+    "moreTitle": "More photos",
+    "empty": "Photographs are on their way.",
+    "instagram": ["Until then, the dojo posts on [Instagram]({instagram})."]
+  },
+  "ja": {
+    "seoTitle": "練誠館弓道場（日本語）",
+    "seoDescription": "カリフォルニア州サンノゼの弓道場。毎週{days} {hours}、日本芸術文化センター（JACC）にて稽古。初心者歓迎、初回無料、予約不要。",
+    "eyebrow": "日本語",
+    "title": "練誠館弓道場",
+    "lede": "カリフォルニア州サンノゼにある弓道場です。毎週{days}、{hours}に日本芸術文化センター（JACC）で稽古をしています。初心者の方も歓迎します。初回の稽古は無料で、予約は不要です。道着や道具は要りません。経験も問いません。",
+    "labels": {
+      "days": "稽古日",
+      "place": "場所",
+      "teacher": "指導",
+      "contact": "連絡先",
+      "affiliation": "所属"
+    },
+    "daysText": "毎週{days}、{hours}",
+    "affiliation": "北カリフォルニア弓道連盟（NCKF）創設道場、米国弓道連盟（AKR）会員",
+    "sections": [
+      {
+        "_type": "textSection",
+        "title": "はじめての方へ",
+        "body": [
+          "稽古の時間中にそのままお越しください。はじめは射場への入り方と礼法、ゴム弓での射法八節から始めます。道場の弓・ゆがけ・矢をお貸しします。動きやすい服装と靴下でお越しください。"
+        ]
+      },
+      {
+        "_type": "textSection",
+        "title": "道場について",
+        "body": [
+          "練誠館は1970年代後半にサンノゼ弓道クラブとして始まり、1981年に日本から外国連盟として認められた北カリフォルニア弓道連盟の創設道場です。2003年にスコット先生が練誠館と改名しました。"
+        ]
+      }
+    ],
+    "buttons": [
+      {
+        "_type": "linkItem",
+        "label": "稽古日程（英語）",
+        "href": "/classes"
+      },
+      {
+        "_type": "linkItem",
+        "label": "アクセス（英語）",
+        "href": "/visit"
+      }
+    ]
+  },
+  "notFound": {
+    "seoTitle": "Not found",
+    "seoDescription": "That page is not here.",
+    "title": "That page is not here",
+    "text": "The arrow went past the target.",
+    "linkLabel": "Back to the dojo"
+  }
+}

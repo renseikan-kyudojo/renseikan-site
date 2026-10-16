@@ -2,6 +2,7 @@
 // Every reader falls back to src/data/site.json (or the inline defaults) when Sanity is unreachable, empty or a field is
 // blank, so a build never fails on content. A publish in the Studio triggers the `content-publish` deploy hook.
 import local from '../data/site.json';
+import { filled, overlay } from './copy.js';
 import { SANITY_PROJECT_ID, SANITY_DATASET, SANITY_API_VERSION } from '../../sanity/project';
 
 export const SANITY = {
@@ -36,18 +37,8 @@ async function query<T>(groq: string): Promise<T | null> {
   }
 }
 
-const filled = (v: unknown) =>
-  v !== undefined && v !== null && !(typeof v === 'string' && v.trim() === '') && !(Array.isArray(v) && v.length === 0);
-function overlay<T extends Record<string, any>>(base: T, over: Record<string, any> | null | undefined): T {
-  if (!over) return base;
-  const out: Record<string, any> = { ...base };
-  for (const [k, v] of Object.entries(over)) {
-    if (v && typeof v === 'object' && !Array.isArray(v) && base[k] && typeof base[k] === 'object')
-      out[k] = overlay(base[k], v);
-    else if (filled(v)) out[k] = v;
-  }
-  return out as T;
-}
+/** One document by id (a page's copy, the settings), or null when Sanity has none or is unreachable. */
+export const queryDocument = (id: string) => query<Record<string, any>>(`*[_id == "${id}"][0]`);
 
 export interface Fee {
   item?: string;
@@ -57,8 +48,9 @@ export interface Fee {
 export type Site = typeof local & {
   widgetEmbed?: string;
   instagram?: string;
-  membershipNote?: string;
   fees?: Fee[];
+  /** The Joining page's notes as Dojo settings held them before the page had its own document (see src/lib/pages.ts). */
+  membershipNote?: string;
   equipmentNote?: string;
   gradingNote?: string;
 };

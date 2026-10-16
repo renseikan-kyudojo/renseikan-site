@@ -1,22 +1,22 @@
 ---
-// News: upcoming events, then posts, newest first. Each links to its own page.
+// News: upcoming events, then posts, newest first. Each links to its own page. The words come from the News page
+// document in the Studio.
 import Base from '../../layouts/Base.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import { getEvents, getPosts } from '../../lib/sanity';
+import { getPage } from '../../lib/pages';
+import { toInlineHtml } from '../../lib/portable';
 import { when } from '../../lib/format';
-const [events, posts] = await Promise.all([getEvents(), getPosts()]);
+const [events, posts, copy] = await Promise.all([getEvents(), getPosts(), getPage('news')]);
 ---
 
-<Base title="News and events" description="Taikai, seminars, demonstrations, closures and news from Renseikan Kyudojo.">
+<Base title={copy.seoTitle} description={copy.seoDescription}>
   <section id="news-page" class="page" aria-labelledby="news-title">
     <div class="wrap">
-      <PageHeader eyebrow="News and events" title="What's coming" id="news-title">
-        <p class="lede">
-          Subscribe to the <a href="/rss.xml">feed</a>, or add the <a href="/classes.ics">class calendar</a> to your
-          own.
-        </p>
+      <PageHeader eyebrow={copy.eyebrow} title={copy.title} id="news-title">
+        <p class="lede" set:html={toInlineHtml(copy.lede)} />
       </PageHeader>
-      {events.length === 0 && <p class="muted">No events are announced right now.</p>}
+      {events.length === 0 && <p class="muted">{copy.empty}</p>}
       <ul class="events">
         {events.map((e) => (
           <li>
@@ -35,7 +35,7 @@ const [events, posts] = await Promise.all([getEvents(), getPosts()]);
       </ul>
       {posts.length > 0 && (
         <>
-          <h3>News</h3>
+          <h3>{copy.postsTitle}</h3>
           <ul class="events">
             {posts.map((p) => (
               <li>

@@ -3,6 +3,7 @@
 import Base from '../../layouts/Base.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import { getPosts, type Post } from '../../lib/sanity';
+import { getPage } from '../../lib/pages';
 import { toHtml } from '../../lib/portable';
 import { when } from '../../lib/format';
 
@@ -14,13 +15,14 @@ interface Props {
   post: Post;
 }
 const { post: p } = Astro.props;
+const copy = await getPage('news');
 ---
 
 <Base title={p.title} description={p.summary || p.title}>
   <article>
     <section class="page" aria-labelledby="post-title">
       <div class="wrap">
-        <PageHeader eyebrow="News" title={p.title} id="post-title">
+        <PageHeader eyebrow={copy.postEyebrow} title={p.title} id="post-title">
           <p class="lede">
             <time datetime={p.date}>{when(p.date)}</time>
           </p>
@@ -38,7 +40,7 @@ const { post: p } = Astro.props;
         <div class="prose" set:html={toHtml(p.body)} />
         <div class="actions">
           <a class="btn quiet" href="/news">
-            All news and events
+            {copy.eventPage.backLabel}
           </a>
         </div>
       </div>
