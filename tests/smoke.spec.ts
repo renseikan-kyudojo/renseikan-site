@@ -93,6 +93,8 @@ test('the gallery viewer opens, steps, passes axe and returns focus', async ({ p
   await page.keyboard.press('ArrowRight');
   await expect(viewer.locator('.viewer-num')).toHaveText('2');
   await expect(page).toHaveURL(/#photo-2$/);
+  // the controls fade in over the stage (gallery.js chromeIn); axe reads their colour mid-fade as low contrast
+  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
   const axe = await new AxeBuilder({ page }).include('#viewer').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   const serious = axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   expect(serious.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`)).toEqual([]);
