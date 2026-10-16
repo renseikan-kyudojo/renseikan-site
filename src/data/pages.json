@@ -74,6 +74,7 @@
         "href": "{nckf}"
       }
     ],
+    "wordmark": "Renseikan",
     "skipLink": "Skip to content",
     "menuLabel": "Menu",
     "themeLabel": "Theme",
@@ -243,6 +244,9 @@
     ],
     "fees": {
       "title": "Fees",
+      "itemLabel": "Item",
+      "amountLabel": "Amount",
+      "noteLabel": "Note",
       "empty": [
         "The first lesson is free. For class and membership fees, ask at your first class or email [{email}](mailto:{email})."
       ]
@@ -343,7 +347,11 @@
     "intro": "{count}{albums}. Select a photo to see it full size; swipe or use the arrow keys to move through them.",
     "moreTitle": "More photos",
     "empty": "Photographs are on their way.",
-    "instagram": ["Until then, the dojo posts on [Instagram]({instagram})."]
+    "instagram": ["Until then, the dojo posts on [Instagram]({instagram})."],
+    "viewer": {
+      "original": "Original",
+      "close": "Close"
+    }
   },
   "ja": {
     "seoTitle": "練誠館弓道場（日本語）",

@@ -89,15 +89,6 @@ export interface Ev {
   registrationUrl?: string;
   photo?: string;
 }
-/** The sample event that shows until the first one is published in the Studio. */
-export const SAMPLE_EVENT: Ev = {
-  slug: 'winter-practice-continues',
-  date: '2026-12-06',
-  title: 'Winter practice continues',
-  place: 'JACC, San Jose',
-  kind: 'Other',
-  summary: 'Classes run every Sunday through December except the holiday Sundays the dojo announces here.',
-};
 const slugify = (s: string) =>
   s
     .toLowerCase()
@@ -105,7 +96,7 @@ const slugify = (s: string) =>
     .replace(/^-|-$/g, '');
 
 let eventsPromise: Promise<Ev[]> | undefined;
-/** Every event with a date, soonest first (past ones included, for their pages). The sample if the dataset has none. */
+/** Every event with a date, soonest first (past ones included, for their pages). None until the Studio has one. */
 export function getAllEvents(): Promise<Ev[]> {
   eventsPromise ??= (async () => {
     const evs = await query<
@@ -113,7 +104,7 @@ export function getAllEvents(): Promise<Ev[]> {
     >(`*[_type == "event" && defined(date) && defined(title)] | order(date asc){
       title, "slug": slug.current, date, endDate, start, end, place, kind, summary, registrationUrl, "photo": photo.asset->url, ${BODY}
     }`);
-    if (!evs || !evs.length) return [SAMPLE_EVENT];
+    if (!evs) return [];
     return evs.map(
       (e) => ({ ...e, slug: e.slug || slugify(e.title), summary: e.summary || toText(e.body).slice(0, 200) }) as Ev,
     );

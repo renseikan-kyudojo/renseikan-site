@@ -1,19 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const pages = [
-  '/',
-  '/about',
-  '/classes',
-  '/join',
-  '/faq',
-  '/instructor',
-  '/gallery',
-  '/visit',
-  '/news',
-  '/events/winter-practice-continues',
-  '/ja',
-];
+const pages = ['/', '/about', '/classes', '/join', '/faq', '/instructor', '/gallery', '/visit', '/news', '/ja'];
 
 // Requests that are expected to fail off Vercel (analytics) or off the public internet (maps, fonts) are not errors.
 const ignorable = /_vercel\/insights|maps\.google\.com|fonts\.g(oogleapis|static)\.com|ERR_NAME_NOT_RESOLVED|net::ERR/;
@@ -51,6 +39,20 @@ for (const path of pages) {
     ).toEqual([]);
   });
 }
+
+test('the first event page renders without errors and passes axe', async ({ page }) => {
+  await page.goto('/news');
+  const link = page.locator('.events h2 a[href^="/events/"]').first();
+  test.skip((await link.count()) === 0, 'the dataset has no events');
+  const errors = await collectErrors(page);
+  const res = await page.goto((await link.getAttribute('href'))!);
+  expect(res?.status()).toBe(200);
+  await expect(page.locator('main h1')).toHaveCount(1);
+  await page.waitForTimeout(500);
+  expect(errors).toEqual([]);
+  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(axe.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
+});
 
 test('unknown paths get the 404 page', async ({ page }) => {
   const res = await page.goto('/no-such-page');
@@ -151,5 +153,6 @@ test('the RSS feed is well-formed XML', async ({ page }) => {
   }, xml);
   expect(result.error).toBeNull();
   expect(result.root).toBe('rss');
-  expect(result.items).toBeGreaterThan(0);
+  // no items until the dojo publishes an event or a post
+  expect(result.items).toBeGreaterThanOrEqual(0);
 });
