@@ -191,6 +191,9 @@ const join = page('join', 'Joining page', [
   ),
   group('fees', 'Fees', [
     str('title', 'Heading'),
+    str('itemLabel', 'Table column: item'),
+    str('amountLabel', 'Table column: amount'),
+    str('noteLabel', 'Table column: note'),
     rich('empty', 'Text shown while the Fees table in Dojo settings is empty', PH),
   ]),
   list('buttons', 'Buttons at the end', 'linkItem'),
@@ -246,6 +249,7 @@ const gallery = page('gallery', 'Gallery page', [
   str('moreTitle', 'Heading for photos that are in no album'),
   str('empty', 'Text shown while there are no photos'),
   rich('instagram', 'Added to it when Dojo settings has an Instagram URL', '{instagram} is that URL.'),
+  group('viewer', 'Full-screen viewer', [str('original', '"Original" button'), str('close', '"Close" button')]),
 ]);
 
 const ja = page('ja', 'Japanese page (日本語)', [
@@ -282,6 +286,7 @@ const shared = page(
       'linkItem',
       'A link whose address is a placeholder with no value, such as {instagram} before an Instagram URL is set, is left out.',
     ),
+    str('wordmark', 'Name in the top bar, next to the crest'),
     str('skipLink', '"Skip to content" link (keyboard users)'),
     str('menuLabel', 'Menu button (phones)'),
     str('themeLabel', 'Theme switch label'),

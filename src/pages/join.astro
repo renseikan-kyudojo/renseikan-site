@@ -31,9 +31,9 @@ const fees = (site.fees ?? []).filter((f) => f.item && f.amount);
         <table class="fees">
           <thead>
             <tr>
-              <th scope="col">Item</th>
-              <th scope="col">Amount</th>
-              <th scope="col">Note</th>
+              <th scope="col">{copy.fees.itemLabel}</th>
+              <th scope="col">{copy.fees.amountLabel}</th>
+              <th scope="col">{copy.fees.noteLabel}</th>
             </tr>
           </thead>
           <tbody>

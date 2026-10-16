@@ -28,7 +28,7 @@ with `npm run studio`.
     No Class documents = one Sunday class at the Dojo settings time. Footer, Visit and schema.org hours follow them.
   - Events: the News page lists the upcoming ones; each has its own page at /events/<slug> with its details (rich
     text and images), a registration button if a link is set, and "Add to Google Calendar". Closures still mark class
-    dates "No class".
+    dates "No class". Until one is published the News page says none are announced (nothing is invented).
   - News posts: listed under the events on the News page, each at /news/<slug>. Both feed /rss.xml.
   - Albums and Gallery photos: the Gallery page, each album under its own heading with its date, in Order (an album's
     photos keep the order they have in the Studio; single photos gather under "More photos"), with an album bar to
@@ -63,4 +63,12 @@ with `npm run studio`.
   2026-10-16, so the Studio shows the site's text section by section.
 - The daily cron (`api/daily.ts`, 09:00 UTC) calls the deploy hook too, so class dates roll forward even with no
   edits. It needs `CRON_SECRET` and `VERCEL_DEPLOY_HOOK` in Vercel; without them it does nothing.
-- Publishing rebuilds the site through a Sanity webhook to the Vercel deploy hook `content-publish` (runbook 04, step 9).
+- Publishing rebuilds the site: the Sanity webhook `vercel-rebuild` (sanity.io/manage, API, Webhooks) POSTs to the
+  Vercel deploy hook of the project on every published-document change, one call per document, and Vercel builds
+  `main`. Draft edits do not fire it. `npx sanity hooks logs` lists the deliveries; a 201 from Vercel means a build was
+  queued. The build reads the live API, not the CDN, so it sees the publish that fired it.
+- The Studio signs in only from origins the project allows under CORS (sanity.io/manage, API, CORS origins):
+  `https://renseikan.org` and `http://localhost:3333` are set.
+- What stays in code on purpose, not in the Studio: assistive labels (aria-labels, the hero's description for screen
+  readers), the map placeholder, feed and calendar metadata, the schema.org data, the federation links and map
+  coordinates in `src/data/site.json` (pinned to the JACC listing), and the Japanese reading of the instructor's rank.
