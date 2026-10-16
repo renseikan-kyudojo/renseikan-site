@@ -19,7 +19,7 @@ export default defineType({
       type: 'string',
       title: 'Rank in plain words',
       description:
-        'For readers who don\'t know the ranks, e.g. "Holding 6th Degree Master Ranking with the distinction of Instructor". Kyudo has no belts.',
+        'For readers who don\'t know the ranks, e.g. "Sixth-degree black belt and certified instructor of the All Nippon Kyudo Federation". Kyudo has no belts.',
     }),
     defineField({
       name: 'credentials',
