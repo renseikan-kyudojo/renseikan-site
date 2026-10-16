@@ -123,7 +123,7 @@
       "directionsLink": "Directions",
       "federationLabel": "Federation",
       "federation": [
-        "The founding dojo of the [Northern California Kyudo Federation]({nckf}) (NCKF) and a member of the [American Kyudo Renmei]({akr})."
+        "The founding dojo of the [Northern California Kyudo Federation]({nckf}) (NCKF), which is a founding member of the [American Kyudo Renmei]({akr})."
       ]
     },
     "expect": {
@@ -135,19 +135,19 @@
           "_type": "stepItem",
           "kanji": "礼",
           "title": "Etiquette first",
-          "text": "Practice begins with a bow to the shajo (shooting hall). You learn how to enter the hall and where to stand before you handle a bow."
+          "text": "Practice begins with a bow to the shōmen, the front of the hall: the tokonoma (picture alcove) and the national flag. You learn how to enter the hall and where to stand before you draw a bow."
         },
         {
           "_type": "stepItem",
           "kanji": "型",
           "title": "Form before arrows",
-          "text": "You learn the eight stages of shooting (shahō hassetsu) with a rubber practice bow called a gomuyumi before you draw a real one. Wear loose clothing you can move in."
+          "text": "You learn the eight stages of shooting (shahō hassetsu) with a rubber practice bow called a gomuyumi. Then you draw a real bow without an arrow (subiki), first bare-handed and then wearing the glove. Wear loose clothing you can move freely in."
         },
         {
           "_type": "stepItem",
           "kanji": "的",
           "title": "Makiwara, then the mato",
-          "text": "Next come the glove and your first arrows at the makiwara. That is a straw target shot at close range. Once your form is steady you move on to the mato at 28 metres."
+          "text": "Your first arrows go to the makiwara, a straw target shot at close range. Once your form is steady you move on to the mato at 28 metres."
         }
       ]
     },
@@ -163,10 +163,10 @@
   },
   "about": {
     "seoTitle": "About",
-    "seoDescription": "What kyudo is, the dojo's name 練誠館 (Hall of Sincere Training), its history since the late 1970s, and its place in the Northern California Kyudo Federation and the American Kyudo Renmei.",
+    "seoDescription": "What kyudo is, the dojo's name 練誠館 (Hall of Sincere Training), its history since the mid-1970s, and its place in the Northern California Kyudo Federation and the American Kyudo Renmei.",
     "eyebrow": "About the dojo",
     "title": "練誠館, the Renseikan",
-    "lede": "Kyudo (弓道, \"the way of the bow\") is Japanese archery practised as a discipline: one arrow at a time, the same eight movements, the same breath. {name} teaches it every Sunday at the Japanese Art & Cultural Center (JACC) in San Jose, California.",
+    "lede": "Kyudo (弓道, \"the way of the bow\") is Japanese archery practised as a discipline: one arrow at a time, the same eight movements, the same breathing. {name} teaches it every Sunday at the Japanese Art & Cultural Center (JACC) in San Jose, California.",
     "sections": [
       {
         "_type": "textSection",
@@ -179,7 +179,7 @@
         "_type": "textSection",
         "title": "History",
         "body": [
-          "The Renseikan began as the San Jose Kyudo Club, formed in the late 1970s. The club was the original founding dojo of the [Northern California Kyudo Federation]({nckf}) (NCKF), which Japan accepted as a foreign *renmei* in 1981.",
+          "The Renseikan began as the San Jose Kyudo Club, formed in the mid-1970s. The club was the original founding dojo of the [Northern California Kyudo Federation]({nckf}) (NCKF), which Japan accepted as a foreign *renmei* in 1981.",
           "Sensei Steve Scott renamed the San Jose Kyudo Club the Renseikan in 2003, a few years after the Kurumi-an dojo in San Jose closed in 1999."
         ]
       },
@@ -187,14 +187,15 @@
         "_type": "textSection",
         "title": "What a class looks like",
         "body": [
-          "The dojo usually sets up three makiwara (straw practice targets shot at close range) and students take turns at them and at the mato 28 metres away. Beginners learn the eight stages of the shot (the *shahō hassetsu*) with a rubber practice bow called a gomuyumi before moving to a bow the dojo lends. Next come the glove and the first arrows at the makiwara. The mato comes once the form is steady. Nothing is rushed and a class has room for everyone to shoot."
+          "The dojo usually sets up three makiwara (straw practice targets shot at close range) and students take turns at them and at the mato 28 metres away. Beginners learn the eight stages of the shot (the *shahō hassetsu*) with a rubber practice bow called a gomuyumi, then draw one of the dojo's bows without an arrow (*subiki*), first bare-handed and then with the glove. The first arrows go to the makiwara, and the mato comes once the form is steady. Nothing is rushed and a class has room for everyone to shoot.",
+          "Members who have been invited also practise on Saturdays at Redwood Kyudojo."
         ]
       },
       {
         "_type": "textSection",
         "title": "Affiliation",
         "body": [
-          "Renseikan is the founding dojo of the [Northern California Kyudo Federation]({nckf}) (NCKF) and a member of the [American Kyudo Renmei]({akr})."
+          "Renseikan, formerly the San Jose Kyudo Club, is the founding dojo of the [Northern California Kyudo Federation]({nckf}) (NCKF), which is a founding member of the [American Kyudo Renmei]({akr})."
         ]
       }
     ]
@@ -209,13 +210,13 @@
     "wear": {
       "title": "What to wear and bring",
       "body": [
-        "Loose clothing you can kneel in and socks. The dojo lends the bow, glove and arrows for the first lessons."
+        "Loose clothing you can kneel in and socks. The dojo provides the bow, glove and arrows during practice, so there is nothing to buy to start."
       ]
     }
   },
   "join": {
     "seoTitle": "Joining the dojo",
-    "seoDescription": "How to start kyudo at {name}: a free first lesson with no booking, then regular {days} classes through JACC. What the dojo lends and what it costs.",
+    "seoDescription": "How to start kyudo at {name}: a free first lesson with no booking, then regular {days} classes through JACC. What the dojo provides and what it costs.",
     "eyebrow": "Joining",
     "title": "From your first lesson on",
     "lede": "{policy}",
@@ -224,7 +225,7 @@
         "_type": "textSection",
         "title": "Your first lesson",
         "body": [
-          "Walk in during any class, {days} {hours}, at the Japanese Art & Cultural Center. It is free, there is nothing to book and nothing to bring beyond loose clothing you can kneel in and socks. You will learn how to enter the hall, the eight stages of the shot with a practice bow, and, if the form settles, your first arrows at the makiwara."
+          "Walk in during any class, {days} {hours}, at the Japanese Art & Cultural Center. It is free, there is nothing to book and nothing to bring beyond loose clothing you can kneel in and socks. You will learn how to enter the hall and the eight stages of the shot with a rubber practice bow. Over the following lessons you draw a real bow without an arrow, then with the glove, and then shoot your first arrows at the makiwara."
         ]
       },
       {
@@ -238,7 +239,7 @@
         "_type": "textSection",
         "title": "Equipment",
         "body": [
-          "The dojo lends the bow, glove and arrows for the first lessons. When you are ready for your own, the instructor will help you choose a glove and a bow that fits your draw."
+          "The dojo provides the bow, glove and arrows during practice; they stay at the dojo. There is no hurry to buy your own: the glove has to fit your hand, and the bow and arrows have to fit your body, so the instructor will help you choose them when you are ready."
         ]
       }
     ],
@@ -286,7 +287,7 @@
       {
         "question": "Do I need any experience?",
         "answer": [
-          "No. Most people who walk in have never held a bow. The first lessons are about posture, breathing and the sequence of the shot, with a rubber practice bow before a real one."
+          "No. Most people who walk in have never held a bow. The first lessons are about posture, breathing and the sequence of the shot: a rubber practice bow first, then a real bow drawn without an arrow, then the glove and the first arrows."
         ]
       },
       {
@@ -299,7 +300,9 @@
       },
       {
         "question": "Do I need my own bow?",
-        "answer": ["No. The dojo lends the bow, glove and arrows for the first lessons."]
+        "answer": [
+          "No. The dojo provides the bow, glove and arrows during practice. Your own come later, chosen with the instructor to fit you."
+        ]
       },
       {
         "question": "Do I have to book?",
@@ -310,7 +313,7 @@
       {
         "question": "When do I shoot at the target?",
         "answer": [
-          "First at the makiwara, a straw target shot at close range, once the glove and the form are in place. The mato at 28 metres comes once the form is steady. Nothing is rushed."
+          "First at the makiwara, a straw target shot at close range, once you can draw a real bow with the glove and the form is in place. The mato at 28 metres comes once the form is steady. Nothing is rushed."
         ]
       },
       {
@@ -367,20 +370,20 @@
       "affiliation": "所属"
     },
     "daysText": "毎週{days}、{hours}",
-    "affiliation": "北カリフォルニア弓道連盟（NCKF）創設道場、米国弓道連盟（AKR）会員",
+    "affiliation": "北カリフォルニア弓道連盟（NCKF）創設道場。NCKFは米国弓道連盟（AKR）の創設メンバーです。",
     "sections": [
       {
         "_type": "textSection",
         "title": "はじめての方へ",
         "body": [
-          "稽古の時間中にそのままお越しください。はじめは射場への入り方と礼法、ゴム弓での射法八節から始めます。道場の弓・ゆがけ・矢をお貸しします。動きやすい服装と靴下でお越しください。"
+          "稽古の時間中にそのままお越しください。はじめは射場への入り方と礼法、ゴム弓での射法八節から始め、素引き、ゆがけをつけての素引きを経て、巻藁で初めて矢を射ます。弓・ゆがけ・矢は稽古中に道場のものを使います。動きやすい服装と靴下でお越しください。"
         ]
       },
       {
         "_type": "textSection",
         "title": "道場について",
         "body": [
-          "練誠館は1970年代後半にサンノゼ弓道クラブとして始まり、1981年に日本から外国連盟として認められた北カリフォルニア弓道連盟の創設道場です。2003年にスコット先生が練誠館と改名しました。"
+          "練誠館は1970年代半ばにサンノゼ弓道クラブとして始まり、1981年に日本から外国連盟として認められた北カリフォルニア弓道連盟の創設道場です。2003年にスコット先生が練誠館と改名しました。"
         ]
       }
     ],
