@@ -3,7 +3,8 @@
 // the paper overlay and the site script. Every page uses this.
 import '../styles/site.css';
 import { getSite, getClasses, daysLabel } from '../lib/sanity';
-const [site, classes] = await Promise.all([getSite(), getClasses()]);
+import { getShared } from '../lib/pages';
+const [site, classes, shared] = await Promise.all([getSite(), getClasses(), getShared()]);
 const days = daysLabel(classes);
 // schema.org opening hours from the weekly classes ("4:00 pm" -> "16:00"); the Dojo settings hours fill a blank start/end
 const to24 = (t: string, fallbackMeridiem: string) => {
@@ -34,24 +35,10 @@ const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.t
 // build.format 'file' makes the pathname '/about.html'; strip it so canonical, og:url and aria-current use the
 // clean URL that Vercel serves (cleanUrls in vercel.json).
 const path = Astro.url.pathname.replace(/(index)?\.html$/, '').replace(/\/$/, '') || '/';
-const links = [
-  ['/about', 'About'],
-  ['/classes', 'Classes'],
-  ['/join', 'Join'],
-  ['/instructor', 'Instructor'],
-  ['/gallery', 'Gallery'],
-  ['/news', 'News'],
-  ['/visit', 'Visit'],
-];
-const footLinks = [
-  ['/faq', 'Questions'],
-  ['/join', 'Joining'],
-  ['/ja', '日本語'],
-  ['/classes.ics', 'Class calendar'],
-  ['/rss.xml', 'Feed'],
-  ...(site.instagram ? [[site.instagram, 'Instagram']] : []),
-  [site.links.nckf, 'NCKF'],
-];
+// the menu and footer links from "Navigation and shared text"; a footer link whose address came out blank (an
+// {instagram} placeholder with no URL set) is left out
+const links = shared.nav.filter((l) => l.href && l.label).map((l) => [l.href, l.label]);
+const footLinks = shared.footerLinks.filter((l) => l.href && l.label).map((l) => [l.href, l.label]);
 const canonical = new URL(path === '/' ? '/' : path, Astro.site);
 const a = site.address;
 const addressLine = `${a.street}, ${a.city}, ${a.region} ${a.postalCode}`;
@@ -139,7 +126,7 @@ const addressLine = `${a.street}, ${a.city}, ${a.region} ${a.postalCode}`;
   </head>
   <body>
     <a class="skip" href="#main">
-      Skip to content
+      {shared.skipLink}
     </a>
     <nav class="nav" aria-label="Main">
       <div class="wrap">
@@ -157,7 +144,7 @@ const addressLine = `${a.street}, ${a.city}, ${a.region} ${a.postalCode}`;
           ))}
         </ul>
         <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu">
-          Menu
+          {shared.menuLabel}
         </button>
         <button
           class="theme-btn"
@@ -175,7 +162,7 @@ const addressLine = `${a.street}, ${a.city}, ${a.region} ${a.postalCode}`;
             <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
           </svg>
           <span class="theme-label" aria-hidden="true">
-            Theme
+            {shared.themeLabel}
           </span>
         </button>
       </div>

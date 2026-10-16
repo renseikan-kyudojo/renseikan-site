@@ -4,6 +4,7 @@
 import { Image } from 'astro:assets';
 import steve from '../assets/people/steve-scott.jpg';
 import type { Instructor } from '../lib/sanity';
+import { getShared } from '../lib/pages';
 interface Props {
   person: Instructor;
   headingTag?: 'h2' | 'h3';
@@ -12,6 +13,7 @@ interface Props {
 const { person: t, headingTag, eager = false } = Astro.props;
 const Heading = headingTag ?? 'h2';
 const loading = eager ? 'eager' : 'lazy';
+const shared = await getShared();
 ---
 
 <article class="card">
@@ -43,7 +45,7 @@ const loading = eager ? 'eager' : 'lazy';
     </div>
   )}
   <div>
-    <p class="eyebrow">{t.title || 'Instructor'}</p>
+    <p class="eyebrow">{t.title || shared.instructorTitle}</p>
     <Heading>{t.name}</Heading>
     {t.rank && (
       <p class="rank">
@@ -62,7 +64,7 @@ const loading = eager ? 'eager' : 'lazy';
       <p>
         <span class="small">{t.email}</span>
         <button class="copy" type="button" data-copy={t.email}>
-          Copy
+          {shared.copyLabel}
         </button>
       </p>
     )}

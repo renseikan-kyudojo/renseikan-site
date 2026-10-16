@@ -2,7 +2,7 @@
 
 The website of Renseikan Kyudojo, a kyudo (Japanese archery) dojo in San Jose, California. A static
 [Astro](https://astro.build) site on Vercel, with a [Sanity](https://www.sanity.io) Studio at `/studio` where the dojo
-edits its facts, instructors, classes and events.
+edits its facts, instructors, classes and events, and every page's text section by section.
 
 ## Run it
 
@@ -34,9 +34,12 @@ CI (`.github/workflows/ci.yml`) runs all of the above on every pull request; Ver
 | `src/pages/`                   | One file per page: home, about, classes, instructor, visit, news, 404                                                                                           |
 | `src/layouts/Base.astro`       | Head, nav, `<main>`, footer, the site script; used by every page                                                                                                |
 | `src/lib/sanity.ts`            | Reads settings, instructors, classes and events from Sanity, with `site.json` fallbacks                                                                         |
+| `src/lib/pages.ts`             | Each page's copy from its Studio document over `pages.json`, with `{placeholders}` filled from the facts                                                        |
+| `src/lib/copy.js`              | Shared by the Studio, the build and the seed script: light markup to Portable Text, placeholders, fill-blanks patches                                           |
 | `src/components/`              | Hero, Bento, Steps, ClassList, BookingPanel, InstructorCard, VisitBlock, PageHeader, SectionTitle, BrushMark                                                    |
 | `src/lib/format.ts`            | Small text helpers (`src/lib/format.ts`)                                                                                                                        |
 | `src/data/site.json`           | The dojo's facts as shipped; the Studio's values override them                                                                                                  |
+| `src/data/pages.json`          | Every page's words as shipped (titles, ledes, sections, labels); the Studio's page documents override them                                                      |
 | `src/styles/site.css`          | All styles; self-hosted font faces and design tokens at the top                                                                                                 |
 | `src/lib/ink/`                 | The ink libraries as ES modules: logo (the mark in motion), brush (live ink), wind (the petals)                                                                 |
 | `src/scripts/`                 | `site.js` (theme, menu, copy, reveals, class dates, map), `home.js` (wind, painted hero), `gallery.js` (viewer, reveals), `marks.js` (brush marks under titles) |
@@ -44,6 +47,7 @@ CI (`.github/workflows/ci.yml`) runs all of the above on every pull request; Ver
 | `public/fonts/`, `public/ink/` | Subset WOFF2 files; the brushed rule, stamp and grain masks                                                                                                     |
 | `brand/`                       | Logo source SVGs the site does not use (not deployed)                                                                                                           |
 | `sanity/`                      | Studio schema, menu and actions; `sanity/project.ts` names the project once                                                                                     |
+| `scripts/seed-content.mjs`     | Puts the shipped text into the Studio (`npm run seed`, needs `SANITY_WRITE_TOKEN`); fills blanks, never overwrites                                              |
 | `api/daily.ts`                 | Vercel cron: rebuilds daily so class dates roll forward                                                                                                         |
 | `docs/`                        | The site audit and plan                                                                                                                                         |
 

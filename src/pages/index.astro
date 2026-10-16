@@ -1,5 +1,6 @@
 ---
-// Home: hero, the dojo at a glance, what to expect, classes and booking, the instructor, visit.
+// Home: hero, the dojo at a glance, what to expect, classes and booking, the instructor, visit. The words of every
+// section come from the Home page document in the Studio (src/lib/pages.ts); the facts from Dojo settings.
 import Base from '../layouts/Base.astro';
 import BrushMarkDefs from '../components/BrushMarkDefs.astro';
 import Hero from '../components/Hero.astro';
@@ -11,12 +12,14 @@ import BookingPanel from '../components/BookingPanel.astro';
 import InstructorCard from '../components/InstructorCard.astro';
 import VisitBlock from '../components/VisitBlock.astro';
 import { getSite, getInstructors, getClasses, getClassDates, daysLabel } from '../lib/sanity';
+import { getPage } from '../lib/pages';
 
-const [site, instructors, classes, dates] = await Promise.all([
+const [site, instructors, classes, dates, copy] = await Promise.all([
   getSite(),
   getInstructors(),
   getClasses(),
   getClassDates(),
+  getPage('home'),
 ]);
 const chief = instructors[0];
 const days = daysLabel(classes);
@@ -24,26 +27,26 @@ const days = daysLabel(classes);
 
 <Base>
   <BrushMarkDefs />
-  <Hero site={site} />
+  <Hero copy={copy.hero} />
 
   <section id="about" aria-labelledby="about-title">
     <div class="wrap">
       <div class="about-mon" id="aboutMon" aria-hidden="true"></div>
-      <SectionTitle id="about-title" title="The dojo at a glance" />
-      <Bento site={site} days={days} chief={chief} />
+      <SectionTitle id="about-title" title={copy.glance.title} />
+      <Bento site={site} days={days} chief={chief} copy={copy.glance} />
     </div>
   </section>
 
   <section id="expect" aria-labelledby="expect-title">
     <div class="wrap">
-      <SectionTitle id="expect-title" title="Beginning Your Kyudo Journey" />
-      <Steps />
+      <SectionTitle id="expect-title" title={copy.expect.title} />
+      <Steps copy={copy.expect} />
     </div>
   </section>
 
   <section id="classes" aria-labelledby="classes-title">
     <div class="wrap">
-      <SectionTitle id="classes-title" title="Coming up" />
+      <SectionTitle id="classes-title" title={copy.classes.title} />
       <div class="two">
         <ClassList dates={dates} />
         <BookingPanel site={site} />
@@ -53,14 +56,14 @@ const days = daysLabel(classes);
 
   <section id="instructor" aria-labelledby="instr-title">
     <div class="wrap">
-      <SectionTitle id="instr-title" title="Who teaches here" />
+      <SectionTitle id="instr-title" title={copy.instructor.title} />
       <InstructorCard person={chief} headingTag="h3" />
     </div>
   </section>
 
   <section id="visit" aria-labelledby="visit-title">
     <div class="wrap">
-      <SectionTitle id="visit-title" title="Visit the dojo" />
+      <SectionTitle id="visit-title" title={copy.visit.title} />
       <VisitBlock site={site} days={days} />
     </div>
   </section>

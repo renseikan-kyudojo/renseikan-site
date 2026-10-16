@@ -6,8 +6,10 @@ import { schemaTypes } from './sanity/schemas';
 import { structure } from './sanity/structure';
 import { FillFromSite } from './sanity/actions/fillFromSite';
 import { SANITY_PROJECT_ID, SANITY_DATASET } from './sanity/project';
+import { pageTypeNames } from './sanity/schemas/pages';
 
-const SINGLETONS = new Set(['settings']);
+// one document each: Dojo settings and every page's copy
+const SINGLETONS = new Set(['settings', ...pageTypeNames]);
 
 export default defineConfig({
   name: 'renseikan',
@@ -17,11 +19,11 @@ export default defineConfig({
   plugins: [structureTool({ structure })],
   schema: {
     types: schemaTypes,
-    // "Dojo settings" is one document: hide it from the "create new" menu
+    // the singletons are one document each: hide them from the "create new" menu
     templates: (templates) => templates.filter(({ schemaType }) => !SINGLETONS.has(schemaType)),
   },
   document: {
-    // allow only publish / discard / restore on it (no duplicate or delete); settings and instructors also get
+    // allow only publish / discard / restore on them (no duplicate or delete); they and the instructor also get
     // "Fill blanks with the site's current text" (sanity/actions/fillFromSite.ts)
     actions: (input, { schemaType }) => {
       if (SINGLETONS.has(schemaType))

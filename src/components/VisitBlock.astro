@@ -1,24 +1,28 @@
 ---
-// Hours, address and contact beside the map; site.js swaps the placeholder for the Google Maps embed.
+// Hours, address and contact beside the map; site.js swaps the placeholder for the Google Maps embed. The labels come
+// from "Navigation and shared text" in the Studio; the facts from Dojo settings and Classes.
 import type { Site } from '../lib/sanity';
+import { getShared } from '../lib/pages';
 interface Props {
   site: Site;
   days: string;
 }
 const { site, days } = Astro.props;
 const a = site.address;
+const shared = await getShared();
+const copy = shared.visit;
 ---
 
 <div class="two">
   <dl>
     <div class="row">
-      <dt>Hours</dt>
+      <dt>{copy.hoursLabel}</dt>
       <dd>
         {days}, <span class="nowrap">{site.hours}</span>
       </dd>
     </div>
     <div class="row">
-      <dt>Address</dt>
+      <dt>{copy.addressLabel}</dt>
       <dd>
         {a.venue}
         <br />
@@ -28,11 +32,11 @@ const a = site.address;
       </dd>
     </div>
     <div class="row">
-      <dt>Contact</dt>
+      <dt>{copy.contactLabel}</dt>
       <dd>
         <span>{site.email}</span>
         <button class="copy" type="button" data-copy={site.email}>
-          Copy
+          {shared.copyLabel}
         </button>
       </dd>
     </div>
@@ -43,10 +47,10 @@ const a = site.address;
     </div>
     <p class="links">
       <a href={site.mapsSearch} target="_blank" rel="noopener">
-        Open in Google Maps
+        {copy.mapLink}
       </a>
       <a href={site.mapsDirections} target="_blank" rel="noopener">
-        Directions
+        {copy.directionsLink}
       </a>
     </p>
   </div>

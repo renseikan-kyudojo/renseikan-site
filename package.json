@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:smoke": "playwright test",
-    "studio": "sanity dev"
+    "studio": "sanity dev",
+    "seed": "node scripts/seed-content.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",

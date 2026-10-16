@@ -1,18 +1,21 @@
 ---
+// Not found. The words come from the Not-found page document in the Studio.
 import Base from '../layouts/Base.astro';
+import { getPage } from '../lib/pages';
+const copy = await getPage('notFound');
 ---
 
-<Base title="Not found" description="That page is not here.">
+<Base title={copy.seoTitle} description={copy.seoDescription}>
   <section class="page nf" aria-labelledby="nf-title">
     <div class="wrap">
       <div id="nfMon" class="nf-mon" aria-hidden="true"></div>
       <h1 id="nf-title" class="page-title">
-        That page is not here
+        {copy.title}
       </h1>
       <p class="muted">
-        The arrow went past the target.{' '}
+        {copy.text}{' '}
         <a class="nf-link" href="/">
-          Back to the dojo
+          {copy.linkLabel}
         </a>
         .
       </p>

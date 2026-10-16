@@ -1,9 +1,10 @@
 ---
 // One event: date and place, details from the Studio, a registration button if there is one, "add to calendar",
-// and schema.org Event data.
+// and schema.org Event data. The labels come from the News page document in the Studio.
 import Base from '../../layouts/Base.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import { getAllEvents, getSite } from '../../lib/sanity';
+import { getPage } from '../../lib/pages';
 import { toHtml } from '../../lib/portable';
 import { when, googleCalendarUrl } from '../../lib/format';
 import type { Ev } from '../../lib/sanity';
@@ -16,7 +17,7 @@ interface Props {
   event: Ev;
 }
 const { event: e } = Astro.props;
-const site = await getSite();
+const [site, copy] = await Promise.all([getSite(), getPage('news')]);
 const place = e.place || site.address.venue;
 const schema = {
   '@context': 'https://schema.org',
@@ -42,7 +43,11 @@ const schema = {
   <article>
     <section class="page" aria-labelledby="event-title">
       <div class="wrap">
-        <PageHeader eyebrow={e.kind && e.kind !== 'Other' ? e.kind : 'Event'} title={e.title} id="event-title">
+        <PageHeader
+          eyebrow={e.kind && e.kind !== 'Other' ? e.kind : copy.eventPage.eventEyebrow}
+          title={e.title}
+          id="event-title"
+        >
           <p class="lede">
             <time datetime={e.date}>{when(e.date)}</time>
             {e.endDate && e.endDate !== e.date && (
@@ -72,14 +77,14 @@ const schema = {
         <div class="actions">
           {e.registrationUrl && (
             <a class="btn primary" href={e.registrationUrl} target="_blank" rel="noopener">
-              Register
+              {copy.eventPage.registerLabel}
             </a>
           )}
           <a class="btn secondary" href={googleCalendarUrl(e, place)} target="_blank" rel="noopener">
-            Add to Google Calendar
+            {copy.eventPage.calendarLabel}
           </a>
           <a class="btn quiet" href="/news">
-            All news and events
+            {copy.eventPage.backLabel}
           </a>
         </div>
       </div>

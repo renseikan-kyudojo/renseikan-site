@@ -1,6 +1,7 @@
 ---
 // Gallery: photos uploaded in the Studio (Albums and single Gallery photos), in their Order, each album under its own
-// heading. Until there are any, the page says so and points to Instagram when the dojo has set its URL.
+// heading. Until there are any, the page says so and points to Instagram when the dojo has set its URL. The words
+// come from the Gallery page document in the Studio.
 // The grid lays photos in justified rows (each keeps its shape; rows fill the width) over a blurred preview while they
 // load; each album is a section title, wiped on with its red brush mark. Selecting a photo opens the viewer
 // (src/scripts/gallery.js): every photo on the page, full screen, swipe or arrow keys to move. Without the script each
@@ -11,8 +12,11 @@ import PageHeader from '../components/PageHeader.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import BrushMarkDefs from '../components/BrushMarkDefs.astro';
 import { getSite, getPhotos, type Photo } from '../lib/sanity';
+import { getPage } from '../lib/pages';
+import { fill } from '../lib/copy.js';
+import { toInlineHtml } from '../lib/portable';
 import { when } from '../lib/format';
-const [site, photos] = await Promise.all([getSite(), getPhotos()]);
+const [site, photos, copy] = await Promise.all([getSite(), getPhotos(), getPage('gallery')]);
 const src = (url: string, w: number) => `${url}?w=${w}&auto=format&q=80`;
 
 // Consecutive photos from the same album form one group; single photos between albums form an untitled one. With no
@@ -36,30 +40,25 @@ const slug = (t: string) =>
     .replace(/(^-|-$)/g, '');
 const count = (n: number) => `${n} photo${n === 1 ? '' : 's'}`;
 const sections = groups.map((g, gi) => {
-  const heading = g.title || (titled ? 'More photos' : undefined);
+  const heading = g.title || (titled ? copy.moreTitle : undefined);
   return { ...g, heading, id: heading ? `album-${slug(heading)}-${gi}` : undefined };
 });
 // Each photo's place across the whole page: the viewer moves through all of them, album after album.
 let n = 0;
 const indexed = sections.map((s) => ({ ...s, photos: s.photos.map((p) => ({ ...p, index: n++ })) }));
 const alt = (p: Photo, album?: string) => p.caption || `Photograph from ${site.name}${album ? `: ${album}` : ''}`;
+const intro = fill(copy.intro, {
+  count: count(photos.length),
+  albums: titled ? ` in ${sections.length} album${sections.length === 1 ? '' : 's'}` : '',
+});
 ---
 
-<Base
-  title="Gallery"
-  description={`Photographs from ${site.name}: the hall, the makiwara, the mato, taikai and seminars.`}
->
+<Base title={copy.seoTitle} description={copy.seoDescription}>
   <BrushMarkDefs />
   <section id="gallery-page" class="page" aria-labelledby="gallery-title">
     <div class="wrap">
       <PageHeader eyebrow="Gallery" title="The dojo in pictures" id="gallery-title">
-        {photos.length > 0 && (
-          <p class="muted gallery-intro">
-            {count(photos.length)}
-            {titled && ` in ${sections.length} album${sections.length === 1 ? '' : 's'}`}. Select a photo to see it full
-            size; swipe or use the arrow keys to move through them.
-          </p>
-        )}
+        {photos.length > 0 && <p class="muted gallery-intro">{intro}</p>}
       </PageHeader>
     </div>
     {photos.length > 0 && sections.length > 1 && (
@@ -139,16 +138,7 @@ const alt = (p: Photo, album?: string) => p.caption || `Photograph from ${site.n
         ))
       ) : (
         <p class="muted">
-          Photographs are on their way.{' '}
-          {site.instagram && (
-            <span>
-              Until then, the dojo posts on{' '}
-              <a href={site.instagram} rel="noopener">
-                Instagram
-              </a>
-              .
-            </span>
-          )}
+          {copy.empty} {site.instagram && <span set:html={toInlineHtml(copy.instagram)} />}
         </p>
       )}
     </div>

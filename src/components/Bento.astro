@@ -1,13 +1,17 @@
 ---
-// The dojo at a glance: hours, the chief instructor, where, and the federation, as four tiles.
+// The dojo at a glance: hours, the chief instructor, where, and the federation, as four tiles. The labels and the
+// federation text come from the Home page document in the Studio.
 import { shortVenue } from '../lib/format';
+import { toInlineHtml } from '../lib/portable';
 import type { Site, Instructor } from '../lib/sanity';
+import type { Pages } from '../lib/pages';
 interface Props {
   site: Site;
   days: string;
   chief: Instructor;
+  copy: Pages['home']['glance'];
 }
-const { site, days, chief } = Astro.props;
+const { site, days, chief, copy } = Astro.props;
 const a = site.address;
 // the short line under the name: rank, then credentials (the first usually repeats the title, so the tile skips it)
 const rank = [chief.rank, chief.rankPlain].filter(Boolean).join(' · ');
@@ -20,23 +24,23 @@ const line = [rank, ...creds]
 
 <div class="bento">
   <div class="tile wide ink">
-    <span class="label">Class hours</span>
+    <span class="label">{copy.hoursLabel}</span>
     <span class="big">
       {days} <span class="nowrap">{site.hours}</span>
     </span>
   </div>
   <div class="tile tall">
-    <span class="label">Chief Instructor</span>
+    <span class="label">{copy.instructorLabel}</span>
     <div>
       <span class="name">{chief.name}</span>
       <p class="small muted tile-sub">{line}</p>
     </div>
     <a class="btn quiet" href="#instructor">
-      About the instructor
+      {copy.instructorLink}
     </a>
   </div>
   <div class="tile take tall">
-    <span class="label">Where</span>
+    <span class="label">{copy.whereLabel}</span>
     <address>
       <span class="addr">{shortVenue(a.venue)}</span>
       {a.street}
@@ -45,26 +49,16 @@ const line = [rank, ...creds]
     </address>
     <p class="links">
       <a href={site.mapsSearch} target="_blank" rel="noopener">
-        Map
+        {copy.mapLink}
       </a>
       <a href={site.mapsDirections} target="_blank" rel="noopener">
-        Directions
+        {copy.directionsLink}
       </a>
     </p>
   </div>
   <div class="tile wide">
-    <span class="label">Federation</span>
-    <span>
-      The founding dojo of the{' '}
-      <a href={site.links.nckf} rel="noopener">
-        Northern California Kyudo Federation
-      </a>{' '}
-      (NCKF) and a member of the{' '}
-      <a href={site.links.akr} rel="noopener">
-        American Kyudo Renmei
-      </a>
-      .
-    </span>
+    <span class="label">{copy.federationLabel}</span>
+    <span set:html={toInlineHtml(copy.federation)} />
     <img
       class="nckf-mon"
       src="/logo/nckf-mon.webp"

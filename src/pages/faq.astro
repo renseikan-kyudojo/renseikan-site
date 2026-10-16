@@ -1,55 +1,15 @@
 ---
-// Questions new students ask. Entries come from the Studio (FAQ); these built-in ones show until the first is
-// published. Rendered as <details> so every answer is reachable without JS, with FAQPage schema.org data.
+// Questions new students ask. Entries come from the Studio (FAQ entries); the built-in ones in src/data/pages.json
+// show until the first is published. Rendered as <details> so every answer is reachable without JS, with FAQPage
+// schema.org data. Placeholders such as {days} in an answer are filled in like everywhere else.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
-import { getSite, getClasses, daysLabel, getFaqs, type Faq } from '../lib/sanity';
-import { toHtml, toText } from '../lib/portable';
-const [site, classes] = await Promise.all([getSite(), getClasses()]);
-const days = daysLabel(classes);
-const p = (text: string): Faq['answer'] => [{ _type: 'block', style: 'normal', children: [{ _type: 'span', text }] }];
-const builtIn: Faq[] = [
-  {
-    question: 'Do I need any experience?',
-    answer: p(
-      'No. Most people who walk in have never held a bow. The first lessons are about posture, breathing and the sequence of the shot, with a rubber practice bow before a real one.',
-    ),
-  },
-  {
-    question: 'How much does the first lesson cost?',
-    answer: p(
-      'Nothing. The first lesson is free and needs no booking: come to any class, ' + days + ' ' + site.hours + '.',
-    ),
-  },
-  {
-    question: 'What should I wear?',
-    answer: p('Loose clothing you can kneel and raise your arms in, and socks. No uniform is needed to start.'),
-  },
-  {
-    question: 'Do I need my own bow?',
-    answer: p('No. The dojo lends the bow, glove and arrows for the first lessons.'),
-  },
-  {
-    question: 'Do I have to book?',
-    answer: p(
-      'New students do not. Members reserve their place through the Japanese Art & Cultural Center on WellnessLiving.',
-    ),
-  },
-  {
-    question: 'When do I shoot at the target?',
-    answer: p(
-      'First at the makiwara, a straw target shot at close range, once the glove and the form are in place. The mato at 28 metres comes once the form is steady. Nothing is rushed.',
-    ),
-  },
-  {
-    question: 'Where is the dojo?',
-    answer: p(
-      `${site.address.venue}, ${site.address.street}, ${site.address.city}, ${site.address.region} ${site.address.postalCode}. The Visit page has the map and directions.`,
-    ),
-  },
-  { question: 'Who can I ask?', answer: p(`Email ${site.email}, or ask the instructor at your first class.`) },
-];
-const faqs = await getFaqs(builtIn);
+import { getFaqs } from '../lib/sanity';
+import { getPage, getVars, defaults } from '../lib/pages';
+import { fillDeep } from '../lib/copy.js';
+import { toHtml, toInlineHtml, toText } from '../lib/portable';
+const [copy, vars] = await Promise.all([getPage('faq'), getVars()]);
+const faqs = fillDeep(await getFaqs(defaults.faq.entries), vars);
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -61,17 +21,12 @@ const schema = {
 };
 ---
 
-<Base
-  title="Questions"
-  description={`Answers for new students at ${site.name}: experience, cost, what to wear, equipment, booking, where the dojo is.`}
->
+<Base title={copy.seoTitle} description={copy.seoDescription}>
   <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
   <section id="faq-page" class="page" aria-labelledby="faq-title">
     <div class="wrap">
-      <PageHeader eyebrow="Questions" title="What new students ask" id="faq-title">
-        <p class="lede">
-          If yours is not here, email <a href={`mailto:${site.email}`}>{site.email}</a>.
-        </p>
+      <PageHeader eyebrow={copy.eyebrow} title={copy.title} id="faq-title">
+        <p class="lede" set:html={toInlineHtml(copy.lede)} />
       </PageHeader>
       <div class="faq">
         {faqs.map((f) => (

@@ -1,7 +1,9 @@
 ---
 // Members' booking: the WellnessLiving widget once an embed code is pasted in Dojo settings, and always the button.
 // The embed is the one piece of raw HTML on the site; it comes from the Studio, which only the dojo can sign in to.
+// The words come from "Navigation and shared text" in the Studio.
 import type { Site } from '../lib/sanity';
+import { getShared } from '../lib/pages';
 interface Props {
   site: Site;
   headingTag?: 'h2' | 'h3';
@@ -9,28 +11,26 @@ interface Props {
 const { site, headingTag } = Astro.props;
 const Heading = headingTag ?? 'h2';
 const embed = site.widgetEmbed?.trim();
+const copy = (await getShared()).booking;
 ---
 
 <div class="panel" id="book">
-  <p class="eyebrow">Members' booking</p>
-  <Heading>Book a class</Heading>
-  <p class="muted panel-lede">
-    New students don't need to book. Members reserve their place through the Japanese Art &amp; Cultural Center (JACC)
-    schedule on WellnessLiving.
-  </p>
+  <p class="eyebrow">{copy.eyebrow}</p>
+  <Heading>{copy.title}</Heading>
+  <p class="muted panel-lede">{copy.lede}</p>
   {embed && (
     <div class="widget-slot" data-widget aria-label="Members' class schedule from WellnessLiving">
       <div class="loading" aria-live="polite">
         <span class="breath" id="bookBreath" aria-hidden="true" />
-        <span>Loading the schedule from WellnessLiving…</span>
+        <span>{copy.loading}</span>
       </div>
       <Fragment set:html={embed} />
     </div>
   )}
   <div class="actions center">
     <a class="btn primary" href={site.booking} target="_blank" rel="noopener">
-      Book on WellnessLiving
+      {copy.button}
     </a>
-    <p class="note">Opens the JACC schedule in a new tab.</p>
+    <p class="note">{copy.note}</p>
   </div>
 </div>

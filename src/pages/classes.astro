@@ -1,27 +1,26 @@
 ---
+// Classes: the next dates, what to wear, and booking. The words come from the Classes page document in the Studio.
 import Base from '../layouts/Base.astro';
 import PageHeader from '../components/PageHeader.astro';
 import ClassList from '../components/ClassList.astro';
 import BookingPanel from '../components/BookingPanel.astro';
-import { getSite, getClasses, getClassDates, daysLabel } from '../lib/sanity';
-const [site, classes, dates] = await Promise.all([getSite(), getClasses(), getClassDates()]);
-const days = daysLabel(classes);
+import { getSite, getClassDates } from '../lib/sanity';
+import { getPage } from '../lib/pages';
+import { toHtml } from '../lib/portable';
+const [site, dates, copy] = await Promise.all([getSite(), getClassDates(), getPage('classes')]);
 ---
 
-<Base
-  title="Classes and booking"
-  description={`Kyudo classes ${days} ${site.hours} at JACC in San Jose. New students walk in; members book through JACC on WellnessLiving.`}
->
+<Base title={copy.seoTitle} description={copy.seoDescription}>
   <section id="classes-page" class="page" aria-labelledby="classes-title">
     <div class="wrap">
-      <PageHeader eyebrow="Classes" title={`${days}, ${site.hours}`} id="classes-title">
+      <PageHeader eyebrow={copy.eyebrow} title={copy.title} id="classes-title">
         <div class="kanji page-kanji" id="pageKanji" lang="ja" aria-hidden="true"></div>
-        <p class="lede">{site.policy}</p>
+        <p class="lede">{copy.lede}</p>
       </PageHeader>
-      <h3>Coming up</h3>
+      <h3>{copy.comingUpTitle}</h3>
       <ClassList dates={dates} />
-      <h3>What to wear and bring</h3>
-      <p>Loose clothing you can kneel in and socks. The dojo lends the bow, glove and arrows for the first lessons.</p>
+      <h3>{copy.wear.title}</h3>
+      <Fragment set:html={toHtml(copy.wear.body)} />
       <BookingPanel site={site} headingTag="h3" />
     </div>
   </section>
